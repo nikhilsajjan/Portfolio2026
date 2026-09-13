@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nikhil sajjan</title>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get('theme');
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      var t = q || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@600&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* ---------- Custom fonts: drop files in ./fonts and declare them here ---------- */
+    @font-face {
+      font-family: 'Redaction 100';
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+      src: local('Redaction 100 Bold'), local('Redaction100-Bold'),
+           url('fonts/Redaction100-Bold.otf') format('opentype');
+    }
+
+    /* ---------- Theme tokens (from Figma) ---------- */
+    :root {
+      --bg: #ffffff;
+      --bg-desktop: #ececec;
+      --dot: #d7d7d7;
+      --name: #242424;
+      --subtitle: #7b7b7b;
+      --body: #4f4f4f;
+      --heading: #393939;
+      --muted: #a7a7a7;
+      --year: #919191;
+      --footer: #656565;
+    }
+    [data-theme="dark"] {
+      --bg: #242424;
+      --bg-desktop: #242424;
+      --dot: #4f4f4f;
+      --name: #f2f2f2;
+      --subtitle: #cccccc;
+      --body: #e5e5e5;
+      --heading: #f2f2f2;
+      --muted: #a7a7a7;
+      --year: #b2b2b2;
+      --footer: #d8d8d8;
+    }
+
+    /* ---------- Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Roboto Mono', ui-monospace, monospace;
+      font-weight: 400;
+      background: var(--bg);
+      color: var(--body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-position: from-font;
+      text-decoration-skip-ink: none;
+    }
+    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+    /* Mobile-only / desktop-only content switches (matches per-frame copy in Figma) */
+    .m { display: none; }
+    @media (max-width: 767px) {
+      .m { display: inline; }
+      .d { display: none; }
+    }
+
+    /* ---------- Layout ---------- */
+    .page { display: flex; justify-content: center; }
+    .column {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 0 32px 8px;
+    }
+
+    /* ---------- Dot grid (mobile 10x8, desktop 23x12) ---------- */
+    .dots {
+      display: grid;
+      grid-template-columns: repeat(10, 20px);
+      justify-content: space-between;
+      row-gap: 10px;
+    }
+    .dot { width: 20px; height: 20px; background: var(--dot); }
+    .toggle { position: relative; display: block; width: 20px; height: 20px; }
+    .toggle img { position: absolute; inset: 0; display: block; width: 20px; height: 20px; }
+    .toggle .icon-dark { display: none; }
+    [data-theme="dark"] .toggle .icon-light { display: none; }
+    [data-theme="dark"] .toggle .icon-dark { display: block; }
+
+    /* ---------- Hero ---------- */
+    .hero { margin-top: 20px; }
+    .name {
+      font-family: 'Redaction 100', 'Courier New', monospace;
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 24px;
+      letter-spacing: 2.6px;
+      color: var(--name);
+      margin-bottom: 4px;
+    }
+    .role {
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 1.56px;
+      color: var(--subtitle);
+    }
+
+    /* ---------- Bio ---------- */
+    .bio {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 1.56px;
+      color: var(--body);
+      overflow-wrap: break-word;
+    }
+    @media (max-width: 767px) { .bio .photo { text-decoration: none; pointer-events: none; } }
+
+    /* ---------- Sections (work / featured) ---------- */
+    .section { margin-top: 20px; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 14px;
+      font-family: 'Handjet', 'Roboto Mono', monospace;
+      font-weight: 600;
+      font-variation-settings: "ELGR" 1, "ELSH" 2;
+      font-size: 16px;
+      line-height: 18px;
+      letter-spacing: 2.08px;
+      color: var(--heading);
+      white-space: nowrap;
+    }
+    .section-head .inactive { color: var(--muted); }
+    .featured .section-head { font-size: 15px; line-height: 17px; letter-spacing: 1.95px; }
+
+    .list { display: flex; flex-direction: column; gap: 12px; }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 18px;
+      white-space: nowrap;
+    }
+    .featured .row { height: auto; }
+    .row-title {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-size: 14px;
+      line-height: 18px;
+      letter-spacing: 1.82px;
+      color: var(--body);
+    }
+    .row-title a { text-decoration: none; }
+    .row-title a:hover { text-decoration: underline; }
+    .sep, .year { display: none; }
+    .company {
+      font-size: 12px;
+      line-height: 16px;
+      letter-spacing: 1.56px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: auto;
+      padding-top: 40px;
+      font-size: 8px;
+      line-height: 11px;
+      letter-spacing: 1.04px;
+      color: var(--footer);
+      white-space: nowrap;
+    }
+    .footer .line { display: flex; align-items: baseline; gap: 2px; line-height: 13px; }
+    .footer .copy { font-size: 10px; }
+
+    /* ---------- Desktop (>= 768px) ---------- */
+    @media (min-width: 768px) {
+      body { background: var(--bg-desktop); }
+      .column { width: 700px; padding: 0 0 8px; }
+
+      .dots { grid-template-columns: repeat(23, 20px); }
+
+      .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
+      .role { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+
+      .bio { margin-top: 30px; gap: 20px; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+
+      .section { margin-top: 30px; }
+      .section-head, .featured .section-head {
+        margin-bottom: 16px;
+        font-size: 20px;
+        line-height: 22px;
+        letter-spacing: 2.6px;
+      }
+      .list { gap: 16px; }
+      .row { height: auto; align-items: baseline; }
+      .row-title { font-size: 16px; line-height: 21px; letter-spacing: 2.08px; }
+      .sep { display: inline; color: var(--muted); }
+      .year { display: inline; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; color: var(--year); }
+      .company { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+
+      .footer { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="column">
+
+      <div class="dots" id="dots" aria-hidden="false">
+        <button class="toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+          <img class="icon-light" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSA2MCI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF85N18yMCkiPgo8cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHJ4PSIxMCIgZmlsbD0iIzI0MjQyNCIvPgo8Y2lyY2xlIGlkPSJFbGxpcHNlIDEiIGN4PSIxMyIgY3k9IjEwIiByPSIyLjUiIHN0cm9rZT0iIzdCN0I3QiIvPgo8Y2lyY2xlIGlkPSJFbGxpcHNlIDIiIGN4PSI2IiBjeT0iMTMiIHI9IjEuNSIgc3Ryb2tlPSIjN0I3QjdCIi8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgMyIgY3g9IjYuNSIgY3k9IjYuNSIgcj0iMiIgc3Ryb2tlPSIjN0I3QjdCIi8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNCIgY3g9IjEyLjUiIGN5PSIwLjUiIHI9IjMiIHN0cm9rZT0iIzdCN0I3QiIvPgo8Y2lyY2xlIGlkPSJFbGxpcHNlIDYiIGN4PSItMS41IiBjeT0iMTAuNSIgcj0iMyIgc3Ryb2tlPSIjN0I3QjdCIi8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNSIgY3g9IjEyLjUiIGN5PSIxOS41IiByPSI0IiBzdHJva2U9IiM3QjdCN0IiLz4KPGxpbmUgaWQ9IkxpbmUgMSIgeDE9IjE4IiB5MT0iMTAuNzA3MSIgeDI9IjE3LjcwNzEiIHkyPSIxMSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPGxpbmUgaWQ9IkxpbmUgMiIgeDE9IjUuODMzODQiIHkxPSIxNi45MjU2IiB4Mj0iNS40MzU0MyIgeTI9IjE3LjAzODkiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxsaW5lIGlkPSJMaW5lIDMiIHgxPSI4LjUwMDAzIiB5MT0iMTAuNSIgeDI9IjguNTAwMDMiIHkyPSIxMC40OTk5IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSBpZD0iTGluZSA1IiB4MT0iMTAuODE4NyIgeTE9IjUuMzE2NTQiIHgyPSIxMC42ODUiIHkyPSI1LjU0NjY5IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSBpZD0iTGluZSA2IiB4MT0iMTUuNSIgeTE9IjQuNTAwMDEiIHgyPSIxNS41IiB5Mj0iNC41MDAwMiIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPGxpbmUgaWQ9IkxpbmUgNCIgeDE9IjIuNTAwMDMiIHkxPSI4LjQ5OTk3IiB4Mj0iMi41MDAwMyIgeTI9IjguNDk5OTMiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF85N18yMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcng9IjEwIiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo=" alt="">
+          <img class="icon-dark" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSA2MCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcng9IjEwIiBmaWxsPSIjRDhEOEQ4Ii8+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xNS44NzQ1IDE0LjAzMThDMTQuNjMxIDE1LjMwMSAxMi45Nzg2IDE2IDExLjIyIDE2QzkuNDYxNDQgMTYgNy44MDg5NiAxNS4zMDEgNi41NjU1MyAxNC4wMzE4QzQuNDc4MTYgMTEuOTAxMyA0LjQ3ODE2IDguNDM1MjcgNi41NjU1MyA2LjMwNDY4QzguMjY5ODIgNC41NjUxMSAxMS4wNDIgNC41NjUxMSAxMi43NDYyIDYuMzA0NjhDMTMuNDIyNyA2Ljk5NTIzIDEzLjc5NjMgNy45MTQzNiAxMy43OTYzIDguODkxMkMxMy43OTYzIDkuODY4MDUgMTMuNDIzOSAxMC43ODcyIDEyLjc0NjIgMTEuNDc3N0MxMi4xODg3IDEyLjA0NjggMTEuNDQ2MSAxMi4zNjA4IDEwLjY1NjQgMTIuMzYwOEM5Ljg2Njc2IDEyLjM2MDggOS4xMjU0MSAxMi4wNDY4IDguNTY2NzIgMTEuNDc3N0M4LjEwMzUxIDExLjAwNDkgNy44NDg5NCAxMC4zNzY5IDcuODQ4OTQgOS43MDgwNUM3Ljg0ODk0IDkuMDM5MTUgOC4xMDM1MiA4LjQxMTE5IDguNTY2NzIgNy45MzgzOEM5LjM2NTgzIDcuMTIyNzMgMTAuNjY0NyA3LjEyMjczIDExLjQ2MzggNy45MzgzOEMxMi4xMzY4IDguNjI1MzMgMTIuMTM2OCA5Ljc0NDE1IDExLjQ2MzggMTAuNDMxMUMxMS4xODY4IDEwLjcxMzggMTAuODE3OSAxMC44NzAyIDEwLjQyNTQgMTAuODcwMkMxMC4wMzMgMTAuODcwMiA5LjY2NDA2IDEwLjcxMzggOS4zODcwNyAxMC40MzExQzkuMTQ4OTggMTAuMTg4MSA5LjAxNjk2IDkuODY0NDcgOS4wMTY5NiA5LjUxOTJDOS4wMTY5NiA5LjE3NTEzIDkuMTQ3NzkgOC44NTE1IDkuMzg3MDcgOC42MDczMUM5LjU1Nzk3IDguNDMyODcgOS44MzQ5NiA4LjQzMjg3IDEwLjAwNyA4LjYwNzMxQzEwLjE3NzkgOC43ODE3NSAxMC4xNzc5IDkuMDY0NDcgMTAuMDA3IDkuMjQwMTFDOS45MzM5NiA5LjMxNDcgOS44OTM4OCA5LjQxMzM1IDkuODkzODggOS41MTkyMUM5Ljg5Mzg4IDkuNjI1MDggOS45MzM5NiA5LjcyMzczIDEwLjAwNyA5Ljc5ODMyQzEwLjExOSA5LjkxMjYxIDEwLjI2NzUgOS45NzUxNyAxMC40MjY2IDkuOTc1MTdDMTAuNTg0NiA5Ljk3NTE3IDEwLjczNDIgOS45MTI2MSAxMC44NDYyIDkuNzk4MzJDMTEuMTc3NCA5LjQ2MDI1IDExLjE3NzQgOC45MDkyOCAxMC44NDYyIDguNTcwMDFDMTAuNjI0NiA4LjM0Mzg0IDEwLjMzIDguMjE5OTMgMTAuMDE2NCA4LjIxOTkzQzkuNzAyOTIgOC4yMTk5MyA5LjQwODI4IDguMzQ1MDUgOS4xODY2OSA4LjU3MDAxQzguODg5NjcgOC44NzMxOCA4LjcyNDY4IDkuMjc3NDEgOC43MjQ2OCA5LjcwNjg4QzguNzI0NjggMTAuMTM2NCA4Ljg4ODUxIDEwLjU0MDYgOS4xODU1MSAxMC44NDM3QzkuNTc4IDExLjI0NDQgMTAuMTAwMSAxMS40NjU3IDEwLjY1NTMgMTEuNDY1N0MxMS4yMTA0IDExLjQ2NTcgMTEuNzMyNSAxMS4yNDU2IDEyLjEyNSAxMC44NDM3QzEyLjYzNjYgMTAuMzIxNiAxMi45MTgyIDkuNjI3NDggMTIuOTE4MiA4Ljg5QzEyLjkxODIgOC4xNTEzNSAxMi42MzY2IDcuNDU3MiAxMi4xMjUgNi45MzYyNUMxMC43NjI1IDUuNTQ1NTUgOC41NDU2IDUuNTQ1NTUgNy4xODI5OSA2LjkzNjI1QzUuNDM3NDIgOC43MTc5NyA1LjQzNzQyIDExLjYxNzIgNy4xODI5OSAxMy4zOTg5QzguMjYwMjYgMTQuNDk4NCA5LjY5MzQ3IDE1LjEwNDggMTEuMjE3NCAxNS4xMDQ4QzEyLjc0MTQgMTUuMTA0OCAxNC4xNzQ2IDE0LjQ5ODQgMTUuMjUxOSAxMy4zOTg5QzE1LjQyMjggMTMuMjI0NCAxNS42OTk3IDEzLjIyNDQgMTUuODcxOCAxMy4zOTg5QzE2LjA0MjcgMTMuNTczMyAxNi4wNDI3IDEzLjg1NiAxNS44NzE4IDE0LjAzMTdMMTUuODc0NSAxNC4wMzE4WiIgZmlsbD0iYmxhY2siLz4KPC9nPgo8L3N2Zz4K" alt="">
+        </button>
+      </div>
+
+      <header class="hero">
+        <h1 class="name">nikhil sajjan</h1>
+        <p class="role">Interaction Designer,<span class="d"> </span>Product Designer</p>
+      </header>
+
+      <section class="bio">
+        <p>I am a recent interaction design graduate from <a href="#">ciid</a>, looking for<br>my next role in interaction design across Europe <span class="d">&amp;</span><span class="m">and</span> India.</p>
+        <p>I’ve spent time with these teams before joining ciid, <a href="#">Redd</a>, <a href="#">INDmoney</a>,<a href="#">Pepper Content</a> and <a href="#">Jiva</a>. I had a little sprint of entrepreneurship with <a href="#">Grubz</a>.</p>
+        <p>I sometimes do <a href="#" class="photo">photography</a> &amp; a little bit more <a href="#">about me</a>.</p>
+        <p>You can reach me at <a href="#">email</a>.</p>
+      </section>
+
+      <section class="section work">
+        <h2 class="section-head"><span>work</span><span class="inactive">lab</span></h2>
+        <div class="list">
+          <div class="row">
+            <div class="row-title"><span>CDC w Xendit</span><span class="sep">.</span><span class="year">2023</span></div>
+            <span class="company">Jiva</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><span>Bulk download</span><span class="sep">.</span><span class="year">2023</span></div>
+            <span class="company">Pepper Content</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><span>Learn</span><span class="sep">.</span><span class="year">2022</span></div>
+            <span class="company">INDmoney</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><span>Save plus</span><span class="sep">.</span><span class="year">2022</span></div>
+            <span class="company">INDmoney</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><span>Teenage Banking</span><span class="sep">.</span><span class="year">2020-21</span></div>
+            <span class="company">Muvin</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section featured">
+        <h2 class="section-head"><span>featured</span></h2>
+        <div class="list">
+          <div class="row">
+            <div class="row-title">
+              <a href="https://www.youtube.com/watch?v=Lg0l42CJcVY&amp;t=1049s" target="_blank" rel="noopener">ChatGPT,<span class="d"> </span><br class="m">but its a KNOB!?</a><span class="sep">.</span><span class="year">2026</span>
+            </div>
+            <span class="company">Supermoderno<span class="d"> </span><br class="m">&amp; Arduino</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="line">
+          <span><span class="copy">©</span>2026 nikhil sajjan</span><span>.</span><span>All rights reserved</span>
+        </div>
+        <div class="line">last updated 09/26</div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var dots = document.getElementById('dots');
+      var toggle = document.getElementById('theme-toggle');
+      var mq = matchMedia('(min-width: 768px)');
+
+      function buildDots() {
+        var cols = mq.matches ? 23 : 10;
+        var rows = mq.matches ? 12 : 8;
+        var frag = document.createDocumentFragment();
+        for (var i = 0; i < rows * cols - 1; i++) {
+          var d = document.createElement('span');
+          d.className = 'dot';
+          frag.appendChild(d);
+        }
+        dots.replaceChildren(frag, toggle);
+      }
+
+      function applyTheme(theme, persist) {
+        root.setAttribute('data-theme', theme);
+        toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+        if (persist) { try { localStorage.setItem('theme', theme); } catch (e) {} }
+      }
+
+      toggle.addEventListener('click', function () {
+        applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+      });
+
+      applyTheme(root.getAttribute('data-theme') || 'light', false);
+      buildDots();
+      mq.addEventListener('change', buildDots);
+    })();
+  </script>
+</body>
+</html>
