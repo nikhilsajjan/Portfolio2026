@@ -121,7 +121,35 @@
       if (t && t.classList && t.classList.contains('dot')) paintDot(t);
     };
     if (matchMedia('(hover: hover)').matches) dots.addEventListener('pointerover', hitDot);
-    dots.addEventListener('click', hitDot);
+
+    /* Touch: a drag never fires pointerover past the first element, because the
+       pointer is captured. Track the finger instead and paint whatever it crosses,
+       so dragging feels like hovering. Not passive:false — the page must still
+       scroll normally from the grid. */
+    var lastTouched = null;
+    var usedTouch = false;
+
+    function paintUnderTouch(e) {
+      var t = e.touches && e.touches[0];
+      if (!t) return;
+      var el = document.elementFromPoint(t.clientX, t.clientY);
+      if (el && el.classList && el.classList.contains('dot')) {
+        if (el !== lastTouched) { lastTouched = el; paintDot(el); }
+      } else {
+        lastTouched = null;
+      }
+    }
+
+    dots.addEventListener('touchstart', function (e) {
+      usedTouch = true;
+      lastTouched = null;
+      paintUnderTouch(e);
+    }, { passive: true });
+    dots.addEventListener('touchmove', paintUnderTouch, { passive: true });
+    dots.addEventListener('touchend', function () { lastTouched = null; }, { passive: true });
+
+    // touchstart already painted; ignore the synthetic click so it doesn't re-roll
+    dots.addEventListener('click', function (e) { if (!usedTouch) hitDot(e); });
   }
 
   /* ---------- Tabs: work / lab / experiments ---------- */
