@@ -202,9 +202,13 @@ img { max-width: 100%; }
    with no case study. display:none keeps it out of flow so nothing shifts. */
 .wip {
   display: none;
+  align-items: center;
+  justify-content: center;
   align-self: center;
   margin-left: 4px;
-  padding: 1.5px 4px;
+  /* letter-spacing adds 1.82px of dead space after the final letter, which
+     pushes the glyphs left of centre; trim it back off the right padding */
+  padding: 1.5px 2.18px 1.5px 4px;
   border: 1px solid var(--chip);
   border-radius: 4px;
   background: var(--wip-bg);
@@ -220,12 +224,12 @@ img { max-width: 100%; }
 
 @media (hover: hover) {
   .row[data-wip] .row-title:hover .wip,
-  .row[data-wip] .row-title:focus-visible .wip { display: inline-block; }
+  .row[data-wip] .row-title:focus-visible .wip { display: inline-flex; }
 }
 @media (hover: none) {
   .row[data-wip] .row-title { cursor: pointer; }
 }
-.row[data-wip] .row-title.is-shown .wip { display: inline-block; }
+.row[data-wip] .row-title.is-shown .wip { display: inline-flex; }
 
 /* Work-row hover preview (Figma 265:26968): 300x169, 14px right of the column,
    top-aligned to the hovered row. Needs 700 + 14 + 300 = 1014px of content, so it
