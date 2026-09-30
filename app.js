@@ -32,6 +32,7 @@
       toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
     }
     applyShots(theme);
+    document.dispatchEvent(new CustomEvent('themechange'));
     if (persist) { try { localStorage.setItem('theme', theme); } catch (e) {} }
   }
 
@@ -190,6 +191,49 @@
       });
       row.addEventListener('pointerleave', function () {
         preview.classList.remove('is-visible');
+      });
+    });
+
+    /* Touch only: tapping a work row expands its image beneath it. Every row
+       behaves the same, so CDC's row stops navigating and its image carries the
+       link instead. Gated on (hover: none) so pointer devices keep the hover
+       preview and normal link behaviour. */
+    var inlineOK = matchMedia('(hover: none)');
+
+    function inlineBox(row) {
+      var next = row.nextElementSibling;
+      if (next && next.classList.contains('row-inline')) return next;
+      var link = row.querySelector('.row-title a');
+      var box = document.createElement(link ? 'a' : 'span');
+      box.className = 'row-inline';
+      if (link) {
+        box.setAttribute('href', link.getAttribute('href'));
+        box.setAttribute('aria-label', link.textContent.trim() + ' — open case study');
+      }
+      var img = document.createElement('img');
+      img.alt = '';
+      box.appendChild(img);
+      box.hidden = true;
+      row.parentNode.insertBefore(box, row.nextSibling);
+      return box;
+    }
+
+    document.querySelectorAll('.row[data-preview]').forEach(function (row) {
+      row.addEventListener('click', function (e) {
+        if (!inlineOK.matches) return;
+        // first tap reveals the image rather than following the row's link
+        if (e.target.closest('.row-title a')) e.preventDefault();
+        var box = inlineBox(row);
+        box.querySelector('img').src = previewSrc(row.dataset.preview);
+        box.hidden = !box.hidden;
+      });
+    });
+
+    // keep any open inline preview in step with the theme
+    document.addEventListener('themechange', function () {
+      document.querySelectorAll('.row-inline:not([hidden])').forEach(function (box) {
+        var row = box.previousElementSibling;
+        if (row && row.dataset.preview) box.querySelector('img').src = previewSrc(row.dataset.preview);
       });
     });
 

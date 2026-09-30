@@ -248,6 +248,16 @@ img { max-width: 100%; }
   .row-preview.is-visible { display: block; }
 }
 
+/* Touch only: tapping a work row expands its image below at column width.
+   For CDC the wrapper is a link, so the image is the way into the case study. */
+.row-inline { display: block; width: 100%; text-decoration: none; }
+.row-inline img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 600 / 338;
+  object-fit: cover;
+}
+
 /* ---------- Footer ---------- */
 .footer {
   display: flex;
