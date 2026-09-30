@@ -269,15 +269,19 @@ img { max-width: 100%; }
 }
 
 /* ================= Case study ================= */
+/* Fixed rather than sticky: as a flex item, sticky is constrained to its own
+   flex line in Safari and never engages. The bar always sits at top:0 anyway,
+   so fixed is visually identical and works everywhere. */
 .case .back {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  width: 100%;
   z-index: 10;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 24px;
-  padding-bottom: 8px;
+  padding: 24px 32px 8px;
   background: var(--bg);
   font-family: 'Handjet', 'Roboto Mono', monospace;
   font-weight: 400;
@@ -291,6 +295,7 @@ img { max-width: 100%; }
 .case .back:hover { text-decoration: underline; }
 .case .back svg { flex: none; display: block; width: 5px; height: 9px; }
 
+.column.case { padding-top: 52px; }
 .case-head { margin-top: 48px; display: flex; flex-direction: column; gap: 8px; }
 .case-title-row {
   display: flex;
@@ -449,6 +454,13 @@ img { max-width: 100%; }
   .footer { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 0; }
 
   /* Case study */
+  .case .back {
+    left: 50%;
+    width: 700px;
+    transform: translateX(-50%);
+    padding-left: 0;
+    padding-right: 0;
+  }
   .case-head { margin-top: 48px; }
   .case-credit { font-size: 14px; letter-spacing: 1.82px; }
   .case-sub { font-size: 14px; line-height: 18px; letter-spacing: 0; }
