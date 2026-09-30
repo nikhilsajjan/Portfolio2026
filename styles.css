@@ -1,0 +1,469 @@
+/* ---------- Custom fonts: drop files in ./fonts and declare them here ---------- */
+@font-face {
+  font-family: 'Redaction 100';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('fonts/Redaction_100-Regular.woff2') format('woff2'),
+       local('Redaction 100 Regular'), local('Redaction100-Regular');
+}
+@font-face {
+  font-family: 'Redaction 100';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('fonts/Redaction_100-Bold.woff2') format('woff2'),
+       url('fonts/Redaction100-Bold.otf') format('opentype'),
+       local('Redaction 100 Bold'), local('Redaction100-Bold');
+}
+
+/* ---------- Theme tokens (from Figma) ---------- */
+:root {
+  --bg: #ececec;
+  --bg-desktop: #ececec;
+  --dot: #d7d7d7;
+  --name: #242424;
+  --subtitle: #7b7b7b;
+  --body: #4f4f4f;
+  --heading: #393939;
+  --muted: #a7a7a7;
+  --year: #919191;
+  --footer: #656565;
+  --chip: #bdbdbd;   /* chip fill, "back" link, WIP border */
+  --wip-bg: #f2f2f2;
+}
+[data-theme="dark"] {
+  --bg: #242424;
+  --bg-desktop: #242424;
+  --dot: #4f4f4f;
+  --name: #f2f2f2;
+  --subtitle: #cccccc;
+  --body: #e5e5e5;
+  --heading: #f2f2f2;
+  --muted: #a7a7a7;
+  --year: #b2b2b2;
+  --footer: #d8d8d8;
+  --chip: #969696;
+  --wip-bg: #2f2f2f;  /* extrapolated: no dark home frame in Figma */
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-weight: 400;
+  background: var(--bg);
+  color: var(--body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+
+/* Mobile-only / desktop-only content switches (matches per-frame copy in Figma) */
+.m { display: none; }
+@media (max-width: 767px) {
+  .m { display: inline; }
+  .d { display: none; }
+}
+
+/* ---------- Layout ---------- */
+.page { display: flex; justify-content: center; }
+.column {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0 32px 12px;
+}
+
+/* ---------- Dot grid (mobile 10x8, desktop 23x12) ---------- */
+.dots {
+  display: grid;
+  grid-template-columns: repeat(10, 20px);
+  justify-content: space-between;
+  row-gap: 10px;
+}
+.dot { width: 20px; height: 20px; background: var(--dot); transition: background-color 700ms ease; }
+/* colour lands instantly on hover/tap, then fades back out */
+.dot.is-lit { transition: none; }
+@media (prefers-reduced-motion: reduce) { .dot { transition: none; } }
+.toggle { position: relative; display: block; width: 20px; height: 20px; }
+.toggle img { position: absolute; inset: 0; display: block; width: 20px; height: 20px; }
+.toggle .icon-dark { display: none; }
+[data-theme="dark"] .toggle .icon-light { display: none; }
+[data-theme="dark"] .toggle .icon-dark { display: block; }
+
+/* ---------- Hero ---------- */
+.hero { margin-top: 20px; }
+.name {
+  font-family: 'Redaction 100', 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 2.6px;
+  color: var(--name);
+  margin-bottom: 4px;
+}
+/* Typing caret — present only while the name is being typed */
+.name-text { cursor: default; }
+.name.is-typing .name-text::after {
+  content: "_";
+  animation: name-caret 800ms steps(1, end) infinite;
+}
+@keyframes name-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .name.is-typing .name-text::after { content: none; }
+}
+
+.role {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+  color: var(--subtitle);
+}
+
+/* ---------- Bio ---------- */
+.bio {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+  color: var(--body);
+  overflow-wrap: break-word;
+}
+
+/* ---------- Sections (work / featured) ---------- */
+.section { margin-top: 20px; }
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 14px;
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-weight: 600;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 16px;
+  line-height: 18px;
+  letter-spacing: 2.08px;
+  color: var(--heading);
+  white-space: nowrap;
+}
+.section-head .inactive { color: var(--muted); }
+.featured .section-head { font-size: 15px; line-height: 17px; letter-spacing: 1.95px; }
+
+/* Tabs: work / lab / experiments */
+.tab { padding: 0; color: var(--muted); }
+.tab[aria-selected="true"] { color: var(--heading); }
+
+.list { display: flex; flex-direction: column; gap: 12px; }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 18px;
+  white-space: nowrap;
+}
+.featured .row { height: auto; }
+.row-title {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 1.82px;
+  color: var(--body);
+}
+.row-title a { text-decoration: none; }
+.row-title a:hover { text-decoration: underline; }
+.sep, .year { display: none; }
+.company {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* WIP badge — revealed on hover (pointer) or tap (touch) for work rows
+   with no case study. display:none keeps it out of flow so nothing shifts. */
+.wip {
+  display: none;
+  align-self: center;
+  margin-left: 4px;
+  padding: 1.5px 4px;
+  border: 1px solid var(--chip);
+  border-radius: 4px;
+  background: var(--wip-bg);
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-weight: 400;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: 1.82px;
+  color: var(--year);
+}
+.row[data-wip] .row-title { cursor: default; }
+
+@media (hover: hover) {
+  .row[data-wip] .row-title:hover .wip,
+  .row[data-wip] .row-title:focus-visible .wip { display: inline-block; }
+}
+@media (hover: none) {
+  .row[data-wip] .row-title { cursor: pointer; }
+}
+.row[data-wip] .row-title.is-shown .wip { display: inline-block; }
+
+/* Work-row hover preview (Figma 265:26968): 300x169, 14px right of the column,
+   top-aligned to the hovered row. Needs 700 + 14 + 300 = 1014px of content, so it
+   only appears when the viewport can fit it: (vw+700)/2 + 314 <= vw, i.e. vw >= 1328,
+   rounded to 1340 for scrollbar differences. Below that it stays hidden. */
+.row-preview {
+  position: absolute;
+  left: calc(100% + 14px);
+  width: 300px;
+  aspect-ratio: 300 / 169;
+  object-fit: cover;
+  pointer-events: none;
+  display: none;
+}
+@media (min-width: 1340px) and (hover: hover) {
+  .row-preview.is-visible { display: block; }
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+  padding-top: 40px;
+  font-size: 8px;
+  line-height: 11px;
+  letter-spacing: 1.04px;
+  color: var(--footer);
+  white-space: nowrap;
+}
+.footer .line { display: flex; align-items: baseline; gap: 2px; line-height: 1.2; }
+.footer .copy { font-size: 12px; letter-spacing: 1.56px; }
+.footer .updated { font-size: 12px; letter-spacing: 1.56px; }
+.footer .sig {
+  font-family: 'Redaction 100', 'Courier New', monospace;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  letter-spacing: 1.82px;
+}
+
+/* ================= Case study ================= */
+.case .back {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 24px;
+  padding-bottom: 8px;
+  background: var(--bg);
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-weight: 400;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 2.08px;
+  color: var(--chip);
+  text-decoration: none;
+}
+.case .back:hover { text-decoration: underline; }
+.case .back svg { flex: none; display: block; width: 5px; height: 9px; }
+
+.case-head { margin-top: 48px; display: flex; flex-direction: column; gap: 8px; }
+.case-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  white-space: nowrap;
+}
+.case-title {
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-weight: 700;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: 4.16px;
+  color: var(--body);
+}
+.case-credit {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-size: 12px;
+  line-height: 18px;
+  letter-spacing: 1.56px;
+}
+.case-credit .year { display: inline; color: var(--year); }
+.case-credit .sep, .case-credit .client { display: inline; color: var(--muted); }
+.case-sub { font-size: 12px; line-height: 16px; letter-spacing: 1.56px; color: var(--subtitle); }
+
+.case-meta {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+}
+.case-meta .meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.case-meta dt { color: var(--year); white-space: nowrap; }
+.case-meta dd { font-weight: 500; color: var(--body); text-align: right; }
+
+.case-body { margin-top: 32px; display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+.case-section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.case-section h2 {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+  color: var(--body);
+}
+.case-section h3 {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+  color: var(--body);
+}
+.case-section p,
+.case-section li {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 1.56px;
+  color: var(--subtitle);
+  overflow-wrap: break-word;
+}
+.case-section ul { padding-left: 21px; list-style: disc; }
+.case-section li { margin-bottom: 0; }
+.case-section .prose { display: flex; flex-direction: column; gap: 16px; }
+.case-section em.stat { font-style: italic; font-weight: 700; }
+
+/* Screenshot blocks — aspect-ratio reserves space so nothing reflows on load.
+   Each block carries --ar-light (and --ar-dark when the dark export differs in
+   shape, e.g. CDC Old), so neither theme letterboxes. */
+.shot { display: block; width: 100%; height: auto; aspect-ratio: var(--ar-light); }
+[data-theme="dark"] .shot { aspect-ratio: var(--ar-dark, var(--ar-light)); }
+.shot img { display: block; width: 100%; height: 100%; object-fit: contain; }
+[data-theme="dark"] .shot .light-only { display: none; }
+.shot .dark-only { display: none; }
+[data-theme="dark"] .shot .dark-only { display: block; }
+
+/* ---------- Flow / process diagrams (native chips at every breakpoint) ---------- */
+.flow-scroll { min-width: 0; overflow-x: auto; overflow-y: hidden; }
+.flow { display: flex; align-items: center; gap: 20px; min-width: 660px; }
+.flow-main { flex: 1 1 auto; min-width: 0; }
+.flow-row { display: flex; align-items: stretch; justify-content: space-between; gap: 12px; }
+.chip {
+  padding: 10px;
+  border-radius: 2px;
+  background: var(--chip);
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-weight: 400;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 20px;
+  line-height: 22px;
+  letter-spacing: 1px;
+  color: var(--heading);
+  white-space: nowrap;
+}
+/* U-turn connector: top line, right elbow, return line, left arrowhead.
+   Mirrors Figma "Vector 687" (top y=1, right x=700, bottom y=20, arrow tip x=57). */
+.flow-turn {
+  position: relative;
+  height: 20px;
+  margin: 9px 0;
+  border-top: 1px solid var(--heading);
+  border-right: 1px solid var(--heading);
+}
+.flow-turn::before {
+  content: "";
+  position: absolute;
+  left: 66px;
+  right: 0;
+  bottom: 0;
+  border-bottom: 1px solid var(--heading);
+}
+.flow-turn::after {
+  content: "";
+  position: absolute;
+  left: 57px;
+  bottom: -5.3px;
+  width: 0;
+  height: 0;
+  border-top: 5.8px solid transparent;
+  border-bottom: 5.8px solid transparent;
+  border-right: 10px solid var(--heading);
+}
+
+/* ---------- Desktop (>= 768px) ---------- */
+@media (min-width: 768px) {
+  body { background: var(--bg-desktop); }
+  .column { width: 700px; padding: 0 0 12px; }
+
+  .dots { grid-template-columns: repeat(23, 20px); }
+
+  .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
+  .role { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+
+  .bio { margin-top: 30px; gap: 20px; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+
+  .section { margin-top: 30px; }
+  .section-head, .featured .section-head {
+    margin-bottom: 16px;
+    font-size: 20px;
+    line-height: 22px;
+    letter-spacing: 2.6px;
+  }
+  .list { gap: 16px; }
+  .row { align-items: baseline; }
+  .row[data-wip] { align-items: center; }
+  .row-title { font-size: 16px; line-height: 21px; letter-spacing: 2.08px; }
+  .sep { display: inline; color: var(--muted); }
+  .year { display: inline; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; color: var(--year); }
+  .company { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+
+  .footer { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 0; }
+
+  /* Case study */
+  .case-head { margin-top: 48px; }
+  .case-credit { font-size: 14px; letter-spacing: 1.82px; }
+  .case-sub { font-size: 14px; line-height: 18px; letter-spacing: 0; }
+  .case-meta { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+  .case-section h2 { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+  .case-section h3 { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+  .case-section p, .case-section li { font-size: 14px; line-height: 18px; letter-spacing: 0; }
+  .flow { min-width: 0; }
+}
+
+/* ================= Photography ================= */
+.photo-stack { margin-top: 24px; display: flex; flex-direction: column; min-width: 0; }
+.photo-item { display: block; width: 100%; aspect-ratio: var(--ar); }
+.photo-item img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+@media (min-width: 768px) {
+  .photo-stack { margin-top: 32px; }
+}

@@ -15,220 +15,8 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@600&family=Roboto+Mono&display=swap" rel="stylesheet">
-  <style>
-    /* ---------- Custom fonts: drop files in ./fonts and declare them here ---------- */
-    @font-face {
-      font-family: 'Redaction 100';
-      font-weight: 700;
-      font-style: normal;
-      font-display: swap;
-      src: local('Redaction 100 Bold'), local('Redaction100-Bold'),
-           url('fonts/Redaction100-Bold.otf') format('opentype');
-    }
-
-    /* ---------- Theme tokens (from Figma) ---------- */
-    :root {
-      --bg: #ffffff;
-      --bg-desktop: #ececec;
-      --dot: #d7d7d7;
-      --name: #242424;
-      --subtitle: #7b7b7b;
-      --body: #4f4f4f;
-      --heading: #393939;
-      --muted: #a7a7a7;
-      --year: #919191;
-      --footer: #656565;
-    }
-    [data-theme="dark"] {
-      --bg: #242424;
-      --bg-desktop: #242424;
-      --dot: #4f4f4f;
-      --name: #f2f2f2;
-      --subtitle: #cccccc;
-      --body: #e5e5e5;
-      --heading: #f2f2f2;
-      --muted: #a7a7a7;
-      --year: #b2b2b2;
-      --footer: #d8d8d8;
-    }
-
-    /* ---------- Base ---------- */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { -webkit-text-size-adjust: 100%; }
-    body {
-      font-family: 'Roboto Mono', ui-monospace, monospace;
-      font-weight: 400;
-      background: var(--bg);
-      color: var(--body);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    a {
-      color: inherit;
-      text-decoration: underline;
-      text-underline-position: from-font;
-      text-decoration-skip-ink: none;
-    }
-    button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
-
-    /* Mobile-only / desktop-only content switches (matches per-frame copy in Figma) */
-    .m { display: none; }
-    @media (max-width: 767px) {
-      .m { display: inline; }
-      .d { display: none; }
-    }
-
-    /* ---------- Layout ---------- */
-    .page { display: flex; justify-content: center; }
-    .column {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      min-height: 100vh;
-      min-height: 100dvh;
-      padding: 0 32px 8px;
-    }
-
-    /* ---------- Dot grid (mobile 10x8, desktop 23x12) ---------- */
-    .dots {
-      display: grid;
-      grid-template-columns: repeat(10, 20px);
-      justify-content: space-between;
-      row-gap: 10px;
-    }
-    .dot { width: 20px; height: 20px; background: var(--dot); }
-    .toggle { position: relative; display: block; width: 20px; height: 20px; }
-    .toggle img { position: absolute; inset: 0; display: block; width: 20px; height: 20px; }
-    .toggle .icon-dark { display: none; }
-    [data-theme="dark"] .toggle .icon-light { display: none; }
-    [data-theme="dark"] .toggle .icon-dark { display: block; }
-
-    /* ---------- Hero ---------- */
-    .hero { margin-top: 20px; }
-    .name {
-      font-family: 'Redaction 100', 'Courier New', monospace;
-      font-weight: 700;
-      font-size: 20px;
-      line-height: 24px;
-      letter-spacing: 2.6px;
-      color: var(--name);
-      margin-bottom: 4px;
-    }
-    .role {
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 1.56px;
-      color: var(--subtitle);
-    }
-
-    /* ---------- Bio ---------- */
-    .bio {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 1.56px;
-      color: var(--body);
-      overflow-wrap: break-word;
-    }
-    @media (max-width: 767px) { .bio .photo { text-decoration: none; pointer-events: none; } }
-
-    /* ---------- Sections (work / featured) ---------- */
-    .section { margin-top: 20px; }
-    .section-head {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 14px;
-      font-family: 'Handjet', 'Roboto Mono', monospace;
-      font-weight: 600;
-      font-variation-settings: "ELGR" 1, "ELSH" 2;
-      font-size: 16px;
-      line-height: 18px;
-      letter-spacing: 2.08px;
-      color: var(--heading);
-      white-space: nowrap;
-    }
-    .section-head .inactive { color: var(--muted); }
-    .featured .section-head { font-size: 15px; line-height: 17px; letter-spacing: 1.95px; }
-
-    .list { display: flex; flex-direction: column; gap: 12px; }
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 18px;
-      white-space: nowrap;
-    }
-    .featured .row { height: auto; }
-    .row-title {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-      font-size: 14px;
-      line-height: 18px;
-      letter-spacing: 1.82px;
-      color: var(--body);
-    }
-    .row-title a { text-decoration: none; }
-    .row-title a:hover { text-decoration: underline; }
-    .sep, .year { display: none; }
-    .company {
-      font-size: 12px;
-      line-height: 16px;
-      letter-spacing: 1.56px;
-      color: var(--muted);
-      text-align: right;
-    }
-
-    /* ---------- Footer ---------- */
-    .footer {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: auto;
-      padding-top: 40px;
-      font-size: 8px;
-      line-height: 11px;
-      letter-spacing: 1.04px;
-      color: var(--footer);
-      white-space: nowrap;
-    }
-    .footer .line { display: flex; align-items: baseline; gap: 2px; line-height: 13px; }
-    .footer .copy { font-size: 10px; }
-
-    /* ---------- Desktop (>= 768px) ---------- */
-    @media (min-width: 768px) {
-      body { background: var(--bg-desktop); }
-      .column { width: 700px; padding: 0 0 8px; }
-
-      .dots { grid-template-columns: repeat(23, 20px); }
-
-      .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
-      .role { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
-
-      .bio { margin-top: 30px; gap: 20px; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
-
-      .section { margin-top: 30px; }
-      .section-head, .featured .section-head {
-        margin-bottom: 16px;
-        font-size: 20px;
-        line-height: 22px;
-        letter-spacing: 2.6px;
-      }
-      .list { gap: 16px; }
-      .row { height: auto; align-items: baseline; }
-      .row-title { font-size: 16px; line-height: 21px; letter-spacing: 2.08px; }
-      .sep { display: inline; color: var(--muted); }
-      .year { display: inline; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; color: var(--year); }
-      .company { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
-
-      .footer { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 0; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="page">
@@ -241,40 +29,82 @@
         </button>
       </div>
 
+      <img class="row-preview" alt="" aria-hidden="true">
+
       <header class="hero">
-        <h1 class="name">nikhil sajjan</h1>
-        <p class="role">Interaction Designer,<span class="d"> </span>Product Designer</p>
+        <h1 class="name" aria-label="nikhil sajjan"><span class="name-text" aria-hidden="true">nikhil sajjan</span></h1>
+        <p class="role">Interaction Designer,<span class="d"> </span> Product Designer</p>
       </header>
 
       <section class="bio">
-        <p>I am a recent interaction design graduate from <a href="#">ciid</a>, looking for<br>my next role in interaction design across Europe <span class="d">&amp;</span><span class="m">and</span> India.</p>
-        <p>I’ve spent time with these teams before joining ciid, <a href="#">Redd</a>, <a href="#">INDmoney</a>,<a href="#">Pepper Content</a> and <a href="#">Jiva</a>. I had a little sprint of entrepreneurship with <a href="#">Grubz</a>.</p>
-        <p>I sometimes do <a href="#" class="photo">photography</a> &amp; a little bit more <a href="#">about me</a>.</p>
-        <p>You can reach me at <a href="#">email</a>.</p>
+        <p>I am a interaction design program graduate from <a href="https://www.ciid.dk" target="_blank" rel="noopener">ciid</a>, looking for my next role where I can work with emerging technology both in digital and physical realm across Europe.</p>
+        <p>I&rsquo;ve worked with these teams before joining ciid, <a href="https://www.linkedin.com/company/reddexperiencedesign/people/" target="_blank" rel="noopener">Redd</a>, <a href="https://www.indmoney.com/features" target="_blank" rel="noopener">INDmoney</a>, <a href="https://www.pepper.inc" target="_blank" rel="noopener">Pepper Content</a> &amp; <a href="https://www.linkedin.com/company/jiva-agtech/home/" target="_blank" rel="noopener">Jiva</a>. I had a little sprint of entrepreneurship with <a href="https://www.linkedin.com/company/grubz/home/" target="_blank" rel="noopener">Grubz</a>.</p>
+        <!-- TODO: no destination in Figma for "about me" -->
+        <p>I sometimes do <a href="photography.html" class="photo">photography</a> &amp; a little bit more <a href="#">about me</a>.</p>
+        <p>You can reach me at <a href="mailto:nikhil.sajjan.design@gmail.com">email</a>.</p>
       </section>
 
       <section class="section work">
-        <h2 class="section-head"><span>work</span><span class="inactive">lab</span></h2>
-        <div class="list">
-          <div class="row">
-            <div class="row-title"><span>CDC w Xendit</span><span class="sep">.</span><span class="year">2023</span></div>
+        <h2 class="section-head" role="tablist" aria-label="Project categories">
+          <button class="tab" type="button" role="tab" id="tab-work" aria-controls="panel-work" aria-selected="true">work</button>
+          <button class="tab" type="button" role="tab" id="tab-lab" aria-controls="panel-lab" aria-selected="false">lab</button>
+          <button class="tab" type="button" role="tab" id="tab-experiments" aria-controls="panel-experiments" aria-selected="false">experiments</button>
+        </h2>
+
+        <div class="list" id="panel-work" role="tabpanel" aria-labelledby="tab-work">
+          <div class="row" data-preview="cdc">
+            <div class="row-title"><a href="cdc-w-xendit.html">CDC w Xendit</a><span class="sep">.</span><span class="year">2023</span></div>
             <span class="company">Jiva</span>
           </div>
-          <div class="row">
-            <div class="row-title"><span>Bulk download</span><span class="sep">.</span><span class="year">2023</span></div>
+          <div class="row" data-wip data-preview="bulk">
+            <div class="row-title"><span>Bulk download</span><span class="sep">.</span><span class="year">2023</span><span class="wip">WIP</span></div>
             <span class="company">Pepper Content</span>
           </div>
-          <div class="row">
-            <div class="row-title"><span>Learn</span><span class="sep">.</span><span class="year">2022</span></div>
+          <div class="row" data-wip data-preview="learn">
+            <div class="row-title"><span>Learn</span><span class="sep">.</span><span class="year">2022</span><span class="wip">WIP</span></div>
             <span class="company">INDmoney</span>
           </div>
-          <div class="row">
-            <div class="row-title"><span>Save plus</span><span class="sep">.</span><span class="year">2022</span></div>
+          <div class="row" data-wip data-preview="saveplus">
+            <div class="row-title"><span>Save plus</span><span class="sep">.</span><span class="year">2022</span><span class="wip">WIP</span></div>
             <span class="company">INDmoney</span>
           </div>
-          <div class="row">
-            <div class="row-title"><span>Teenage Banking</span><span class="sep">.</span><span class="year">2020-21</span></div>
+          <div class="row" data-wip>
+            <div class="row-title"><span>Teenage Banking</span><span class="sep">.</span><span class="year">2020-21</span><span class="wip">WIP</span></div>
             <span class="company">Muvin</span>
+          </div>
+        </div>
+
+        <div class="list lab" id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" hidden>
+          <div class="row">
+            <div class="row-title"><a href="https://www.ciid.dk/idp-projects/giftback" target="_blank" rel="noopener">GiftBack</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><a href="https://www.ciid.dk/idp-projects/party-ci-pazione" target="_blank" rel="noopener">Party ci Pazione</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><a href="https://www.ciid.dk/idp-projects/sketch-tales" target="_blank" rel="noopener">Sketch tales</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><a href="https://www.ciid.dk/idp-projects/insieme-bio" target="_blank" rel="noopener">Insemia Bio</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><a href="https://www.ciid.dk/idp-projects/speakar" target="_blank" rel="noopener">Speak AR</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
+          </div>
+          <div class="row">
+            <div class="row-title"><a href="https://www.ciid.dk/idp-projects/coral-reef" target="_blank" rel="noopener">Coral reef</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
+          </div>
+        </div>
+
+        <div class="list experiments" id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments" hidden>
+          <div class="row">
+            <div class="row-title"><a href="https://nikhilsajjan.github.io/ai-documentation-website/" target="_blank" rel="noopener">A week of AI shenanigans</a><span class="sep">.</span></div>
+            <span class="company">ciid</span>
           </div>
         </div>
       </section>
@@ -293,47 +123,14 @@
 
       <footer class="footer">
         <div class="line">
-          <span><span class="copy">©</span>2026 nikhil sajjan</span><span>.</span><span>All rights reserved</span>
+          <span><span class="copy">&copy;2026</span> <span class="sig">nikhil sajjan</span></span><span>.</span>
         </div>
-        <div class="line">last updated 09/26</div>
+        <div class="line updated">last updated 09/26</div>
       </footer>
 
     </main>
   </div>
 
-  <script>
-    (function () {
-      var root = document.documentElement;
-      var dots = document.getElementById('dots');
-      var toggle = document.getElementById('theme-toggle');
-      var mq = matchMedia('(min-width: 768px)');
-
-      function buildDots() {
-        var cols = mq.matches ? 23 : 10;
-        var rows = mq.matches ? 12 : 8;
-        var frag = document.createDocumentFragment();
-        for (var i = 0; i < rows * cols - 1; i++) {
-          var d = document.createElement('span');
-          d.className = 'dot';
-          frag.appendChild(d);
-        }
-        dots.replaceChildren(frag, toggle);
-      }
-
-      function applyTheme(theme, persist) {
-        root.setAttribute('data-theme', theme);
-        toggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-        if (persist) { try { localStorage.setItem('theme', theme); } catch (e) {} }
-      }
-
-      toggle.addEventListener('click', function () {
-        applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
-      });
-
-      applyTheme(root.getAttribute('data-theme') || 'light', false);
-      buildDots();
-      mq.addEventListener('change', buildDots);
-    })();
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
