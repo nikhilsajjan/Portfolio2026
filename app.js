@@ -6,8 +6,8 @@
 
   function buildDots() {
     if (!dots || !toggle) return;
-    var cols = mq.matches ? 23 : 10;
-    var rows = mq.matches ? 12 : 8;
+    var cols = mq.matches ? 32 : 14;
+    var rows = mq.matches ? 16 : 11;
     var frag = document.createDocumentFragment();
     for (var i = 0; i < rows * cols - 1; i++) {
       var d = document.createElement('span');
@@ -87,13 +87,16 @@
 
   /* ---------- Post-it colours on the dot grid ----------
      Palette from Figma "Colour - Post it's" (112:44). Hover on pointer devices,
-     tap on touch. Colour lands instantly, holds, then fades back to grey.
+     drag on touch. Colour lands instantly, then fades linearly back to grey over
+     4s (the .dot transition), starting at once with no hold. Re-hovering restarts it.
      Dark mode composites the same hues at lower alpha so they don't glare. */
   var POSTITS = [
     [255, 255, 153], [255, 235, 161], [254, 230,  59], [255, 173, 100], [210, 222,  64],
     [ 55, 210, 216], [248,  58, 167], [255, 249, 165], [249, 184, 188], [176, 205, 235]
   ];
-  var HOLD_MS = 1500, DARK_ALPHA = 0.6;
+  var DARK_ALPHA = 0.6;
+  var HOLD_MS = 1500; // reduced motion only: no fade, so hold the colour then snap back
+  var reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
   function paintDot(dot) {
     var prev = dot.dataset.hue === undefined ? -1 : +dot.dataset.hue;
@@ -103,20 +106,33 @@
 
     var c = POSTITS[i];
     var dark = root.getAttribute('data-theme') === 'dark';
-    dot.classList.add('is-lit');
-    dot.style.backgroundColor = dark
+    var colour = dark
       ? 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + DARK_ALPHA + ')'
       : 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
 
     clearTimeout(dot.fadeTimer);
-    dot.fadeTimer = setTimeout(function () {
-      dot.classList.remove('is-lit');
+    // land the colour with no transition, commit it, then let the CSS fade run
+    dot.style.transition = 'none';
+    dot.style.backgroundColor = colour;
+    void dot.offsetWidth;
+    dot.style.transition = '';
+    dot.classList.add('is-fading');
+
+    if (reduceMotion.matches) {
+      dot.fadeTimer = setTimeout(function () { dot.style.backgroundColor = ''; }, HOLD_MS);
+    } else {
       dot.style.backgroundColor = '';
-      delete dot.dataset.hue;
-    }, HOLD_MS);
+    }
   }
 
   if (dots) {
+    // back to the 1s theme transition once a dot has faded out
+    dots.addEventListener('transitionend', function (e) {
+      if (e.target.classList.contains('dot') && !e.target.style.backgroundColor) {
+        e.target.classList.remove('is-fading');
+      }
+    });
+
     var hitDot = function (e) {
       var t = e.target;
       if (t && t.classList && t.classList.contains('dot')) paintDot(t);
@@ -180,17 +196,47 @@
   }
 
   if (preview) {
+    /* Two stacked frames so moving between rows crossfades rather than swapping:
+       300ms fade in from nothing and out to nothing, 450ms when the previous
+       image is still showing (or still fading out) as the next row is entered. */
+    var FADE_MS = 300, SWITCH_MS = 450;
+    var frames = [preview, preview.cloneNode()];
+    preview.after(frames[1]);
+    var active = 0;
+    var leftAt = -Infinity;
+
+    function setFade(ms) {
+      frames.forEach(function (f) { f.style.transitionDuration = ms + 'ms'; });
+    }
+
+    function showPreview(key) {
+      var cur = frames[active];
+      var src = previewSrc(key);
+      if (cur.getAttribute('src') === src) {
+        setFade(FADE_MS);
+        cur.classList.add('is-visible');
+        return;
+      }
+      var showing = cur.classList.contains('is-visible') || performance.now() - leftAt < FADE_MS;
+      setFade(showing ? SWITCH_MS : FADE_MS);
+      var next = frames[1 - active];
+      next.src = src;
+      // pinned to the top of the work list, so it never jumps between rows
+      var anchor = document.getElementById('panel-work');
+      if (anchor) next.style.top = anchor.offsetTop + 'px';
+      next.classList.add('is-visible');
+      cur.classList.remove('is-visible');
+      active = 1 - active;
+    }
+
     document.querySelectorAll('.row[data-preview]').forEach(function (row) {
       row.addEventListener('pointerenter', function () {
-        if (!previewOK.matches) return;
-        preview.src = previewSrc(row.dataset.preview);
-        // pinned to the top of the work list, so it never jumps between rows
-        var anchor = document.getElementById('panel-work');
-        if (anchor) preview.style.top = anchor.offsetTop + 'px';
-        preview.classList.add('is-visible');
+        if (previewOK.matches) showPreview(row.dataset.preview);
       });
       row.addEventListener('pointerleave', function () {
-        preview.classList.remove('is-visible');
+        setFade(FADE_MS);
+        frames[active].classList.remove('is-visible');
+        leftAt = performance.now();
       });
     });
 

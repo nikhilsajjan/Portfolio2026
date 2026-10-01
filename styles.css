@@ -87,19 +87,34 @@ img { max-width: 100%; }
   padding: 0 32px 12px;
 }
 
-/* ---------- Dot grid (mobile 10x8, desktop 23x12) ---------- */
+/* ---------- Dot grid (mobile 14x11, desktop 32x16) ---------- */
 .dots {
   display: grid;
-  grid-template-columns: repeat(10, 20px);
+  grid-template-columns: repeat(14, 14px);
   justify-content: space-between;
-  row-gap: 10px;
+  row-gap: 8px;
 }
-.dot { width: 20px; height: 20px; background: var(--dot); transition: background-color 700ms ease; }
-/* colour lands instantly on hover/tap, then fades back out */
-.dot.is-lit { transition: none; }
-@media (prefers-reduced-motion: reduce) { .dot { transition: none; } }
-.toggle { position: relative; display: block; width: 20px; height: 20px; }
-.toggle img { position: absolute; inset: 0; display: block; width: 20px; height: 20px; }
+/* 1s eases the grid between themes. A painted dot lands its colour instantly
+   and fades linearly back to grey over 4s while .is-fading (set in app.js). */
+.dot { width: 14px; height: 14px; background: var(--dot); transition: background-color 1000ms ease; }
+.dot.is-fading { transition: background-color 4000ms linear; }
+@media (prefers-reduced-motion: reduce) { .dot, .dot.is-fading { transition: none; } }
+/* Toggle: round on touch (Figma 279:31814). With a pointer it rests square and
+   rounds on hover (Figma 276:30353 -> 277:30904). */
+.toggle {
+  position: relative;
+  display: block;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
+  border-radius: 7px;
+}
+@media (hover: hover) {
+  .toggle { border-radius: 0; transition: border-radius 200ms ease-out; }
+  .toggle:hover, .toggle:focus-visible { border-radius: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .toggle { transition: none; } }
+.toggle img { position: absolute; inset: 0; display: block; width: 14px; height: 14px; }
 .toggle .icon-dark { display: none; }
 [data-theme="dark"] .toggle .icon-light { display: none; }
 [data-theme="dark"] .toggle .icon-dark { display: block; }
@@ -129,7 +144,6 @@ img { max-width: 100%; }
 .role {
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 1.56px;
   color: var(--subtitle);
 }
 
@@ -137,44 +151,42 @@ img { max-width: 100%; }
 .bio {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   margin-top: 20px;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 1.56px;
   color: var(--body);
   overflow-wrap: break-word;
 }
 
 /* ---------- Sections (work / featured) ---------- */
-.section { margin-top: 20px; }
+.section { margin-top: 40px; }
 .section-head {
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   font-family: 'Handjet', 'Roboto Mono', monospace;
   font-weight: 600;
   font-variation-settings: "ELGR" 1, "ELSH" 2;
   font-size: 16px;
   line-height: 18px;
-  letter-spacing: 2.08px;
+  letter-spacing: 0.05em;
   color: var(--heading);
   white-space: nowrap;
 }
 .section-head .inactive { color: var(--muted); }
-.featured .section-head { font-size: 15px; line-height: 17px; letter-spacing: 1.95px; }
 
 /* Tabs: work / lab / experiments */
 .tab { padding: 0; color: var(--muted); }
 .tab[aria-selected="true"] { color: var(--heading); }
 
-.list { display: flex; flex-direction: column; gap: 12px; }
+.list { display: flex; flex-direction: column; gap: 14px; }
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 18px;
+  min-height: 16px;
   white-space: nowrap;
 }
 .featured .row { height: auto; }
@@ -182,9 +194,8 @@ img { max-width: 100%; }
   display: flex;
   align-items: baseline;
   gap: 4px;
-  font-size: 14px;
-  line-height: 18px;
-  letter-spacing: 1.82px;
+  font-size: 12px;
+  line-height: 16px;
   color: var(--body);
 }
 .row-title a { text-decoration: none; }
@@ -193,7 +204,6 @@ img { max-width: 100%; }
 .company {
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 1.56px;
   color: var(--muted);
   text-align: right;
 }
@@ -206,9 +216,9 @@ img { max-width: 100%; }
   justify-content: center;
   align-self: center;
   margin-left: 4px;
-  /* letter-spacing adds 1.82px of dead space after the final letter, which
+  /* letter-spacing adds 0.7px of dead space after the final letter, which
      pushes the glyphs left of centre; trim it back off the right padding */
-  padding: 1.5px 2.18px 1.5px 4px;
+  padding: 1.5px 3.3px 1.5px 4px;
   border: 1px solid var(--chip);
   border-radius: 4px;
   background: var(--wip-bg);
@@ -217,7 +227,7 @@ img { max-width: 100%; }
   font-variation-settings: "ELGR" 1, "ELSH" 2;
   font-size: 14px;
   line-height: 16px;
-  letter-spacing: 1.82px;
+  letter-spacing: 0.05em;
   color: var(--year);
 }
 .row[data-wip] .row-title { cursor: default; }
@@ -243,10 +253,16 @@ img { max-width: 100%; }
   object-fit: cover;
   pointer-events: none;
   display: none;
+  opacity: 0;
+  /* duration is set per change in app.js: 300ms in/out, 450ms between rows */
+  transition: opacity 300ms ease;
 }
 @media (min-width: 1340px) and (hover: hover) {
-  .row-preview.is-visible { display: block; }
+  .row-preview { display: block; }
+  .row-preview:not([src]) { visibility: hidden; }
+  .row-preview.is-visible { opacity: 1; }
 }
+@media (prefers-reduced-motion: reduce) { .row-preview { transition: none; } }
 
 /* Touch only: tapping a work row expands its image below at column width.
    For CDC the wrapper is a link, so the image is the way into the case study. */
@@ -272,14 +288,11 @@ img { max-width: 100%; }
   white-space: nowrap;
 }
 .footer .line { display: flex; align-items: baseline; gap: 2px; line-height: 1.2; }
-.footer .copy { font-size: 12px; letter-spacing: 1.56px; }
-.footer .updated { font-size: 12px; letter-spacing: 1.56px; }
+.footer .copy-mark { font-size: 10px; }
 .footer .sig {
   font-family: 'Redaction 100', 'Courier New', monospace;
   font-weight: 400;
   font-style: normal;
-  font-size: 14px;
-  letter-spacing: 1.82px;
 }
 
 /* ================= Case study ================= */
@@ -302,7 +315,7 @@ img { max-width: 100%; }
   font-variation-settings: "ELGR" 1, "ELSH" 2;
   font-size: 16px;
   line-height: 20px;
-  letter-spacing: 2.08px;
+  letter-spacing: 0.05em;
   color: var(--chip);
   text-decoration: none;
 }
@@ -324,7 +337,7 @@ img { max-width: 100%; }
   font-variation-settings: "ELGR" 1, "ELSH" 2;
   font-size: 32px;
   line-height: 36px;
-  letter-spacing: 4.16px;
+  letter-spacing: 0.05em;
   color: var(--body);
 }
 .case-credit {
@@ -333,11 +346,10 @@ img { max-width: 100%; }
   gap: 2px;
   font-size: 12px;
   line-height: 18px;
-  letter-spacing: 1.56px;
 }
 .case-credit .year { display: inline; color: var(--year); }
 .case-credit .sep, .case-credit .client { display: inline; color: var(--muted); }
-.case-sub { font-size: 12px; line-height: 16px; letter-spacing: 1.56px; color: var(--subtitle); }
+.case-sub { font-size: 12px; line-height: 16px; color: var(--subtitle); }
 
 .case-meta {
   margin-top: 24px;
@@ -346,7 +358,6 @@ img { max-width: 100%; }
   gap: 8px;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 1.56px;
 }
 .case-meta .meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
 .case-meta dt { color: var(--year); white-space: nowrap; }
@@ -358,21 +369,18 @@ img { max-width: 100%; }
   font-size: 12px;
   font-weight: 500;
   line-height: 16px;
-  letter-spacing: 1.56px;
   color: var(--body);
 }
 .case-section h3 {
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
-  letter-spacing: 1.56px;
   color: var(--body);
 }
 .case-section p,
 .case-section li {
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 1.56px;
   color: var(--subtitle);
   overflow-wrap: break-word;
 }
@@ -405,7 +413,7 @@ img { max-width: 100%; }
   font-variation-settings: "ELGR" 1, "ELSH" 2;
   font-size: 20px;
   line-height: 22px;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
   color: var(--heading);
   white-space: nowrap;
 }
@@ -443,29 +451,29 @@ img { max-width: 100%; }
   body { background: var(--bg-desktop); }
   .column { width: 700px; padding: 0 0 12px; }
 
-  .dots { grid-template-columns: repeat(23, 20px); }
+  .dots { grid-template-columns: repeat(32, 14px); }
 
   .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
-  .role { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+  .role { font-size: 14px; line-height: 18px; }
 
-  .bio { margin-top: 30px; gap: 20px; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+  .bio { margin-top: 24px; font-size: 14px; line-height: 18px; }
 
-  .section { margin-top: 30px; }
-  .section-head, .featured .section-head {
-    margin-bottom: 16px;
+  .section-head {
     font-size: 20px;
     line-height: 22px;
-    letter-spacing: 2.6px;
   }
   .list { gap: 16px; }
   .row { align-items: baseline; }
   .row[data-wip] { align-items: center; }
-  .row-title { font-size: 16px; line-height: 21px; letter-spacing: 2.08px; }
-  .sep { display: inline; color: var(--muted); }
-  .year { display: inline; font-size: 14px; line-height: 18px; letter-spacing: 1.82px; color: var(--year); }
-  .company { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
+  .row-title { font-size: 14px; line-height: 18px; }
+  .sep { display: inline; font-size: 16px; line-height: 21px; letter-spacing: 2.08px; color: var(--muted); }
+  .year { display: inline; font-size: 14px; line-height: 18px; color: var(--year); }
+  .company { font-size: 14px; line-height: 18px; }
 
   .footer { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 0; }
+  .footer .copy, .footer .updated { font-size: 12px; letter-spacing: 1.56px; }
+  .footer .copy-mark { font-size: inherit; }
+  .footer .sig { font-size: 14px; letter-spacing: 1.82px; }
 
   /* Case study */
   .case .back {
@@ -476,12 +484,12 @@ img { max-width: 100%; }
     padding-right: 0;
   }
   .case-head { margin-top: 48px; }
-  .case-credit { font-size: 14px; letter-spacing: 1.82px; }
-  .case-sub { font-size: 14px; line-height: 18px; letter-spacing: 0; }
-  .case-meta { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
-  .case-section h2 { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
-  .case-section h3 { font-size: 14px; line-height: 18px; letter-spacing: 1.82px; }
-  .case-section p, .case-section li { font-size: 14px; line-height: 18px; letter-spacing: 0; }
+  .case-credit { font-size: 14px; }
+  .case-sub { font-size: 14px; line-height: 18px; }
+  .case-meta { font-size: 14px; line-height: 18px; }
+  .case-section h2 { font-size: 14px; line-height: 18px; }
+  .case-section h3 { font-size: 14px; line-height: 18px; }
+  .case-section p, .case-section li { font-size: 14px; line-height: 18px; }
   .flow { min-width: 0; }
 }
 
