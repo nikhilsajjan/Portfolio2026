@@ -1,2 +1,7 @@
 .DS_Store
 PROJECT-NOTES.md
+
+# Local-only: interaction lab, test builds and dated copies of older pages
+interactions.html
+index-v*.html
+*-previous-*.html
