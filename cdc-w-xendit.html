@@ -15,274 +15,182 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2026-10-07a">
+  <script>
+    /* Interactions chosen in the lab (interactions.html), on by default.
+       ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
+       changes so returning visitors get the new files. */
+    (function () {
+      var V = '2026-10-07a';
+      var DEFAULT = 'toc-rail,img-reveal,img-lightbox';
+      var q = new URLSearchParams(location.search).get('fx');
+      var fx = q === 'none' ? '' : (q || DEFAULT);
+      if (!fx) return;
+      if (!q) document.documentElement.setAttribute('data-fx-quiet', '');
+      var ids = fx.split(',').filter(function (id) { return /^[a-z-]+$/.test(id); });
+      if (!ids.length) return;
+      document.documentElement.setAttribute('data-fx', ids.join(' '));
+      ['fx/fx.css', 'fx/case-fx.css'].forEach(function (href) {
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = href + '?v=' + V;
+        document.head.appendChild(l);
+      });
+      ['fx/fx-list.js', 'fx/case-fx.js'].forEach(function (src) {
+        var s = document.createElement('script');
+        s.src = src + '?v=' + V;
+        s.async = false;
+        document.head.appendChild(s);
+      });
+    })();
+  </script>
 </head>
 <body>
   <div class="page">
-    <main class="column case">
+    <main class="column case v2">
 
       <a class="back" href="index.html">
         <svg viewBox="0 0 5 9" fill="none" aria-hidden="true"><path d="M4.5 8.5L0.5 4.5L4.5 0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
         back
       </a>
 
+      <!-- Figma 330:17690 -->
       <header class="case-head">
         <div class="case-title-row">
           <h1 class="case-title">CDC w Xendit</h1>
           <p class="case-credit"><span class="year">2023</span><span class="sep">.</span><span class="client">Jiva</span></p>
         </div>
-        <p class="case-sub">Integrating a new payment system into Jiva&rsquo;s repayment flow, without disrupting the journey users already knew.</p>
+        <p class="case-sub">Cutting a 72-hour wait on loan repayments, without changing a flow 20,000 field agents already knew.</p>
       </header>
 
       <dl class="case-meta">
         <div class="meta-row"><dt>Role</dt><dd>Product Designer</dd></div>
-        <div class="meta-row"><dt>Duration</dt><dd>10 - 11/2023</dd></div>
+        <div class="meta-row"><dt>Duration</dt><dd>Oct - Nov 2023</dd></div>
         <div class="meta-row"><dt>Team</dt><dd>Gahan Rakholia, Saif Khan, Omair Malik, Sameer Desai</dd></div>
+        <div class="meta-row"><dt>Impact</dt><dd>90% drop in payment support calls, 6 months after launch</dd></div>
       </dl>
+
+      <span class="shot v2-hero" style="--ar-light: 1920 / 1080">
+        <img class="shot-img" src="assets/CDC w Xendit_light_1.webp"
+             data-light="assets/CDC w Xendit_light_1.webp" data-dark="assets/CDC w Xendit_dark_1.webp"
+             alt="Cash deposit claim flow rebuilt around Xendit" width="1920" height="1080">
+      </span>
 
       <div class="case-body">
 
-        <span class="shot" style="--ar-light: 1920 / 1080">
-          <img class="shot-img" src="assets/CDC w Xendit_light_1.webp"
-               data-light="assets/CDC w Xendit_light_1.webp" data-dark="assets/CDC w Xendit_dark_1.webp"
-               alt="Cash deposit claim flow rebuilt around Xendit" width="1920" height="1080">
-        </span>
-
-        <section class="case-section">
-          <h2>Introduction</h2>
+        <section class="case-section" id="context" data-toc="Context">
+          <h2>Context, why repaying a loan took three days</h2>
           <div class="prose">
-            <p>Jiva was a micro-financing company for smallholder farmers in Indonesia. Their core users called Field Agents used the app to buy agricultural inputs like seeds and pesticides, send crops for procurement, and give loans to farmers in their network.</p>
-            <p>When I joined, there was already a repayment flow in place. It had worked fine when the company was smaller. But Jiva was growing, and the cracks were starting to show.</p>
+            <p>Jiva lent money to smallholder farmers in Indonesia. Field agents were the link. They borrowed on behalf of the farmers in their network, each loan tied to a named farmer, and used it to buy seed and fertiliser and move the harvest. Most worked out of remote villages, with low to medium digital literacy.</p>
+            <p>Paying a loan back worked like this. The agent transferred money to Jiva&rsquo;s bank account, opened the app, typed in the amount, photographed the deposit slip, and chose which loans the money should clear. Then they waited. Someone in Jiva&rsquo;s finance team opened each claim, checked the slip against the transfer, and updated the balance by hand. That took 48 to 72 hours.</p>
+            <p>Most of the year that was slow but survivable. During harvest it wasn&rsquo;t. An agent with an unconfirmed repayment couldn&rsquo;t draw the next loan, and a farmer who couldn&rsquo;t buy seed that week lost the planting window.</p>
           </div>
+
+          <figure class="v2-fig v2-flow">
+            <figcaption class="v2-label">User flow</figcaption>
+            <span class="shot" style="--ar-light: 2804 / 508">
+              <img class="shot-img" src="assets/flow before xendit.webp"
+                   data-light="assets/flow before xendit.webp" data-dark="assets/flow before xendit_dark.webp"
+                   alt="Before Xendit: pay, open the app, enter the amount, upload the bank slip, allocate to loans, submit, wait for finance to check, balance updates" width="2804" height="508" loading="lazy">
+            </span>
+          </figure>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 1572 / 1600; --ar-dark: 7720 / 8256">
+              <img class="shot-img" src="assets/CDC Old_light.webp"
+                   data-light="assets/CDC Old_light.webp" data-dark="assets/CDC Old_dark.webp"
+                   alt="The cash deposit claim screens before Xendit" width="1572" height="1600" loading="lazy">
+            </span>
+            <figcaption>The agent finished here, then sometimes waited two days for someone to check it.</figcaption>
+          </figure>
         </section>
 
-        <section class="case-section">
-          <h2>Challenge</h2>
-          <p>The task was to bring in a payment aggregator called Xendit without breaking the mental model Field Agents had already built around repayments. The company also wanted to cut the human errors that were generating support tickets and slowing down the finance team.</p>
-        </section>
-
-        <section class="case-section">
-          <h2>Why these changes?</h2>
+        <section class="case-section" id="research" data-toc="Research">
+          <h2>Research, 5,000 tickets and 90% human error</h2>
           <div class="prose">
-            <p>Field Agents are a smallholder farmer&rsquo;s primary link to credit. During peak harvest season, a 72-hour wait to confirm a loan repayment meant some farmers couldn&rsquo;t access their next loan in time. That alone made this worth fixing.</p>
-            <p>I wanted to understand the full picture before touching anything, so I went around and asked the stakeholders and this is what I heard from them</p>
-            <ul>
-              <li>To reduce the support tickets which took 4 - 48 hours to be resolved.</li>
-              <li>Making the system smart enough that the human errors reduce which the system should have caught in the first place.</li>
-              <li>Field Agents are smallholder farmers&rsquo; primary link to credit. During peak harvest season, a 72-hour wait to confirm a loan repayment could mean a farmer can&rsquo;t access the next loan in time.</li>
-            </ul>
+            <p>I started with the support executive who handled payment tickets. Their read was that almost all of it was people, not the system. Marking more than they owed, marking less, an extra zero that changed the number entirely.</p>
+            <p>I wanted the number rather than the impression, so I wrote the requirement and asked the data team to pull it. Every payment ticket Jiva had logged, the whole life of the product, not just harvest season. Around 5,000 came back. 90% were human error.</p>
+            <p>None of them should have reached a human. An agent could allocate 2,000,000 against an outstanding of 200,000 and the app would accept it, send it to finance, and finance would phone the agent to ask what they meant. The checks were simple arithmetic. Nobody had built them yet.</p>
           </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 5940 / 7856">
+              <img class="shot-img" src="assets/Error Handling_light.webp"
+                   data-light="assets/Error Handling_light.webp" data-dark="assets/Error Handling_dark.webp"
+                   alt="Error handling screens that catch over- and under-allocation before submission" width="5940" height="7856" loading="lazy">
+            </span>
+          </figure>
         </section>
 
-        <section class="case-section">
-          <h2>Process</h2>
-          <div class="flow-scroll">
-            <div class="flow">
-              <div class="flow-main">
-                <div class="flow-row">
-                  <span class="chip">Desk research</span>
-                  <span class="chip">Wireframe</span>
-                  <span class="chip">Initial Designs</span>
-                  <span class="chip">Research planning</span>
-                </div>
-                <div class="flow-turn" aria-hidden="true"></div>
-                <div class="flow-row">
-                  <span class="chip">Development</span>
-                  <span class="chip">High fidelity design</span>
-                  <span class="chip">UT changes</span>
-                  <span class="chip">UT synthesis</span>
-                </div>
-              </div>
-              <span class="chip">User Testing(UT)</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="case-section">
-          <h2>The Initial steps - Desk Research</h2>
+        <section class="case-section" id="decision" data-toc="Decision">
+          <h2>Decision, allocate first, pay second</h2>
           <div class="prose">
-            <p>To begin with I started what are the human errors that are being made, So I had to go through the support tickets and that helped me understand what the human errors were</p>
-            <ul>
-              <li>Wrong amount added in loan categories.</li>
-              <li>Making sure that the total sum loan amount matched with the loan categories.</li>
-              <li>wrong loan category being selected, like the ones without outstanding.</li>
-            </ul>
-            <p>These seem like small mistakes. But each one meant someone from the accounting team had to call the Field Agent, re-verify the numbers, and manually fix it in the system. Multiply that across dozens of agents and it adds up fast.</p>
+            <p>Xendit arrived as a decision already made. Business had chosen the aggregator; my question was what it did to the flow.</p>
+            <p>Agents used to pay first and allocate afterwards. By the time the app saw the numbers, the money was gone so a wrong amount became a phone call from the finance team, not a correction on screen.</p>
+            <p>I moved the allocation ahead of the payment. The agent tells the app what they owe and where it goes, the app checks it, and only then do they pay.</p>
+            <p>This meant we remove the photos of bank slip. With Xendit identifying the payer, there was nothing left to photograph. I read that as one less thing to do. Testing said otherwise.</p>
           </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 2804 / 1296">
+              <img class="shot-img" src="assets/Decession flow_light.webp"
+                   data-light="assets/Decession flow_light.webp" data-dark="assets/Decession flow_dark.webp"
+                   alt="Old and new flows side by side: the same steps, with allocation moved before payment" width="2804" height="1296" loading="lazy">
+            </span>
+            <figcaption>The same steps but a little swapped.</figcaption>
+          </figure>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 7720 / 11960">
+              <img class="shot-img" src="assets/Decession_light4x.webp"
+                   data-light="assets/Decession_light4x.webp" data-dark="assets/Decession_dark4x.webp"
+                   alt="The new deposit flow screens: allocate to loans, review, choose a payment method, pay" width="7720" height="11960" loading="lazy">
+            </span>
+          </figure>
         </section>
 
-        <section class="case-section">
-          <h2>Current user flow - Desk Research</h2>
-          <p>At the time, the flow worked this way that a Field Agent transferred money to Jiva&rsquo;s fixed bank account, then came into the app to manually allocate that payment across loan categories. The app had no way to verify the transfer had happened so Jiva&rsquo;s finance team spent 48&ndash;72 hours checking every claim before updating any balance.</p>
-          <span class="shot" style="--ar-light: 1572 / 1600; --ar-dark: 7720 / 8256">
-            <img class="shot-img" src="assets/CDC Old_light.webp" data-light="assets/CDC Old_light.webp" data-dark="assets/CDC Old_dark.webp"
-                 alt="The cash deposit claim screens before Xendit" width="4025" height="4096" loading="lazy">
-          </span>
-
-          <h3>User flow before xendit</h3>
-          <div class="flow-scroll">
-            <div class="flow">
-              <div class="flow-main">
-                <div class="flow-row">
-                  <span class="chip">User pays</span>
-                  <span class="chip">Opens app</span>
-                  <span class="chip">enters amount paid</span>
-                  <span class="chip">Uploads bank slip</span>
-                </div>
-                <div class="flow-turn" aria-hidden="true"></div>
-                <div class="flow-row">
-                  <span class="chip">Balance resets</span>
-                  <span class="chip">claim is checked</span>
-                  <span class="chip">submits the claim</span>
-                  <span class="chip">mentions categories</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        <section class="case-section" id="testing" data-toc="User testing">
+          <h2>User Testing, removing a step removed their proof</h2>
           <div class="prose">
-            <p>The problem with the current system</p>
-            <ul>
-              <li>The user had to do some mental math while mentioning the amount, this is one of important flows where the users always got tensed and then made the mistakes.</li>
-              <li>No system-level checks existed to catch the input errors</li>
-              <li>Longer process over all from the user and from Jiva&rsquo;s end.</li>
-              <li>During peak harvest season the wait time made it harder for farmers to get the next loan.</li>
-            </ul>
+            <p>Five agents went through the prototype. Two of them stopped and asked about the bank slip.</p>
+            <p>The slip was the one physical thing they had showing the money had left their account, and without it they felt they were paying and hoping.</p>
+            <p>So I added a page before the deposit starts, shown the first five times an agent uses the new flow across the first three months, explaining what changed and why there&rsquo;s no slip to upload.</p>
+            <p>There was a timeline argument against this and it was fair, so I designed it in a day. After launch, agents were spending longer on this page than on any other screen in the flow.</p>
           </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 7720 / 4128">
+              <img class="shot-img" src="assets/FTUX_light.webp"
+                   data-light="assets/FTUX_light.webp" data-dark="assets/FTUX_dark.webp"
+                   alt="The introduction page shown before the new deposit flow" width="7720" height="4128" loading="lazy">
+            </span>
+            <figcaption>One page, explaining what changed and why the slip is gone.</figcaption>
+          </figure>
         </section>
 
-        <section class="case-section">
-          <h2>Fundamental changes with Xendit - Desk Research</h2>
+        <section class="case-section" id="results" data-toc="Results">
+          <h2>Results, what changed</h2>
           <div class="prose">
-            <p>Xendit is a payment aggregator that supports multiple payment methods ATM deposit, internet banking, bank transfer, supermarket counter payments. When a user pays, Xendit generates a virtual bank account number tied to them, confirms the transaction automatically, and updates the balance.</p>
-            <p>With Xendit in the flow, the order of steps had to flip. Instead of paying first and then coming into the app to allocate, the user would now select categories first, then pay.</p>
+            <p>Six months after launch, the team reported a 90% drop in payment support calls against the pre-Xendit baseline. Across 200,000 farmers and 20,000 field agents, around 20 tickets came in about the new flow, and those were people asking what had changed rather than reporting a mistake.</p>
+            <p>The errors the system now caught stopped reaching the finance team at all.</p>
           </div>
 
-          <h3>Proposed user flow with Xendit</h3>
-          <div class="flow-scroll">
-            <div class="flow">
-              <div class="flow-main">
-                <div class="flow-row">
-                  <span class="chip">Opens app</span>
-                  <span class="chip">mentions categories</span>
-                  <span class="chip">submits the claim</span>
-                </div>
-                <div class="flow-turn" aria-hidden="true"></div>
-                <div class="flow-row">
-                  <span class="chip">Balance resets</span>
-                  <span class="chip">claim is auto checked</span>
-                  <span class="chip">User pays</span>
-                </div>
-              </div>
-              <span class="chip">Selects mode of payment</span>
-            </div>
-          </div>
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 7720 / 4128">
+              <img class="shot-img" src="assets/Results_light.webp"
+                   data-light="assets/Results_light.webp" data-dark="assets/Results_dark.webp"
+                   alt="Old confirmation saying to expect an update in 48 hours, next to the new on-screen payment status" width="7720" height="4128" loading="lazy">
+            </span>
+            <figcaption>Old flow: expect this in 48 hours. New flow: status on screen.</figcaption>
+          </figure>
         </section>
 
-        <section class="case-section">
-          <h2>Hypothesis</h2>
-          <p>My hypothesis was that even with a new payment backend, the steps inside the app should stay as close to the old flow as possible. Field Agents had built a routine around this. A completely different experience would create a learning curve we didn&rsquo;t need. Let Xendit work underneath not instead of what users already knew.</p>
-        </section>
-
-        <section class="case-section">
-          <h2>Wire Frame and Initial Designs</h2>
-          <p>I built a prototype around the new flow in which users no longer needed to enter an amount manually or upload a bank slip. The question was whether removing those two steps would feel like relief, or just create confusion.</p>
-        </section>
-
-        <section class="case-section">
-          <h2>Research Planning and User Testing(UT)</h2>
+        <section class="case-section" id="learnings" data-toc="Learnings">
+          <h2>Learnings</h2>
           <div class="prose">
-            <p>The goal was to find friction early, before anything went live. Testing surfaced two things we hadn&rsquo;t fully anticipated</p>
-            <ul>
-              <li>We needed to explain the change upfront. Users didn&rsquo;t understand why the flow felt different. Adding a screen at the start before they hit anything new gave them the context to move through it with confidence.</li>
-              <li>Removing the bank slip caused confusion, not relief. That slip was something users had uploaded for over a year. When it was gone, people didn&rsquo;t feel unburdened they felt uncertain. We had to explicitly call out the change at the start of the flow and explain why it was gone, not just quietly remove it.</li>
-            </ul>
+            <p>I treated the bank slip as a step to remove. It was a receipt, and I only found that out in testing. Now when I take something away from a flow, I check what the user was using it for, not just what it cost them to do.</p>
           </div>
-        </section>
-
-        <section class="case-section">
-          <p>Considering all the changes I started working on the screens and made these changes</p>
-        </section>
-
-        <section class="case-section">
-          <h2>Cash deposit history and outstanding</h2>
-          <p>The old screens had separate entry points for checking the outstanding balance, registering a deposit, and viewing history. The new design puts all of it on one screen no navigating around to piece together the picture.</p>
-          <span class="shot" style="--ar-light: 7720 / 4488">
-            <img class="shot-img" src="assets/CDC cash deposit history and outstanding.webp"
-                 data-light="assets/CDC cash deposit history and outstanding.webp"
-                 data-dark="assets/CDC cash deposit history and outstanding_dark.webp"
-                 alt="One screen combining outstanding balance, deposit registration and history" width="7720" height="4488" loading="lazy">
-          </span>
-        </section>
-
-        <section class="case-section">
-          <h2>Cash deposit claim</h2>
-          <p>Previously, users had to specify the transfer date, allocate amounts to loan categories, and upload a photo of the bank slip. In the new design, Xendit handles identification automatically when the user pays the slip is gone, and the credit updates on its own.</p>
-          <span class="shot" style="--ar-light: 9500 / 4488">
-            <img class="shot-img" src="assets/Cash Deposit claim_old_light.webp"
-                 data-light="assets/Cash Deposit claim_old_light.webp" data-dark="assets/Cash Deposit claim_old_dark.webp"
-                 alt="The previous cash deposit claim screens" width="9500" height="4488" loading="lazy">
-          </span>
-          <span class="shot" style="--ar-light: 7720 / 4488">
-            <img class="shot-img" src="assets/Cash Deposit claim_new_light.webp"
-                 data-light="assets/Cash Deposit claim_new_light.webp" data-dark="assets/Cash Deposit claim_new_dark.webp"
-                 alt="The redesigned cash deposit claim screens" width="7720" height="4488" loading="lazy">
-          </span>
-        </section>
-
-        <section class="case-section">
-          <h2>Error handling</h2>
-          <p>The old design had no guard rails for input mistakes. The new one catches edge cases before they become support tickets wrong amounts, mismatched totals, categories with no outstanding balance.</p>
-          <span class="shot" style="--ar-light: 5940 / 7856">
-            <img class="shot-img" src="assets/Error Handling_light.webp"
-                 data-light="assets/Error Handling_light.webp" data-dark="assets/Error Handling_dark.webp"
-                 alt="Error states catching mismatched totals and invalid categories" width="5940" height="7856" loading="lazy">
-          </span>
-        </section>
-
-        <section class="case-section">
-          <h2>Payment</h2>
-          <p>When a user was ready to make a payment, the system was configured to open an in-app browser, allowing them to complete the transaction through Xendit (Payment Aggregator).</p>
-          <span class="shot" style="--ar-light: 7720 / 4128">
-            <img class="shot-img" src="assets/Payments_light.webp"
-                 data-light="assets/Payments_light.webp" data-dark="assets/Payments_dark.webp"
-                 alt="Payment handed off to Xendit in an in-app browser" width="7720" height="4128" loading="lazy">
-          </span>
-        </section>
-
-        <section class="case-section">
-          <h2>Payment confirmation</h2>
-          <p>Once a user completes a payment in Xendit, the screen is redirected back to the app, displaying the exact payment status of the cash deposit.</p>
-          <span class="shot" style="--ar-light: 7720 / 7696">
-            <img class="shot-img" src="assets/Payments confirmation_light.webp"
-                 data-light="assets/Payments confirmation_light.webp" data-dark="assets/Payments confirmation_dark.webp"
-                 alt="Payment status shown on return from Xendit" width="7720" height="7696" loading="lazy">
-          </span>
-        </section>
-
-        <section class="case-section">
-          <h2>First Time User Experience</h2>
-          <p>Since this was a new method for users to make cash deposits, User Testing revealed that some users experienced difficulty navigating and required assistance to understand the flow. To address this, we introduced an interim screen the first time a user initiates a cash deposit. Additionally, a video explaining the new process was shared via WhatsApp broadcast, notifying users of the change in cash deposit procedure.</p>
-          <span class="shot" style="--ar-light: 7720 / 4128">
-            <img class="shot-img" src="assets/FTUX_light.webp"
-                 data-light="assets/FTUX_light.webp" data-dark="assets/FTUX_dark.webp"
-                 alt="Interim first-time screen explaining the new deposit flow" width="7720" height="4128" loading="lazy">
-          </span>
-        </section>
-
-        <section class="case-section">
-          <h2>Metrics</h2>
-          <p>With the changes made we <em class="stat">reduced the customer support calls by 90%</em> that were being done due to human errors.</p>
-        </section>
-
-        <section class="case-section">
-          <h2>What did I learn</h2>
-          <ul>
-            <li>Payment flows make people anxious, and anxious people make mistakes. That&rsquo;s not a design failure, it&rsquo;s just how people are. But it changed how I thought about error prevention. It&rsquo;s not enough to remove friction. You also have to reassure people that the new thing is safe.</li>
-            <li>There&rsquo;s a real difference between telling someone &ldquo;here&rsquo;s how the new process works&rdquo; and telling them &ldquo;here&rsquo;s why this is better for you.&rdquo; The first explains. The second earns trust.</li>
-            <li>when the system gets smarter, the heavy lifting moves to the team building it not to the user filling in the form. That&rsquo;s where the effort should go.</li>
-          </ul>
         </section>
 
       </div>
@@ -291,12 +199,12 @@
         <div class="line">
           <span><span class="copy"><span class="copy-mark">&copy;</span>2026</span> <span class="sig">nikhil sajjan</span></span>
         </div>
-        <div class="line updated">last updated 09/26</div>
+        <div class="line updated">last updated Oct 26</div>
       </footer>
 
     </main>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2026-10-07a"></script>
 </body>
 </html>

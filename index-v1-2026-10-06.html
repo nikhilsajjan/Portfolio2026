@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>nikhil sajjan</title>
+  <title>nikhil sajjan — test v1, 2026-10-06</title>
+  <meta name="robots" content="noindex">
   <script>
     (function () {
       var q = new URLSearchParams(location.search).get('theme');
@@ -30,38 +31,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=2026-10-07a">
   <script>
-    /* Interactions chosen in the lab (interactions.html), on by default.
-       ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
-       changes so returning visitors get the new files. */
+    /* Test v1, 2026-10-06: the home page with the interactions chosen in the
+       lab switched on by default. ?fx=id[,id] still overrides for comparison. */
     (function () {
-      var V = '2026-10-07a';
-      var DEFAULT = 'intro-sequence,compact-inline,rows-on-scroll,stat-countup,key-nav,tab-slider,preview-follow,page-fade,underline-draw';
-      var q = new URLSearchParams(location.search).get('fx');
-      var fx = q === 'none' ? '' : (q || DEFAULT);
-      if (!fx) return;
-      if (!q) document.documentElement.setAttribute('data-fx-quiet', '');
-      /* Intro: hide everything that arrives later straight away, before fx.css
-         has loaded, so nothing flashes and then disappears. Same rules as fx.css. */
-      if (fx.split(',').indexOf('intro-sequence') > -1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        var hide = document.createElement('style');
-        hide.textContent =
-          'html:not(.fx-s1) :is(.dot,.toggle){opacity:0}' +
-          'html:not(.fx-s2) .hero .name{opacity:0}' +
-          'html:not(.fx-s3) :is(.links,.role,.bio p,.footer,.section-head,#panel-work .row){opacity:0}';
-        document.head.appendChild(hide);
-        // never leave the page blank if the lab files fail to load
-        setTimeout(function () { document.documentElement.classList.add('fx-s1', 'fx-s2', 'fx-s3'); }, 4000);
-      }
+      var V1 = 'name-rise,compact-inline,rows-on-scroll,stat-countup,key-nav,tab-slider,preview-follow,page-fade,underline-draw';
+      var fx = new URLSearchParams(location.search).get('fx') || V1;
+      document.documentElement.setAttribute('data-fx-quiet', '');
       var ids = fx.split(',').filter(function (id) { return /^[a-z-]+$/.test(id); });
       if (!ids.length) return;
       document.documentElement.setAttribute('data-fx', ids.join(' '));
       var css = document.createElement('link');
       css.rel = 'stylesheet';
-      css.href = 'fx/fx.css?v=' + V;
+      css.href = 'fx/fx.css?v=' + Date.now();
       document.head.appendChild(css);
       ['fx/fx-list.js', 'fx/fx.js'].forEach(function (src) {
         var s = document.createElement('script');
-        s.src = src + '?v=' + V;
+        s.src = src + '?v=' + Date.now();
         s.async = false;
         document.head.appendChild(s);
       });

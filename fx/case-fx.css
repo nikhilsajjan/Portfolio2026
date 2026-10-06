@@ -1,0 +1,203 @@
+/* Interaction lab for cdc-w-xendit.html. Loaded with ?fx=... or its defaults, every
+   rule scoped to [data-fx~="<id>"]. The badge styles come from fx.css. */
+
+/* ---------- Section index, shared ---------- */
+.fx-toc {
+  position: fixed;
+  top: 120px;
+  left: calc(50% - 350px - 200px);
+  z-index: 5;
+  width: 160px;
+  display: none;
+  font-size: 12px;
+  line-height: 16px;
+}
+@media (min-width: 1200px) { .fx-toc { display: block; } }
+.fx-toc ol { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.fx-toc a { text-decoration: none; color: var(--muted); transition: color 250ms ease; }
+.fx-toc a:hover { color: var(--body); }
+.fx-toc a[aria-current="true"] { color: var(--body); }
+
+/* Side index: highlight like the home tabs */
+.fx-toc-list a { padding: 0 3px; margin: 0 -3px; transition: color 250ms ease, background-color 250ms ease; }
+.fx-toc-list a[aria-current="true"] { background: var(--accent); color: #242424; }
+
+/* Numbered chapters */
+.fx-toc-numbered ol { gap: 14px; }
+.fx-toc-numbered .num { display: inline-block; width: 24px; color: var(--year); }
+.fx-toc-numbered a[aria-current="true"] { font-weight: 500; }
+.fx-toc-numbered .bar { display: block; height: 1px; margin-top: 4px; background: var(--dot); }
+.fx-toc-numbered .bar i { display: block; height: 100%; width: 100%; background: var(--body); transform-origin: left; transform: scaleX(0); }
+
+/* Ticks that name themselves */
+.fx-toc-ticks ol { gap: 14px; }
+.fx-toc-ticks a { display: flex; align-items: center; gap: 10px; height: 16px; }
+.fx-toc-ticks .tick { flex: none; width: 12px; height: 1px; background: var(--muted); transition: width 300ms cubic-bezier(0.2, 0.7, 0.2, 1), background-color 250ms ease; }
+.fx-toc-ticks .label { opacity: 0; transform: translateX(-6px); transition: opacity 250ms ease, transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1); white-space: nowrap; }
+.fx-toc-ticks a:hover .label,
+.fx-toc-ticks a[aria-current="true"] .label { opacity: 1; transform: none; }
+.fx-toc-ticks a[aria-current="true"] .tick { width: 28px; background: var(--body); }
+
+/* Progress rail */
+.fx-rail {
+  position: fixed;
+  top: 120px;
+  left: calc(50% - 350px - 200px);
+  z-index: 5;
+  display: none;
+  width: 160px;
+  height: 60vh;
+  font-size: 12px;
+  line-height: 16px;
+}
+@media (min-width: 1200px) { .fx-rail { display: block; } }
+.fx-rail .line { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--dot); }
+.fx-rail .fill { position: absolute; left: 0; top: 0; width: 1px; height: 100%; background: var(--body); transform-origin: top; transform: scaleY(0); }
+.fx-rail a {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translate(-3px, -50%);
+  text-decoration: none;
+  color: var(--muted);
+}
+.fx-rail a::before { content: ""; width: 7px; height: 7px; background: var(--bg); border: 1px solid var(--muted); transition: background-color 250ms ease, border-color 250ms ease; }
+.fx-rail a.is-read::before { background: var(--body); border-color: var(--body); }
+.fx-rail a span { opacity: 0; transition: opacity 250ms ease; }
+.fx-rail a:hover span, .fx-rail a[aria-current="true"] span { opacity: 1; color: var(--body); }
+
+/* Section in the back bar */
+.fx-crumb {
+  position: fixed;
+  top: 24px;
+  left: 32px;
+  z-index: 11;
+  padding-left: 54px;
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.13em;
+  color: var(--body);
+  pointer-events: none;
+}
+.fx-crumb .slash { color: var(--muted); margin-right: 8px; }
+.fx-crumb .fx-sec { display: inline-block; animation: fx-crumb-in 300ms ease both; }
+@keyframes fx-crumb-in { from { opacity: 0; transform: translateY(6px); } }
+@media (min-width: 768px) { .fx-crumb { left: calc(50% - 350px); } }
+
+/* Chapter pill */
+.fx-pill { position: fixed; left: 50%; bottom: 20px; z-index: 30; transform: translateX(-50%); }
+.fx-pill > button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--chip);
+  border-radius: 999px;
+  background: var(--wip-bg);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--body);
+  white-space: nowrap;
+}
+.fx-pill > button .n { color: var(--year); }
+.fx-pill > button .caret { transition: transform 250ms ease; }
+.fx-pill.is-open > button .caret { transform: rotate(180deg); }
+.fx-pill ol {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  min-width: 200px;
+  padding: 8px;
+  list-style: none;
+  border: 1px solid var(--chip);
+  border-radius: 8px;
+  background: var(--wip-bg);
+  font-size: 12px;
+  line-height: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 6px);
+  transition: opacity 200ms ease, transform 250ms ease, visibility 0s linear 250ms;
+}
+.fx-pill.is-open ol { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition-delay: 0s; }
+.fx-pill ol a { display: block; padding: 6px 8px; border-radius: 4px; text-decoration: none; color: var(--subtitle); }
+.fx-pill ol a:hover { background: var(--bg); }
+.fx-pill ol a[aria-current="true"] { color: var(--body); font-weight: 500; }
+
+/* ---------- Reading progress ---------- */
+.fx-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 12;
+  width: 100%;
+  height: 3px;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* ---------- Headings stay with you ---------- */
+[data-fx~="heading-sticky"] .v2 .case-section h2 {
+  position: sticky;
+  top: 52px;
+  z-index: 4;
+  padding: 4px 0 8px;
+  background: var(--bg);
+  box-shadow: 0 8px 12px -4px var(--bg);
+}
+
+/* ---------- Reading spotlight ---------- */
+[data-fx~="text-focus"] .v2 .case-section :is(h2, p, figcaption) { opacity: 0.3; transition: opacity 350ms ease; }
+[data-fx~="text-focus"] .v2 .case-section :is(h2, p, figcaption).is-focus { opacity: 1; }
+
+/* ---------- Numbers get marked ---------- */
+.fx-mark {
+  color: inherit;
+  background: linear-gradient(var(--accent), var(--accent)) no-repeat 0 88% / 0 45%;
+  transition: background-size 700ms cubic-bezier(0.6, 0, 0.2, 1);
+}
+.fx-mark.is-on { background-size: 100% 45%; }
+[data-theme="dark"] .fx-mark { background-image: linear-gradient(color-mix(in srgb, var(--accent) 55%, transparent), color-mix(in srgb, var(--accent) 55%, transparent)); }
+
+/* ---------- Hero settles away ---------- */
+[data-fx~="hero-parallax"] .v2-hero { overflow: hidden; }
+[data-fx~="hero-parallax"] .v2-hero img { will-change: transform, opacity; }
+
+/* ---------- Images rise in ---------- */
+[data-fx~="img-reveal"] .fx-img { opacity: 0; transform: translateY(24px); transition: opacity 700ms ease, transform 800ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+[data-fx~="img-reveal"] .fx-img.is-in { opacity: 1; transform: none; }
+
+/* ---------- Images dissolve in ---------- */
+.fx-cover { position: absolute; inset: 0; display: grid; pointer-events: none; }
+.fx-cover span { background: var(--bg); transition: opacity 140ms linear; }
+[data-fx~="img-pixel"] .shot { position: relative; }
+
+/* ---------- Click to enlarge ---------- */
+[data-fx~="img-lightbox"] .v2 .shot { cursor: zoom-in; }
+.fx-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  cursor: zoom-out;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.fx-lightbox.is-open { opacity: 1; }
+.fx-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform: scale(0.96);
+  transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fx-lightbox.is-open img { transform: none; }

@@ -1,0 +1,389 @@
+/* Interaction lab. Only loaded when the URL carries ?fx=..., and every rule is
+   scoped to [data-fx~="<id>"] so each experiment can be switched on alone or
+   combined with others. */
+
+/* ---------- Badge: which experiment is on ---------- */
+.fx-badge {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px;
+  border: 1px solid var(--chip);
+  border-radius: 4px;
+  background: var(--wip-bg);
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0.05em;
+  color: var(--year);
+  white-space: nowrap;
+}
+.fx-badge b { font-weight: 600; color: var(--heading); }
+@media (max-width: 767px) {
+  .fx-badge { top: auto; bottom: 56px; right: 8px; }
+}
+.fx-badge a { text-decoration: none; color: var(--body); }
+.fx-badge a:hover { text-decoration: underline; }
+
+@keyframes fx-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes fx-pop { from { opacity: 0; transform: scale(0); } }
+
+/* ---------- 01/02 Sticky name, condensing header ---------- */
+.hero.fx-stuck {
+  position: fixed;
+  top: 0;
+  z-index: 20;
+  margin: 0;
+  padding: 16px 0 12px;
+  background: var(--bg);
+  /* paint the bar edge to edge although the hero is column-wide */
+  box-shadow: 0 0 0 100vmax var(--bg);
+  clip-path: inset(0 -100vmax -24px);
+}
+.hero.fx-stuck::after {
+  content: "";
+  position: absolute;
+  left: -100vmax;
+  right: -100vmax;
+  top: 100%;
+  height: 24px;
+  background: linear-gradient(var(--bg), transparent);
+  pointer-events: none;
+}
+.fx-hero-spacer { display: none; }
+.fx-hero-spacer.is-on { display: block; }
+
+[data-fx~="compact-header"] .hero .name,
+[data-fx~="compact-header"] .hero .role {
+  transition: font-size 300ms ease, line-height 300ms ease, opacity 250ms ease, max-height 300ms ease, margin 300ms ease;
+}
+[data-fx~="compact-header"] .hero .role { max-height: 40px; overflow: hidden; }
+[data-fx~="compact-header"] .hero.fx-stuck { padding: 12px 0 10px; }
+[data-fx~="compact-header"] .hero.fx-stuck .name { font-size: 18px; line-height: 22px; letter-spacing: 2.3px; }
+[data-fx~="compact-header"] .hero.fx-stuck .hero-top { margin-bottom: 0; }
+[data-fx~="compact-header"] .hero.fx-stuck .role { max-height: 0; opacity: 0; }
+
+/* ---------- Condensing header, role tucked beside the name ----------
+   Pinned, the hero becomes one line: name 20px, role 12px right after it,
+   links 12px on the right (as in Figma 326:17182, without the dot rows). */
+[data-fx~="compact-inline"] .hero .name { transition: font-size 300ms ease, line-height 300ms ease, letter-spacing 300ms ease; }
+[data-fx~="compact-inline"] .hero.fx-stuck {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  column-gap: 8px;
+  padding: 14px 0 12px;
+}
+[data-fx~="compact-inline"] .hero.fx-stuck .hero-top { display: contents; }
+[data-fx~="compact-inline"] .hero.fx-stuck .name {
+  grid-column: 1; grid-row: 1;
+  display: grid;
+  cursor: pointer;
+  font-size: 20px; line-height: 24px; letter-spacing: 2.6px;
+}
+/* an invisible copy holds the name's full width while hovering re-types it */
+[data-fx~="compact-inline"] .hero.fx-stuck .name::before { content: attr(aria-label); grid-area: 1 / 1; visibility: hidden; }
+[data-fx~="compact-inline"] .hero.fx-stuck .name .name-text { grid-area: 1 / 1; }
+[data-fx~="compact-inline"] .hero.fx-stuck .role {
+  grid-column: 2; grid-row: 1;
+  font-size: 12px; line-height: 16px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  animation: fx-settle 300ms ease-out backwards;
+}
+[data-fx~="compact-inline"] .hero.fx-stuck .links { grid-column: 3; grid-row: 1; font-size: 12px; line-height: 16px; }
+@media (max-width: 767px) {
+  [data-fx~="compact-inline"] .hero.fx-stuck .role { visibility: hidden; }
+}
+
+/* ---------- 04 Footer tucks away ---------- */
+[data-fx~="footer-autohide"] .home .footer { transition: transform 300ms ease; }
+[data-fx~="footer-autohide"] .home .footer.fx-hidden { transform: translateY(100%); }
+@media (min-width: 768px) {
+  [data-fx~="footer-autohide"] .home .footer.fx-hidden { transform: translate(-50%, 100%); }
+}
+
+/* ---------- 05 Dot ripple ---------- */
+[data-fx~="dots-wave"] .dot.fx-wave,
+[data-fx~="dots-wave"] .toggle.fx-wave,
+[data-fx~="intro-sequence"] .dot.fx-wave,
+[data-fx~="intro-sequence"] .toggle.fx-wave {
+  animation: fx-pop 520ms cubic-bezier(0.2, 0.8, 0.3, 1.3) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ---------- 06 Text rises in ---------- */
+[data-fx~="bio-stagger"] .role,
+[data-fx~="bio-stagger"] .links,
+[data-fx~="bio-stagger"] .bio p,
+[data-fx~="bio-stagger"] .section {
+  /* backwards, not both: a transform held after the animation ends would make
+     the section the reference box for everything inside it (it threw the
+     project previews ~720px off) */
+  animation: fx-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+[data-fx~="bio-stagger"] .links { animation-delay: 150ms; }
+[data-fx~="bio-stagger"] .role { animation-delay: 250ms; }
+[data-fx~="bio-stagger"] .bio p:nth-child(1) { animation-delay: 400ms; }
+[data-fx~="bio-stagger"] .bio p:nth-child(2) { animation-delay: 520ms; }
+[data-fx~="bio-stagger"] .bio p:nth-child(3) { animation-delay: 640ms; }
+[data-fx~="bio-stagger"] .bio p:nth-child(4) { animation-delay: 760ms; }
+[data-fx~="bio-stagger"] .bio p:nth-child(5) { animation-delay: 880ms; }
+[data-fx~="bio-stagger"] .section { animation-delay: 1050ms; }
+
+/* ---------- Intro sequence ----------
+   Hidden until their stage (index-v2 also inlines these hiding rules in <head>
+   so nothing flashes before this file arrives). Footer and dots fade or pop
+   without a slide: the fixed footer's own transform must not be overridden. */
+[data-fx~="intro-sequence"]:not(.fx-s1) :is(.dot, .toggle) { opacity: 0; }
+[data-fx~="intro-sequence"]:not(.fx-s2) .hero .name { opacity: 0; }
+[data-fx~="intro-sequence"]:not(.fx-s3) :is(.links, .role, .bio p, .footer) { opacity: 0; }
+[data-fx~="intro-sequence"]:not(.fx-s3):not([data-fx~="rows-on-scroll"]) .section { opacity: 0; }
+[data-fx~="intro-sequence"].fx-s2:not(.fx-done) .hero .name { animation: fx-rise 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) :is(.links, .role, .bio p) { animation: fx-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+/* the projects rise as a block only when rows-on-scroll isn't doing it row by row */
+[data-fx~="intro-sequence"]:not([data-fx~="rows-on-scroll"]).fx-s3:not(.fx-done) .section { animation: fx-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+[data-fx~="intro-sequence"][data-fx~="rows-on-scroll"]:not(.fx-s3) :is(.section-head, #panel-work .row) { opacity: 0; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .footer { animation: fx-fade 700ms ease backwards; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .links { animation-delay: 0ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .role { animation-delay: 60ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .bio p:nth-child(1) { animation-delay: 140ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .bio p:nth-child(2) { animation-delay: 220ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .bio p:nth-child(3) { animation-delay: 300ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .bio p:nth-child(4) { animation-delay: 380ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .bio p:nth-child(5) { animation-delay: 460ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .section { animation-delay: 540ms; }
+[data-fx~="intro-sequence"].fx-s3:not(.fx-done) .footer { animation-delay: 600ms; }
+
+/* ---------- Name rises in (Text rises in, for the name alone) ----------
+   backwards fill: nothing is held on the name once it has landed, so the
+   condensing header can take over cleanly */
+[data-fx~="name-rise"] .hero .name { animation: fx-rise 800ms cubic-bezier(0.2, 0.7, 0.2, 1) 100ms backwards; }
+
+/* ---------- 07 Role types too ---------- */
+.role.fx-typing::after {
+  content: "_";
+  animation: name-caret 800ms steps(1, end) infinite;
+}
+
+/* ---------- 08 Projects in focus ---------- */
+@media (hover: hover) {
+  [data-fx~="focus-dim"] .dots,
+  [data-fx~="focus-dim"] .hero,
+  [data-fx~="focus-dim"] .bio,
+  [data-fx~="focus-dim"] .footer { transition: opacity 400ms ease; }
+  [data-fx~="focus-dim"] .home:has(#panel-work:hover) :is(.dots, .hero, .bio, .footer) { opacity: 0.2; }
+}
+
+/* ---------- 09 Row nudge ---------- */
+[data-fx~="row-nudge"] .row-head { transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+[data-fx~="row-nudge"] #panel-work .row-title { position: relative; }
+[data-fx~="row-nudge"] #panel-work .row-title::before {
+  content: "\2192";
+  position: absolute;
+  right: 100%;
+  margin-right: 10px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 250ms ease, transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  color: var(--body);
+}
+@media (hover: hover) {
+  [data-fx~="row-nudge"] #panel-work .row:hover .row-head { transform: translateX(28px); }
+  [data-fx~="row-nudge"] #panel-work .row:hover .row-title::before { opacity: 1; transform: none; }
+}
+
+/* ---------- 12 Sliding tab ---------- */
+[data-fx~="tab-slider"] .section-head { position: relative; }
+[data-fx~="tab-slider"][data-accent] .tab[aria-selected="true"] { background: none; }
+[data-fx~="tab-slider"] .tab { position: relative; z-index: 1; transition: color 300ms ease; }
+.fx-tab-pill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--accent, var(--chip));
+  transition: transform 380ms cubic-bezier(0.6, 0, 0.2, 1), width 380ms cubic-bezier(0.6, 0, 0.2, 1);
+}
+[data-fx~="tab-slider"] .list.fx-cascade > * {
+  animation: fx-rise 500ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+/* ---------- 13 Image wipe ---------- */
+[data-fx~="preview-wipe"] .row-preview {
+  clip-path: inset(0 0 100% 0);
+  transition-property: opacity, clip-path;
+  transition-timing-function: cubic-bezier(0.7, 0, 0.2, 1);
+}
+[data-fx~="preview-wipe"] .row-preview.is-visible { clip-path: inset(0); }
+
+/* ---------- 14 Image focus pull ---------- */
+[data-fx~="preview-zoom"] .row-preview {
+  transform: scale(0.92);
+  filter: blur(6px);
+  transition-property: opacity, transform, filter;
+  transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-fx~="preview-zoom"] .row-preview.is-visible { transform: none; filter: none; }
+
+/* ---------- 16 Image tilt ---------- */
+[data-fx~="preview-tilt"] .row-preview { will-change: transform; }
+
+/* ---------- 18 Drawn underlines ---------- */
+@keyframes fx-draw { from { background-size: 0 1px; } }
+[data-fx~="underline-draw"] :is(.links, .bio) a {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+}
+[data-fx~="underline-draw"] :is(.links, .bio) a:hover { animation: fx-draw 450ms cubic-bezier(0.6, 0, 0.2, 1); }
+
+/* ---------- 19 Magnetic links ---------- */
+[data-fx~="magnetic-links"] .links a {
+  display: inline-block;
+  transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ---------- 20 Theme ripple ---------- */
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+/* ---------- Pinned header, Figma 326:17182 ----------
+   The grid scrolls until two rows remain, then grid + hero pin as one bar and
+   the hero folds into a single line: name 20px, role 12px inline, links 12px. */
+@keyframes fx-settle { from { opacity: 0; transform: translateY(-4px); } }
+.fx-bar.fx-pinned {
+  position: fixed;
+  z-index: 20;
+  padding-bottom: 12px;
+  background: var(--bg);
+  box-shadow: 0 0 0 100vmax var(--bg);
+  clip-path: inset(0 -100vmax -24px);
+}
+.fx-bar.fx-pinned::after {
+  content: "";
+  position: absolute;
+  left: -100vmax;
+  right: -100vmax;
+  top: 100%;
+  height: 24px;
+  background: linear-gradient(var(--bg), transparent);
+  pointer-events: none;
+}
+.fx-bar.fx-pinned .hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  column-gap: 8px;
+  margin-top: 16px;
+  animation: fx-settle 260ms ease-out backwards;
+}
+.fx-bar.fx-pinned .hero-top { display: contents; }
+.fx-bar.fx-pinned .name { grid-column: 1; grid-row: 1; cursor: pointer; font-size: 20px; line-height: 24px; letter-spacing: 2.6px; }
+/* hovering the name re-types it; an invisible copy holds its full width so the
+   role and links don't slide left while it is half typed */
+.fx-bar.fx-pinned .name { display: grid; }
+.fx-bar.fx-pinned .name::before {
+  content: attr(aria-label);
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.fx-bar.fx-pinned .name .name-text { grid-area: 1 / 1; }
+.fx-bar.fx-pinned .role { grid-column: 2; grid-row: 1; font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fx-bar.fx-pinned .links { grid-column: 3; grid-row: 1; font-size: 12px; line-height: 16px; }
+@media (max-width: 767px) { .fx-bar.fx-pinned .role { visibility: hidden; } }
+.fx-bar-spacer { display: none; }
+.fx-bar-spacer.is-on { display: block; }
+
+/* ---------- Rows rise into view ---------- */
+[data-fx~="rows-on-scroll"] .fx-reveal { opacity: 0; transform: translateY(16px); transition: opacity 600ms ease, transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+[data-fx~="rows-on-scroll"] .fx-reveal.is-in { opacity: 1; transform: none; }
+
+/* ---------- Rule draws under row ---------- */
+[data-fx~="row-rule"] #panel-work .row-head {
+  background: linear-gradient(var(--chip), var(--chip)) no-repeat 0 100% / 0 1px;
+  transition: background-size 450ms cubic-bezier(0.6, 0, 0.2, 1);
+}
+@media (hover: hover) {
+  [data-fx~="row-rule"] #panel-work .row:hover .row-head { background-size: 100% 1px; }
+}
+
+/* ---------- WIP explains itself ---------- */
+@keyframes fx-wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-8deg); }
+  60% { transform: rotate(6deg); }
+}
+[data-fx~="wip-note"] .wip { position: relative; }
+[data-fx~="wip-note"] .wip::after {
+  content: "case study in progress";
+  position: absolute;
+  left: calc(100% + 8px);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--year);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 250ms ease 120ms, transform 300ms ease 120ms;
+}
+@media (hover: hover) {
+  [data-fx~="wip-note"] .row[data-wip]:hover .wip { animation: fx-wiggle 420ms ease-in-out; }
+  [data-fx~="wip-note"] .row[data-wip]:hover .wip::after { opacity: 1; transform: none; }
+}
+[data-fx~="wip-note"] .row.is-open .wip::after { opacity: 1; transform: none; }
+
+/* ---------- Keyboard browsing: .fx-key mirrors the hover state ---------- */
+@media (min-width: 768px) {
+  [data-fx~="key-nav"] #panel-work .row.fx-key .title { font-weight: 700; font-style: italic; }
+  [data-fx~="key-nav"] #panel-work .row.fx-key .company { font-size: 14px; line-height: 18px; }
+  [data-fx~="key-nav"] #panel-work .row.fx-key .tags { color: var(--subtitle); }
+  [data-fx~="key-nav"] #panel-work .row.fx-key .row-desc { grid-template-rows: 1fr; opacity: 1; }
+  [data-fx~="key-nav"] #panel-work:has(.row.fx-key) .row:not(.fx-key) .title { color: var(--year); }
+  [data-fx~="key-nav"] .row[data-wip].fx-key .wip { display: inline-flex; }
+}
+
+/* ---------- Pixel reveal ---------- */
+.fx-pixels {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  width: 320px;
+  height: 180px;
+  pointer-events: none;
+}
+.fx-pixels span { background: var(--bg); }
+
+/* ---------- Square cursor companion ---------- */
+.fx-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: var(--accent, var(--chip));
+  pointer-events: none;
+  transition: width 200ms ease, height 200ms ease, margin 200ms ease, opacity 200ms ease;
+}
+.fx-cursor.is-big { width: 26px; height: 26px; margin: -13px 0 0 -13px; opacity: 0.55; }
+
+/* ---------- Page fades between pages ---------- */
+/* opacity only: a transform on an ancestor would unpin the fixed footer */
+@keyframes fx-fade { from { opacity: 0; } }
+[data-fx~="page-fade"] body { animation: fx-fade 500ms ease backwards; }
+[data-fx~="page-fade"] body.fx-leaving { opacity: 0; transition: opacity 260ms ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fx] *, [data-fx] *::before, [data-fx] *::after { animation: none !important; }
+}

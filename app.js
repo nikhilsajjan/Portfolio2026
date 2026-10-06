@@ -6,8 +6,10 @@
 
   function buildDots() {
     if (!dots || !toggle) return;
-    var cols = mq.matches ? 32 : 14;
-    var rows = mq.matches ? 16 : 11;
+    // the home page sets its desktop grid size in CSS (--dot-cols / --dot-rows)
+    var style = getComputedStyle(dots);
+    var cols = mq.matches ? parseInt(style.getPropertyValue('--dot-cols'), 10) || 32 : 14;
+    var rows = mq.matches ? parseInt(style.getPropertyValue('--dot-rows'), 10) || 16 : 11;
     var frag = document.createDocumentFragment();
     for (var i = 0; i < rows * cols - 1; i++) {
       var d = document.createElement('span');
@@ -185,10 +187,10 @@
   }
 
   /* ---------- Work-row hover previews ----------
-     Mirrors Figma 265:26968. Only runs where there's room beside the 700px column
+     Mirrors Figma 323:15750. Only runs where there's room beside the column
      and a real pointer, so phones and narrow windows are unaffected. */
   var preview = document.querySelector('.row-preview');
-  var previewOK = matchMedia('(min-width: 1340px) and (hover: hover)');
+  var previewOK = matchMedia('(min-width: 1390px) and (hover: hover)');
 
   function previewSrc(key) {
     var theme = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
@@ -209,7 +211,24 @@
       frames.forEach(function (f) { f.style.transitionDuration = ms + 'ms'; });
     }
 
-    function showPreview(key) {
+    /* Top of the row as it will sit once the list settles: rows above it close
+       their summaries as the pointer leaves, so measure them shut (title line
+       plus spacing) rather than mid-animation. Measured on screen against the
+       box the image is positioned in, so an animated (transformed) ancestor
+       can't change what offsetTop is relative to. */
+    function rowTop(row, frame) {
+      var base = frame.offsetParent ? frame.offsetParent.getBoundingClientRect().top : 0;
+      var first = row.parentNode.firstElementChild;
+      var top = row.parentNode.getBoundingClientRect().top - base;
+      for (var r = first; r !== row; r = r.nextElementSibling) {
+        if (!r.classList.contains('row')) continue;
+        top += r.querySelector('.row-head').offsetHeight + parseFloat(getComputedStyle(r).paddingBottom);
+      }
+      return top;
+    }
+
+    function showPreview(row) {
+      var key = row.dataset.preview;
       var cur = frames[active];
       var src = previewSrc(key);
       if (cur.getAttribute('src') === src) {
@@ -221,9 +240,8 @@
       setFade(showing ? SWITCH_MS : FADE_MS);
       var next = frames[1 - active];
       next.src = src;
-      // pinned to the top of the work list, so it never jumps between rows
-      var anchor = document.getElementById('panel-work');
-      if (anchor) next.style.top = anchor.offsetTop + 'px';
+      // level with the top of the hovered row
+      next.style.top = rowTop(row, next) + 'px';
       next.classList.add('is-visible');
       cur.classList.remove('is-visible');
       active = 1 - active;
@@ -231,55 +249,12 @@
 
     document.querySelectorAll('.row[data-preview]').forEach(function (row) {
       row.addEventListener('pointerenter', function () {
-        if (previewOK.matches) showPreview(row.dataset.preview);
+        if (previewOK.matches) showPreview(row);
       });
       row.addEventListener('pointerleave', function () {
         setFade(FADE_MS);
         frames[active].classList.remove('is-visible');
         leftAt = performance.now();
-      });
-    });
-
-    /* Touch only: tapping a work row expands its image beneath it. Every row
-       behaves the same, so CDC's row stops navigating and its image carries the
-       link instead. Gated on (hover: none) so pointer devices keep the hover
-       preview and normal link behaviour. */
-    var inlineOK = matchMedia('(hover: none)');
-
-    function inlineBox(row) {
-      var next = row.nextElementSibling;
-      if (next && next.classList.contains('row-inline')) return next;
-      var link = row.querySelector('.row-title a');
-      var box = document.createElement(link ? 'a' : 'span');
-      box.className = 'row-inline';
-      if (link) {
-        box.setAttribute('href', link.getAttribute('href'));
-        box.setAttribute('aria-label', link.textContent.trim() + ' — open case study');
-      }
-      var img = document.createElement('img');
-      img.alt = '';
-      box.appendChild(img);
-      box.hidden = true;
-      row.parentNode.insertBefore(box, row.nextSibling);
-      return box;
-    }
-
-    document.querySelectorAll('.row[data-preview]').forEach(function (row) {
-      row.addEventListener('click', function (e) {
-        if (!inlineOK.matches) return;
-        // first tap reveals the image rather than following the row's link
-        if (e.target.closest('.row-title a')) e.preventDefault();
-        var box = inlineBox(row);
-        box.querySelector('img').src = previewSrc(row.dataset.preview);
-        box.hidden = !box.hidden;
-      });
-    });
-
-    // keep any open inline preview in step with the theme
-    document.addEventListener('themechange', function () {
-      document.querySelectorAll('.row-inline:not([hidden])').forEach(function (box) {
-        var row = box.previousElementSibling;
-        if (row && row.dataset.preview) box.querySelector('img').src = previewSrc(row.dataset.preview);
       });
     });
 
@@ -294,19 +269,60 @@
     }
   }
 
-  /* ---------- WIP badge on work rows with no case study ----------
-     Hover and keyboard focus are handled in CSS. Touch devices have no hover,
-     so there a tap toggles the badge instead. */
-  var canHover = matchMedia('(hover: hover)').matches;
+  /* ---------- Work rows on touch ----------
+     No hover, so a tap opens the row instead: its summary, its WIP badge and,
+     where it has artwork, the image expanded beneath it. Every row behaves the
+     same, so CDC's row stops navigating and its image carries the link instead.
+     Gated on (hover: none) so pointer devices keep hover and normal links. */
+  var inlineOK = matchMedia('(hover: none)');
+
+  function inlineBox(row) {
+    var next = row.nextElementSibling;
+    if (next && next.classList.contains('row-inline')) return next;
+    var link = row.querySelector('.row-title a');
+    var box = document.createElement(link ? 'a' : 'span');
+    box.className = 'row-inline';
+    if (link) {
+      box.setAttribute('href', link.getAttribute('href'));
+      box.setAttribute('aria-label', link.textContent.trim() + ' — open case study');
+    }
+    var img = document.createElement('img');
+    img.alt = '';
+    box.appendChild(img);
+    box.hidden = true;
+    row.parentNode.insertBefore(box, row.nextSibling);
+    return box;
+  }
+
+  document.querySelectorAll('#panel-work .row').forEach(function (row) {
+    row.addEventListener('click', function (e) {
+      if (!inlineOK.matches) return;
+      // first tap opens the row rather than following its link
+      if (e.target.closest('.row-title a')) e.preventDefault();
+      var open = row.classList.toggle('is-open');
+      if (row.dataset.preview) {
+        var box = inlineBox(row);
+        box.querySelector('img').src = previewSrc(row.dataset.preview);
+        box.hidden = !open;
+      }
+    });
+  });
+
+  // keep any open inline preview in step with the theme
+  document.addEventListener('themechange', function () {
+    document.querySelectorAll('.row-inline:not([hidden])').forEach(function (box) {
+      var row = box.previousElementSibling;
+      if (row && row.dataset.preview) box.querySelector('img').src = previewSrc(row.dataset.preview);
+    });
+  });
+
+  /* ---------- WIP rows: reachable by keyboard ----------
+     Focus opens the row in CSS, as hover does. */
   document.querySelectorAll('.row[data-wip]').forEach(function (row) {
     var title = row.querySelector('.row-title');
-    if (!title || !row.querySelector('.wip')) return;
-
+    var name = row.querySelector('.title');
+    if (!title || !name) return;
     title.setAttribute('tabindex', '0');
-    title.setAttribute('aria-label', title.textContent.trim() + ' — work in progress');
-
-    if (!canHover) {
-      title.addEventListener('click', function () { title.classList.toggle('is-shown'); });
-    }
+    title.setAttribute('aria-label', name.textContent.trim() + ' — work in progress');
   });
 })();

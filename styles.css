@@ -121,6 +121,15 @@ img { max-width: 100%; }
 
 /* ---------- Hero ---------- */
 .hero { margin-top: 20px; }
+.hero-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 16px;
+  margin-bottom: 4px;
+}
+.links { display: flex; gap: 12px; font-size: 12px; line-height: 16px; color: var(--body); }
 .name {
   font-family: 'Redaction 100', 'Courier New', monospace;
   font-weight: 700;
@@ -128,7 +137,6 @@ img { max-width: 100%; }
   line-height: 24px;
   letter-spacing: 2.6px;
   color: var(--name);
-  margin-bottom: 4px;
 }
 /* Typing caret — present only while the name is being typed */
 .name-text { cursor: default; }
@@ -182,15 +190,16 @@ img { max-width: 100%; }
 .tab[aria-selected="true"] { color: var(--heading); }
 
 .list { display: flex; flex-direction: column; gap: 14px; }
-.row {
+.row { position: relative; display: flex; flex-direction: column; }
+.row-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   min-height: 16px;
   white-space: nowrap;
 }
-.featured .row { height: auto; }
 .row-title {
+  flex: 1;
   display: flex;
   align-items: baseline;
   gap: 4px;
@@ -202,11 +211,50 @@ img { max-width: 100%; }
 .row-title a:hover { text-decoration: underline; }
 .sep, .year { display: none; }
 .company {
+  margin-left: auto;
   font-size: 12px;
   line-height: 16px;
   color: var(--muted);
   text-align: right;
 }
+.tags { display: none; }
+
+/* One-line summary under a work row (Figma 323:15750). Shown on hover or
+   focus with a pointer, on tap on touch. */
+.row-desc {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--year);
+  white-space: normal;
+  /* Rows ease open and shut rather than snapping, so moving between them
+     doesn't jolt the list */
+  transition: grid-template-rows 250ms ease, opacity 200ms ease;
+}
+.row-desc p { min-height: 0; overflow: hidden; }
+.row-desc p::before { content: ""; display: block; height: 4px; }
+.row-desc em { font-style: italic; color: var(--body); }
+.row.is-open .row-desc { grid-template-rows: 1fr; opacity: 1; }
+.title, .company, .tags { transition: color 250ms ease, font-weight 250ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .row-desc, .title, .company, .tags { transition: none; }
+}
+
+/* Post-it accent on the active tab and contact links, colour picked per visit
+   in the <head> of index.html */
+[data-accent] .links a,
+[data-accent] .tab[aria-selected="true"] {
+  padding: 0 3px;
+  margin: 0 -3px;
+  background: var(--accent);
+  color: #242424;
+}
+
+/* The CDC row is one link end to end, as in Figma (323:15726) */
+#panel-work .row-title a::after { content: ""; position: absolute; inset: 0; }
+#panel-work .row-title a:hover { text-decoration: none; }
 
 /* WIP badge — revealed on hover (pointer) or tap (touch) for work rows
    with no case study. display:none keeps it out of flow so nothing shifts. */
@@ -233,23 +281,23 @@ img { max-width: 100%; }
 .row[data-wip] .row-title { cursor: default; }
 
 @media (hover: hover) {
-  .row[data-wip] .row-title:hover .wip,
-  .row[data-wip] .row-title:focus-visible .wip { display: inline-flex; }
+  .row[data-wip]:hover .wip,
+  .row[data-wip]:focus-within .wip { display: inline-flex; }
 }
 @media (hover: none) {
-  .row[data-wip] .row-title { cursor: pointer; }
+  #panel-work .row { cursor: pointer; }
 }
-.row[data-wip] .row-title.is-shown .wip { display: inline-flex; }
+.row.is-open .wip { display: inline-flex; }
 
-/* Work-row hover preview (Figma 265:26968): 300x169, 14px right of the column,
-   top-aligned to the hovered row. Needs 700 + 14 + 300 = 1014px of content, so it
-   only appears when the viewport can fit it: (vw+700)/2 + 314 <= vw, i.e. vw >= 1328,
-   rounded to 1340 for scrollbar differences. Below that it stays hidden. */
+/* Work-row hover preview: 320x180, 20px right of the column, level with the top
+   of the hovered row. It only appears when the viewport can fit it:
+   (vw+700)/2 + 340 <= vw, i.e. vw >= 1380, rounded to 1390 for scrollbar
+   differences. Below that it stays hidden. */
 .row-preview {
   position: absolute;
-  left: calc(100% + 14px);
-  width: 300px;
-  aspect-ratio: 300 / 169;
+  left: calc(100% + 20px);
+  width: 320px;
+  aspect-ratio: 320 / 180;
   object-fit: cover;
   pointer-events: none;
   display: none;
@@ -257,11 +305,11 @@ img { max-width: 100%; }
   /* duration is set per change in app.js: 300ms in/out, 450ms between rows */
   transition: opacity 300ms ease;
 }
-@media (min-width: 1340px) and (hover: hover) {
+@media (min-width: 1390px) and (hover: hover) {
   .row-preview { display: block; }
-  .row-preview:not([src]) { visibility: hidden; }
-  .row-preview.is-visible { opacity: 1; }
 }
+.row-preview:not([src]) { visibility: hidden; }
+.row-preview.is-visible { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .row-preview { transition: none; } }
 
 /* Touch only: tapping a work row expands its image below at column width.
@@ -293,6 +341,20 @@ img { max-width: 100%; }
   font-family: 'Redaction 100', 'Courier New', monospace;
   font-weight: 400;
   font-style: normal;
+}
+/* Home: the footer stays pinned to the bottom of the screen while the page
+   scrolls under it (Figma 323:16986 gives it the page fill for this). The
+   column's bottom padding keeps the last row clear of it. */
+.home { padding-bottom: 90px; }
+.home .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  margin-top: 0;
+  padding: 8px 32px 12px;
+  background: var(--bg);
 }
 
 /* ================= Case study ================= */
@@ -453,27 +515,77 @@ img { max-width: 100%; }
 
   .dots { grid-template-columns: repeat(32, 14px); }
 
+  /* Home, Figma 323:16443: 700px column, 32 x 12 dot grid */
+  /* 300px of open space below the last work row, so the hover previews have
+     room to be seen, plus the 34px the pinned footer covers */
+  .home { --dot-cols: 32; --dot-rows: 12; padding-bottom: 334px; }
+  .home .dots { grid-template-columns: repeat(var(--dot-cols), 14px); }
+
+  .hero { margin-top: 24px; }
   .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
-  .role { font-size: 14px; line-height: 18px; }
+  .links { font-size: 14px; line-height: 18px; }
+  .role { font-size: 16px; line-height: 21px; }
 
-  .bio { margin-top: 24px; font-size: 14px; line-height: 18px; }
+  .bio { margin-top: 32px; font-size: 16px; line-height: 21px; }
 
+  .section { margin-top: 80px; }
   .section-head {
+    font-weight: 400;
     font-size: 20px;
     line-height: 22px;
+    letter-spacing: 0;
   }
-  .list { gap: 16px; }
-  .row { align-items: baseline; }
-  .row[data-wip] { align-items: center; }
-  .row-title { font-size: 14px; line-height: 18px; }
+  .tab[aria-selected="true"] { font-weight: 600; }
+  .list { gap: 12px; }
+  /* Spacing as padding, not gap, so the pointer never falls between work rows
+     (which would drop the hover and snap every row back for a moment) */
+  #panel-work { gap: 0; }
+  #panel-work .row { padding-bottom: 12px; }
+  #panel-work .row:last-child { padding-bottom: 0; }
+  .row-head { align-items: baseline; }
+  .row-title { flex: none; gap: 12px; font-size: 32px; line-height: 42px; letter-spacing: 1.6px; }
+  .row-title .company {
+    margin-left: 0;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0;
+    color: var(--year);
+    transition: color 250ms ease, font-size 250ms ease;
+  }
+  .tags { display: inline; font-size: 16px; line-height: 21px; color: var(--year); }
+  .row-desc { font-size: 14px; line-height: 18px; }
+  .row-desc p { max-width: 450px; }
+  /* Figma 323:16436: 12px after the company, sat on the baseline */
+  .wip {
+    margin-left: 0;
+    align-self: baseline;
+    /* trailing letter-spacing trimmed off the right so WIP stays centred */
+    padding: 1.5px 2.2px 1.5px 4px;
+    font-weight: 400;
+    letter-spacing: 1.82px;
+  }
+
+  /* Hover (Figma 323:16443): the row goes bold italic, its company steps up to
+     14px and its summary opens; the other rows fall back to grey */
+  #panel-work .row:hover .title,
+  #panel-work .row:focus-within .title { font-weight: 700; font-style: italic; }
+  #panel-work .row:hover .company,
+  #panel-work .row:focus-within .company { font-size: 14px; line-height: 18px; }
+  #panel-work .row:hover .tags,
+  #panel-work .row:focus-within .tags { color: var(--subtitle); }
+  #panel-work:has(.row:hover) .row:not(:hover) .title { color: var(--year); }
+  #panel-work .row:hover .row-desc,
+  #panel-work .row:focus-within .row-desc { grid-template-rows: 1fr; opacity: 1; }
   .sep { display: inline; font-size: 16px; line-height: 21px; letter-spacing: 2.08px; color: var(--muted); }
   .year { display: inline; font-size: 14px; line-height: 18px; color: var(--year); }
-  .company { font-size: 14px; line-height: 18px; }
 
   .footer { flex-direction: row; justify-content: space-between; align-items: baseline; gap: 0; }
   .footer .copy, .footer .updated { font-size: 12px; letter-spacing: 1.56px; }
   .footer .copy-mark { font-size: inherit; }
   .footer .sig { font-size: 14px; letter-spacing: 1.82px; }
+  /* 9px rather than Figma's 12: Figma trims the text box to the glyphs, the
+     browser keeps the line box, so this lands the baseline 12px from the edge */
+  .home .footer { left: 50%; width: 700px; padding: 8px 0 9px; transform: translateX(-50%); }
 
   /* Case study */
   .case .back {
@@ -500,4 +612,42 @@ img { max-width: 100%; }
 
 @media (min-width: 768px) {
   .photo-stack { margin-top: 32px; }
+}
+
+/* ================= Case study v2 (Figma 330:17690) ================= */
+.v2 .back { color: var(--muted); letter-spacing: 0.13em; }
+.v2 .case-head { margin-top: 20px; }
+.v2 .v2-hero { margin-top: 24px; }
+.v2 .case-body { margin-top: 24px; gap: 32px; }
+.v2 .case-section h2 { font-weight: 500; font-size: 14px; line-height: 18px; letter-spacing: 0.13em; }
+.v2 .case-section .prose { gap: 16px; }
+.v2-fig { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.v2-fig figcaption {
+  font-style: italic;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--subtitle);
+  text-align: center;
+}
+.v2-flow { gap: 16px; }
+.v2-flow .v2-label { font-style: normal; font-weight: 400; text-align: left; }
+
+@media (min-width: 768px) {
+  .v2 .case-title { font-size: 32px; line-height: 36px; letter-spacing: 0.13em; }
+  .v2 .case-credit { letter-spacing: 0.13em; }
+  .v2 .case-sub { font-size: 16px; line-height: 21px; }
+  .v2 .case-meta { letter-spacing: 0.13em; }
+  .v2 .v2-hero { margin-top: 32px; }
+  .v2 .case-body { margin-top: 32px; gap: 24px; }
+  .v2 .case-section h2 { font-size: 18px; line-height: 24px; }
+  /* paragraphs are a blank line apart, as in Figma */
+  .v2 .case-section .prose { gap: 21px; }
+  .v2 .case-section p, .v2 .case-section li { font-size: 16px; line-height: 21px; }
+  .v2-fig figcaption { font-size: 14px; line-height: 18px; }
+}
+/* 300px of room after the last section, so the story can finish scrolling
+   before the footer */
+@media (min-width: 768px) {
+  .v2 .footer { padding-top: 300px; }
 }
