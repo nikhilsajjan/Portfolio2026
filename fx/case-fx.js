@@ -216,7 +216,7 @@
   function keySections() {
     if (!sections.length) return;
     var aim = -1, aimedAt = 0, flashTimer = null;
-    var guide = keyGuide([[['\u2191', '\u2193'], 'sections']]);
+    var guide = keyGuide([[['\u2191', '\u2193'], 'sections'], [['\u2190'], 'home']]);
     function flash(i) {
       var h = sections[i].querySelector('h2');
       if (!h) return;

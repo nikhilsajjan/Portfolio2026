@@ -184,6 +184,32 @@
         });
       });
     });
+    // index.html#writings (from a page's back link) opens on that tab
+    var start = location.hash && document.getElementById('tab-' + location.hash.slice(1));
+    if (start) {
+      start.click();
+      start.closest('.section').scrollIntoView({ block: 'center' });
+    }
+  }
+
+  /* ---------- Left arrow: back to the home page ----------
+     Pages with a back link return home on ←. Coming from the home page it's
+     the browser's back, so the tab and scroll position are as they were;
+     otherwise the back link, which names the tab this page belongs to. */
+  var back = document.querySelector('a.back');
+  if (back) {
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (document.querySelector('.fx-lightbox')) return;
+      e.preventDefault();
+      var home = new URL(back.getAttribute('href'), location.href);
+      var from = null;
+      try { from = document.referrer ? new URL(document.referrer) : null; } catch (err) {}
+      var bare = function (u) { return u.pathname.replace(/index\.html$/, ''); };
+      if (from && from.origin === home.origin && bare(from) === bare(home) && history.length > 1) history.back();
+      else location.href = home.href;
+    });
   }
 
   /* ---------- Work-row hover previews ----------
