@@ -559,6 +559,7 @@
       if (r.top < 120 || r.bottom > innerHeight - 80) cur.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
     }
     // left / right: previous / next tab; from inside the list, land on its first row
+    var guide = keyGuide([[['\u2191', '\u2193'], 'move'], [['\u2190', '\u2192'], 'tabs'], [['enter'], 'open'], [['esc'], 'clear']]);
     function switchTab(dir) {
       var c = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
       var n = clamp(c + dir, 0, tabs.length - 1);
@@ -574,6 +575,7 @@
       if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
       var k = e.key;
       if (idx < 0) build();
+      if (k.indexOf('Arrow') === 0) guide.show();
       if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); select(Math.min(stops.length - 1, idx + 1)); }
       else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); if (idx > 0) select(idx - 1); }
       else if (k === 'ArrowRight') { e.preventDefault(); switchTab(1); }
@@ -592,18 +594,40 @@
     tabs.forEach(function (t) {
       t.addEventListener('click', function (e) { if (e.isTrusted) clear(); });
     });
-    if (hints) keyHint(section.querySelector('.section-head'), '\u2191\u2193 move \u00b7 \u2190\u2192 tabs \u00b7 enter open');
   }
 
-  /* Optional key hint (?hints or fx key-hint): off by default */
-  var hints = has('key-hint') || new URLSearchParams(location.search).has('hints');
-  function keyHint(after, text) {
-    if (!after) return;
-    var h = document.createElement('span');
-    h.className = 'fx-hint';
-    h.setAttribute('aria-hidden', 'true');
-    h.textContent = text;
-    after.appendChild(h);
+  /* Key guide: shown in the bottom-right corner only once someone uses the
+     arrows, gone 4s after the last key or as soon as the pointer moves. */
+  function keyGuide(lines) {
+    var box = null, timer = null;
+    function build() {
+      box = document.createElement('div');
+      box.className = 'key-guide';
+      box.setAttribute('aria-hidden', 'true');
+      lines.forEach(function (l) {
+        var row = document.createElement('div');
+        l[0].forEach(function (k) {
+          var kb = document.createElement('kbd');
+          kb.textContent = k;
+          row.appendChild(kb);
+        });
+        var t = document.createElement('span');
+        t.textContent = l[1];
+        row.appendChild(t);
+        box.appendChild(row);
+      });
+      document.body.appendChild(box);
+      void box.offsetWidth;
+    }
+    function hide() { if (box) box.classList.remove('is-on'); }
+    function show() {
+      if (!box) build();
+      box.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(hide, 4000);
+    }
+    addEventListener('pointermove', function (e) { if (e.movementX || e.movementY) hide(); });
+    return { show: show };
   }
 
   /* ---------- Pixel reveal ---------- */

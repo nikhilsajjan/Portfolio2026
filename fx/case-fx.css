@@ -216,17 +216,3 @@
   transition: none;
 }
 
-/* Key hint (?hints): under the side index, wide screens with a pointer only */
-.fx-hint-case { display: none; }
-@media (min-width: 1200px) and (hover: hover) {
-  .fx-hint-case {
-    display: block;
-    position: fixed;
-    left: calc(50% - 350px - 200px);
-    top: calc(120px + 60vh + 24px);
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-  }
-}

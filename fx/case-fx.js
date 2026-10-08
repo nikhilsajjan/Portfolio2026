@@ -175,6 +175,40 @@
     });
   }
 
+  /* Key guide: shown in the bottom-right corner only once someone uses the
+     arrows, gone 4s after the last key or as soon as the pointer moves. */
+  function keyGuide(lines) {
+    var box = null, timer = null;
+    function build() {
+      box = document.createElement('div');
+      box.className = 'key-guide';
+      box.setAttribute('aria-hidden', 'true');
+      lines.forEach(function (l) {
+        var row = document.createElement('div');
+        l[0].forEach(function (k) {
+          var kb = document.createElement('kbd');
+          kb.textContent = k;
+          row.appendChild(kb);
+        });
+        var t = document.createElement('span');
+        t.textContent = l[1];
+        row.appendChild(t);
+        box.appendChild(row);
+      });
+      document.body.appendChild(box);
+      void box.offsetWidth;
+    }
+    function hide() { if (box) box.classList.remove('is-on'); }
+    function show() {
+      if (!box) build();
+      box.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(hide, 4000);
+    }
+    addEventListener('pointermove', function (e) { if (e.movementX || e.movementY) hide(); });
+    return { show: show };
+  }
+
   /* ---------- Arrow keys step through sections ----------
      Down / up jump to the next / previous section with the index's scroll, and
      its heading flashes so it's clear where the page landed. Left / right do
@@ -182,6 +216,7 @@
   function keySections() {
     if (!sections.length) return;
     var aim = -1, aimedAt = 0, flashTimer = null;
+    var guide = keyGuide([[['\u2191', '\u2193'], 'sections']]);
     function flash(i) {
       var h = sections[i].querySelector('h2');
       if (!h) return;
@@ -198,6 +233,7 @@
       var dir = e.key === 'ArrowDown' || e.key === 'j' ? 1 : e.key === 'ArrowUp' || e.key === 'k' ? -1 : 0;
       if (!dir) return;
       e.preventDefault();
+      guide.show();
       // presses during the scroll count from where it's heading, not where it is
       var from = performance.now() - aimedAt < 700 ? aim : activeIndex();
       var next = clamp(from + dir, 0, sections.length - 1);
@@ -410,12 +446,6 @@
     if (has('toc-ticks')) toc('ticks');
     if (has('toc-rail')) rail();
     if (has('key-sections')) keySections();
-    // optional key hint (?hints or fx key-hint): off by default
-    if (has('key-sections') && (has('key-hint') || new URLSearchParams(location.search).has('hints'))) {
-      var hint = el('span', 'fx-hint-case', '↑↓ sections');
-      hint.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(hint);
-    }
     if (has('toc-crumb')) crumb();
     if (has('toc-pill')) pill();
     if (has('read-progress')) readProgress();

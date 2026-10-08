@@ -749,3 +749,46 @@ img { max-width: 100%; }
   .guide table { font-size: 14px; line-height: 18px; }
   .guide .case-section h3 { font-size: 16px; line-height: 21px; }
 }
+
+/* ================= Key guide (fx/fx.js, fx/case-fx.js) ================= */
+/* Bottom-right corner of the screen, built on the first arrow press and gone
+   a few seconds later. Pointer devices on wide screens only. */
+.key-guide {
+  position: fixed;
+  right: 32px;
+  bottom: 24px;
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--code-bg);
+  border-radius: 6px;
+  font-size: 11px;
+  line-height: 18px;
+  letter-spacing: 0.05em;
+  color: var(--year);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+@media (min-width: 768px) and (hover: hover) {
+  .key-guide { display: flex; }
+}
+.key-guide.is-on { opacity: 1; transform: none; }
+.key-guide div { display: flex; align-items: center; gap: 4px; }
+.key-guide kbd {
+  min-width: 20px;
+  padding: 0 5px;
+  font: inherit;
+  text-align: center;
+  color: var(--body);
+  background: var(--code-bg);
+  border-radius: 3px;
+}
+.key-guide span { margin-left: 6px; }
+/* the home footer is pinned to the bottom, so sit just above it */
+body:has(.home) .key-guide { bottom: 52px; }
+@media (prefers-reduced-motion: reduce) { .key-guide { transition: none; } }
