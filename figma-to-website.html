@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2026-10-08a">
+  <link rel="stylesheet" href="styles.css?v=2026-10-08c">
 </head>
 <body>
   <div class="page">
@@ -207,7 +207,14 @@ git push</code></pre>
         <!-- Not in the Figma frame: carried over from the original guide (.md),
              since the introduction promises other platforms. -->
         <section class="case-section" id="alternatives">
-          <h2>Alternative hosting platforms</h2>
+          <details class="more">
+            <summary>
+              <span class="more-title">
+                <h2>Alternative hosting platforms</h2>
+                <span class="more-hint">Netlify, Vercel and Cloudflare Pages, click to open</span>
+              </span>
+            </summary>
+            <div class="more-body">
           <div class="prose">
             <p>GitHub Pages works well for static sites, but here are other free options — Netlify, Vercel, and Cloudflare Pages — with full step-by-step setup below:</p>
           </div>
@@ -278,6 +285,8 @@ git push</code></pre>
             </ol>
             <p>To connect your domain, go to your Pages project → Custom domains → Set up a custom domain. Cloudflare will ask you to change Hostinger's nameservers to the ones it provides, which hands DNS management to Cloudflare entirely. SSL is provisioned automatically.</p>
           </div>
+            </div>
+          </details>
         </section>
 
       </div>

@@ -660,7 +660,11 @@ img { max-width: 100%; }
 .guide .case-sub { font-size: 14px; line-height: 18px; }
 .guide .prose strong { font-weight: 700; }
 .guide .prose a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-.guide .prose ol { padding-left: 24px; list-style: decimal; }
+/* Numbers drawn by hand so they start on the column edge; the browser's
+   outside marker overhangs a 24px indent in a monospace face. */
+.guide .prose ol { list-style: none; counter-reset: step; }
+.guide .prose ol li { position: relative; padding-left: 3ch; counter-increment: step; }
+.guide .prose ol li::before { content: counter(step) "."; position: absolute; left: 0; }
 .guide h3 { font-weight: 700; color: var(--subtitle); }
 
 .cmd {
@@ -716,7 +720,26 @@ img { max-width: 100%; }
 .guide thead th { border-bottom-color: var(--chip); }
 .guide td.mono { white-space: nowrap; }
 
+/* Collapsible section: the summary reads as a section heading with a +/- */
+.more > summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.more > summary::-webkit-details-marker { display: none; }
+.more > summary::after { content: "+"; font-size: 18px; color: var(--year); }
+.more[open] > summary::after { content: "\2212"; }
+.more > summary:hover h2, .more > summary:focus-visible h2 { text-decoration: underline; text-underline-offset: 3px; }
+.more-title { display: flex; flex-direction: column; gap: 4px; }
+.more-hint { font-size: 12px; line-height: 16px; color: var(--year); }
+.more[open] .more-hint { display: none; }
+.more-body { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; min-width: 0; }
+
 @media (min-width: 768px) {
+  .more-hint { font-size: 14px; line-height: 18px; }
   .guide .case-sub { font-size: 16px; line-height: 21px; }
   .cmd pre { font-size: 14px; line-height: 21px; }
   .guide table { font-size: 14px; line-height: 18px; }
