@@ -52,16 +52,17 @@
     var r = sections[i].getBoundingClientRect(), line = innerHeight * READ_LINE;
     return clamp((line - r.top) / r.height, 0, 1);
   }
+  // i = -1 is the top of the page: title and hero, before the first section
   function goTo(i, e) {
     if (e) e.preventDefault();
-    var target = sections[i].getBoundingClientRect().top + scrollY - 72;
+    var target = i < 0 ? 0 : sections[i].getBoundingClientRect().top + scrollY - 72;
     var from = scrollY, t0 = performance.now(), dur = reduce ? 0 : 650;
     (function step(now) {
       var p = dur ? clamp((now - t0) / dur, 0, 1) : 1;
       scrollTo(0, from + (target - from) * (1 - Math.pow(1 - p, 3)));
       if (p < 1) requestAnimationFrame(step);
     })(t0);
-    history.replaceState(null, '', location.search + '#' + sections[i].id);
+    history.replaceState(null, '', i < 0 ? location.pathname + location.search : location.search + '#' + sections[i].id);
   }
   function label(s) { return s.getAttribute('data-toc'); }
   function pad(n) { return String(n).padStart(2, '0'); }
@@ -236,12 +237,13 @@
       guide.show();
       // presses during the scroll count from where it's heading, not where it is
       var from = performance.now() - aimedAt < 700 ? aim : activeIndex();
-      var next = clamp(from + dir, 0, sections.length - 1);
-      if (from > -1 && next === from) return;
+      // up from the first section returns to the top of the page
+      var next = clamp(from + dir, -1, sections.length - 1);
+      if (next === from && !(next === -1 && scrollY > 2)) return;
       aim = next;
       aimedAt = performance.now();
       goTo(next);
-      flash(next);
+      if (next > -1) flash(next);
     });
   }
 
