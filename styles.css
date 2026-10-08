@@ -31,6 +31,7 @@
   --footer: #656565;
   --chip: #bdbdbd;   /* chip fill, "back" link, WIP border */
   --wip-bg: #f2f2f2;
+  --code-bg: #e2e2e2;  /* guide: command blocks, table rules (not in Figma) */
 }
 [data-theme="dark"] {
   --bg: #242424;
@@ -45,6 +46,7 @@
   --footer: #d8d8d8;
   --chip: #969696;
   --wip-bg: #2f2f2f;  /* extrapolated: no dark home frame in Figma */
+  --code-bg: #2f2f2f;
 }
 
 /* ---------- Base ---------- */
@@ -650,4 +652,73 @@ img { max-width: 100%; }
    before the footer */
 @media (min-width: 768px) {
   .v2 .footer { padding-top: 300px; }
+}
+
+/* ================= Guide (Figma 352:19420) ================= */
+/* Command blocks with a copy button, the way Claude shows code. The Figma
+   frame sets commands as plain text; the box and button are added here. */
+.guide .case-sub { font-size: 14px; line-height: 18px; }
+.guide .prose strong { font-weight: 700; }
+.guide .prose a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.guide .prose ol { padding-left: 24px; list-style: decimal; }
+.guide h3 { font-weight: 700; color: var(--subtitle); }
+
+.cmd {
+  position: relative;
+  min-width: 0;
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+.cmd pre {
+  margin: 0;
+  padding: 14px 16px;
+  padding-right: 72px;
+  overflow-x: auto;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--body);
+  white-space: pre;
+}
+.cmd .c { color: var(--year); }  /* shell comments */
+.cmd-copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.05em;
+  color: var(--year);
+  background: var(--code-bg);
+}
+.cmd-copy:hover, .cmd-copy:focus-visible { color: var(--body); }
+.cmd-copy svg { width: 12px; height: 12px; flex: none; }
+.cmd-copy .when-done { display: none; }
+.cmd-copy.is-done .when-idle { display: none; }
+.cmd-copy.is-done .when-done { display: inline; }
+
+.table-wrap { min-width: 0; overflow-x: auto; }
+.guide table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--subtitle);
+  text-align: left;
+}
+.guide th { font-weight: 500; color: var(--body); white-space: nowrap; }
+.guide th, .guide td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--code-bg); vertical-align: top; }
+.guide thead th { border-bottom-color: var(--chip); }
+.guide td.mono { white-space: nowrap; }
+
+@media (min-width: 768px) {
+  .guide .case-sub { font-size: 16px; line-height: 21px; }
+  .cmd pre { font-size: 14px; line-height: 21px; }
+  .guide table { font-size: 14px; line-height: 18px; }
+  .guide .case-section h3 { font-size: 16px; line-height: 21px; }
 }

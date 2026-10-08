@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figma to Website — nikhil sajjan</title>
+  <meta name="description" content="A one-time, free-tier setup for hosting a static portfolio on GitHub Pages with a custom domain.">
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get('theme');
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      var t = q || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2026-10-08a">
+</head>
+<body>
+  <div class="page">
+    <main class="column case v2 guide">
+
+      <a class="back" href="index.html">
+        <svg viewBox="0 0 5 9" fill="none" aria-hidden="true"><path d="M4.5 8.5L0.5 4.5L4.5 0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        back
+      </a>
+
+      <!-- Figma 352:19420 -->
+      <header class="case-head">
+        <div class="case-title-row">
+          <h1 class="case-title">Figma to Website</h1>
+          <p class="case-credit"><span class="year">08 Oct 2026</span></p>
+        </div>
+        <p class="case-sub">A one-time, free-tier setup that I found out works for my portfolio or side-project websites.</p>
+      </header>
+
+      <span class="shot v2-hero" style="--ar-light: 1920 / 1080">
+        <img class="shot-img" src="assets/B-light.gif"
+             data-light="assets/B-light.gif" data-dark="assets/B-dark.gif"
+             alt="" width="1920" height="1080">
+      </span>
+
+      <div class="case-body">
+
+        <section class="case-section" id="introduction">
+          <h2>Introduction</h2>
+          <div class="prose">
+            <p>Building with AI has become significantly easier these days. So when I started building my portfolio, my idea was to always build it in Figma first, then give it to Claude and get the static pages built. This process was fairly easy to do with MCP and everything running around, but the bigger task was to upload it to the website. I checked multiple platforms. I checked my own website hosting platform to see what works, and most of what was around was kind of a paid solution. So, me being a curious person and currently a broke international student, I went ahead and started looking for free alternatives. There were several alternatives that I found on the internet, but I went with GitHub, and the document mostly suggests that. But I've also included how I can use other platforms to do the same, so let's get building/clauding.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="overview">
+          <h2>Overview</h2>
+          <div class="prose">
+            <p>This guide documents how to host a static website (HTML, CSS, JS, images, GIFs) for free using GitHub Pages, and connect it to a custom domain purchased on Hostinger or any other platform. No paid hosting plan is needed — only the domain registration should work well. I mean, who would want to pay the extra 5 dollars for something that's available for free and that you can do on your own?</p>
+            <p><strong>Stack used:</strong> Plain HTML + CSS + JS, hosted on GitHub Pages, domain managed via Hostinger DNS.</p>
+            <p><strong>Who this is for:</strong> Anyone with a static site and a custom domain who wants free, version-controlled hosting without paying for a hosting plan.</p>
+            <p><strong>Assumptions:</strong> I am going with the assumption that you already have a domain purchased, but even if not, it's quite simple and easy to buy one. There are many websites, like GoDaddy, that you can look into.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="file-structure">
+          <h2>File structure</h2>
+          <div class="prose">
+            <p>Your project folder must have index.html at its root. GitHub Pages looks for this file specifically — any other name won't be served as the homepage.</p>
+          </div>
+          <div class="cmd">
+<pre><code>your-project/
+├── index.html       ← homepage (required, must be named exactly this)
+├── style.css        ← your stylesheet
+├── script.js        ← your JavaScript
+├── fonts/           ← font files
+└── images/          ← images and GIFs</code></pre>
+          </div>
+          <div class="prose">
+            <p>Keep all assets in subfolders and reference them with relative paths in your HTML, e.g. src="images/photo.jpg", not absolute paths. Absolute paths break when the domain changes.</p>
+            <p>Honestly, if you are vibe coding, any AI will do a good job of structuring your files, but, you know, just for reference, I'm adding this here.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="git">
+          <h2>Setting up Git and pushing to GitHub</h2>
+          <div class="prose">
+            <p>Go to <a href="https://github.com" target="_blank" rel="noopener">github.com</a> and create a new repository. Do not initialise it with a README — leave it empty, then copy the GitHub URL you are on.</p>
+            <p>If it's your first time using Git on this machine, set your identity first, in the same folder your project is in.</p>
+          </div>
+          <div class="cmd" data-copy>
+<pre><code>git config --global user.name "Your Name"
+git config --global user.email "you@example.com"</code></pre>
+          </div>
+          <div class="prose">
+            <p>Run these commands from inside your project folder (the one containing index.html):</p>
+          </div>
+          <div class="cmd" data-copy>
+<pre><code>git init
+git add .
+git commit -m "initial commit"
+git branch -M main
+git remote add origin https://github.com/USERNAME/REPO.git   <span class="c"># copy and paste your repo link here</span>
+git push -u origin main</code></pre>
+          </div>
+          <div class="prose">
+            <p>Once you set up the above, next time it's just running these three commands below, and your website will update in a few minutes.</p>
+          </div>
+          <div class="cmd" data-copy>
+<pre><code>git add .
+git commit -m "describe what changed"   <span class="c"># (this is optional, honestly)</span>
+git push</code></pre>
+          </div>
+        </section>
+
+        <section class="case-section" id="pages">
+          <h2>Enabling GitHub Pages</h2>
+          <div class="prose">
+            <ol>
+              <li>Go to your repo on github.com</li>
+              <li>Click Settings → Pages in the left sidebar</li>
+              <li>Under Branch, select main and keep the folder as / (root)</li>
+              <li>Click Save</li>
+            </ol>
+            <p>Your site will be live at https://USERNAME.github.io/REPO-NAME within 1–2 minutes.</p>
+            <p><strong>Important:</strong> The repo must be set to Public. GitHub Pages is not available on private repos on the free plan. To change this: Settings → General → scroll to Danger Zone → Change visibility → Make public.</p>
+            <p>Making the repo public is the only way on GitHub that it becomes free, or else we need to pay for some subscription to GitHub.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="domain">
+          <h2>Connecting a custom domain (Hostinger DNS + GitHub CNAME)</h2>
+          <div class="prose">
+            <p>This connects your domain (e.g. yourname.com) directly to GitHub Pages — no redirect, clean URL, free SSL. This is a lengthy step, but it's worth it, trust me.</p>
+          </div>
+
+          <h3>Step 1 — Add a CNAME file to your repo</h3>
+          <div class="prose">
+            <p>From inside your project folder in the terminal:</p>
+          </div>
+          <div class="cmd" data-copy>
+<pre><code>echo "yourname.com" > CNAME
+git add CNAME
+git commit -m "add CNAME"
+git push</code></pre>
+          </div>
+          <div class="prose">
+            <p>This file tells GitHub Pages which domain to expect. The value in CNAME is your domain, not your GitHub URL.</p>
+          </div>
+
+          <h3>Step 2 — Add DNS records in Hostinger</h3>
+          <div class="prose">
+            <p>In hPanel, go to Domains → Manage → DNS / Nameservers and add these records:</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>A</td><td>@</td><td class="mono">185.199.108.153</td></tr>
+                <tr><td>A</td><td>@</td><td class="mono">185.199.109.153</td></tr>
+                <tr><td>A</td><td>@</td><td class="mono">185.199.110.153</td></tr>
+                <tr><td>A</td><td>@</td><td class="mono">185.199.111.153</td></tr>
+                <tr><td>CNAME</td><td>www</td><td class="mono">USERNAME.github.io</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="prose">
+            <p>Delete any existing A records pointing to Hostinger's servers before adding these. The 4 GitHub IPs are constant for everyone — they're GitHub's redundant servers.</p>
+            <p>If Hostinger warns about multiple A records with the same name, confirm anyway. This is expected and correct.</p>
+          </div>
+
+          <h3>Step 3 — Set custom domain in GitHub Pages</h3>
+          <div class="prose">
+            <p>Go to repo Settings → Pages, type your domain (e.g. yourname.com) in the Custom Domain box, and hit Save. GitHub will run a DNS check. This usually passes within 10–30 minutes of adding the DNS records.</p>
+            <p>You can track propagation at <a href="https://dnschecker.org" target="_blank" rel="noopener">dnschecker.org</a>.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="https">
+          <h2>Enabling HTTPS</h2>
+          <div class="prose">
+            <p>Once GitHub's DNS check passes, a TLS certificate is provisioned automatically. This can take anywhere from a few minutes to 1 hour. This part generally takes longer than I thought, so I would say patience is the key.</p>
+            <p>When it's ready:</p>
+            <ol>
+              <li>Go to repo Settings → Pages</li>
+              <li>The Enforce HTTPS checkbox will become clickable</li>
+              <li>Enable it</li>
+            </ol>
+            <p>Until HTTPS is enforced, browsers will show a "connection not private" warning to visitors. The site is still loading — it just hasn't got SSL yet. Do not share the URL widely until this is done.</p>
+            <p>If the checkbox is still greyed out after 1 hour, try removing the custom domain and re-adding it — this triggers a fresh certificate request.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="updating">
+          <h2>Updating the site after launch (Serviceability)</h2>
+          <div class="prose">
+            <p>I think we did it, lesgooooooo! Now your portfolio is live, and your hiring managers are going to call you non-stop, hehehe.</p>
+            <p>But I think going through this process is worth it, because from now on you just need to make changes with Claude/Codex to your HTML files, and then you just write three lines of code and then, boom, your website will be live with all the changes you made.</p>
+            <p>These are the three magical commands you need to run every time you make a change.</p>
+          </div>
+          <div class="cmd" data-copy>
+<pre><code>git add .
+git commit -m "describe what changed"   <span class="c"># (this is optional, honestly)</span>
+git push</code></pre>
+          </div>
+        </section>
+
+        <!-- Not in the Figma frame: carried over from the original guide (.md),
+             since the introduction promises other platforms. -->
+        <section class="case-section" id="alternatives">
+          <h2>Alternative hosting platforms</h2>
+          <div class="prose">
+            <p>GitHub Pages works well for static sites, but here are other free options — Netlify, Vercel, and Cloudflare Pages — with full step-by-step setup below:</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Platform</th><th>Free tier</th><th>Custom domain</th><th>Best for</th></tr></thead>
+              <tbody>
+                <tr><td>Netlify</td><td>Yes</td><td>Yes (free SSL)</td><td>Auto-deploy from Git, form handling</td></tr>
+                <tr><td>Vercel</td><td>Yes</td><td>Yes (free SSL)</td><td>Same as Netlify, slightly faster CDN</td></tr>
+                <tr><td>Cloudflare Pages</td><td>Yes (unlimited bandwidth)</td><td>Yes (free SSL)</td><td>High traffic, global performance</td></tr>
+                <tr><td>Hostinger shared hosting</td><td>No (paid plan)</td><td>Yes</td><td>If you want cPanel/FTP control</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="prose">
+            <p>All three free alternatives support connecting a custom domain with DNS records in the same way as GitHub Pages. The DNS setup on Hostinger's side is similar — you would just replace GitHub's IPs with the platform's values.</p>
+          </div>
+
+          <h3>Netlify</h3>
+          <div class="prose">
+            <ol>
+              <li>Go to <a href="https://netlify.com" target="_blank" rel="noopener">netlify.com</a> and create a free account</li>
+              <li>Click Add new site → Import an existing project</li>
+              <li>Connect your GitHub account and select your repo</li>
+              <li>Leave build settings blank (no build command needed for plain HTML)</li>
+              <li>Click Deploy site — Netlify gives you a *.netlify.app URL within seconds</li>
+            </ol>
+            <p>To connect your domain, go to Site settings → Domain management → Add custom domain, then add these records in Hostinger DNS (delete the existing A records first). Netlify provisions SSL automatically once DNS propagates.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>CNAME</td><td>@</td><td class="mono">your-site-name.netlify.app</td></tr>
+                <tr><td>CNAME</td><td>www</td><td class="mono">your-site-name.netlify.app</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Vercel</h3>
+          <div class="prose">
+            <ol>
+              <li>Go to <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a> and sign up with GitHub</li>
+              <li>Click Add New → Project and import your repo</li>
+              <li>Leave all settings as default and click Deploy</li>
+              <li>Vercel gives you a *.vercel.app URL immediately</li>
+            </ol>
+            <p>To connect your domain, go to your project → Settings → Domains, enter your domain and click Add, then add these records in Hostinger DNS. SSL is provisioned automatically.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+              <tbody>
+                <tr><td>A</td><td>@</td><td class="mono">76.76.21.21</td></tr>
+                <tr><td>CNAME</td><td>www</td><td class="mono">cname.vercel-dns.com</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>Cloudflare Pages</h3>
+          <div class="prose">
+            <ol>
+              <li>Go to <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">pages.cloudflare.com</a> and create a free account</li>
+              <li>Click Create a project → Connect to Git</li>
+              <li>Authorise GitHub and select your repo</li>
+              <li>Leave build settings blank, click Save and Deploy</li>
+              <li>Cloudflare gives you a *.pages.dev URL</li>
+            </ol>
+            <p>To connect your domain, go to your Pages project → Custom domains → Set up a custom domain. Cloudflare will ask you to change Hostinger's nameservers to the ones it provides, which hands DNS management to Cloudflare entirely. SSL is provisioned automatically.</p>
+          </div>
+        </section>
+
+      </div>
+
+      <footer class="footer">
+        <div class="line">
+          <span><span class="copy"><span class="copy-mark">&copy;</span>2026</span> <span class="sig">nikhil sajjan</span></span>
+        </div>
+        <div class="line updated">last updated Oct 26</div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="app.js?v=2026-10-07a"></script>
+  <script>
+    /* Copy button on every command block. Copies the block's text exactly,
+       comments included (the shell ignores them). */
+    (function () {
+      var icon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" stroke="currentColor"/><path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" stroke="currentColor"/></svg>';
+      var tick = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+      function write(text) {
+        if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+        return new Promise(function (resolve, reject) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          var ok = false;
+          try { ok = document.execCommand('copy'); } catch (e) {}
+          document.body.removeChild(ta);
+          ok ? resolve() : reject();
+        });
+      }
+
+      document.querySelectorAll('.cmd[data-copy]').forEach(function (block) {
+        var code = block.querySelector('code');
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cmd-copy';
+        btn.setAttribute('aria-label', 'Copy commands');
+        btn.innerHTML = '<span class="when-idle">' + icon + '</span><span class="when-idle">copy</span>' +
+                        '<span class="when-done">' + tick + '</span><span class="when-done">copied</span>';
+        var timer;
+        btn.addEventListener('click', function () {
+          write(code.textContent).then(function () {
+            btn.classList.add('is-done');
+            clearTimeout(timer);
+            timer = setTimeout(function () { btn.classList.remove('is-done'); }, 1500);
+          });
+        });
+        block.appendChild(btn);
+      });
+    })();
+  </script>
+</body>
+</html>
