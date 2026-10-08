@@ -175,6 +175,40 @@
     });
   }
 
+  /* ---------- Arrow keys step through sections ----------
+     Down / up jump to the next / previous section with the index's scroll, and
+     its heading flashes so it's clear where the page landed. Left / right do
+     nothing here; Space, Page Down and the trackpad still scroll freely. */
+  function keySections() {
+    if (!sections.length) return;
+    var aim = -1, aimedAt = 0, flashTimer = null;
+    function flash(i) {
+      var h = sections[i].querySelector('h2');
+      if (!h) return;
+      document.querySelectorAll('.fx-arrive').forEach(function (n) { n.classList.remove('fx-arrive'); });
+      void h.offsetWidth;
+      h.classList.add('fx-arrive');
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(function () { h.classList.remove('fx-arrive'); }, 1400);
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (document.querySelector('.fx-lightbox')) return;
+      var dir = e.key === 'ArrowDown' || e.key === 'j' ? 1 : e.key === 'ArrowUp' || e.key === 'k' ? -1 : 0;
+      if (!dir) return;
+      e.preventDefault();
+      // presses during the scroll count from where it's heading, not where it is
+      var from = performance.now() - aimedAt < 700 ? aim : activeIndex();
+      var next = clamp(from + dir, 0, sections.length - 1);
+      if (from > -1 && next === from) return;
+      aim = next;
+      aimedAt = performance.now();
+      goTo(next);
+      flash(next);
+    });
+  }
+
   /* ---------- Section in the back bar ---------- */
   function crumb() {
     var box = el('div', 'fx-crumb');
@@ -375,6 +409,13 @@
     if (has('toc-numbered')) toc('numbered');
     if (has('toc-ticks')) toc('ticks');
     if (has('toc-rail')) rail();
+    if (has('key-sections')) keySections();
+    // optional key hint (?hints or fx key-hint): off by default
+    if (has('key-sections') && (has('key-hint') || new URLSearchParams(location.search).has('hints'))) {
+      var hint = el('span', 'fx-hint-case', '↑↓ sections');
+      hint.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(hint);
+    }
     if (has('toc-crumb')) crumb();
     if (has('toc-pill')) pill();
     if (has('read-progress')) readProgress();

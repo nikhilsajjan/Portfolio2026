@@ -528,43 +528,82 @@
   function keyNav() {
     var section = document.querySelector('.section.work');
     if (!section) return;
-    // rows of whichever tab is open, so arrows never reach a hidden panel
+    var tabs = Array.prototype.slice.call(section.querySelectorAll('.tab'));
+    // the introduction first, one stop per paragraph (not the About/Photography line)
+    var bio = Array.prototype.slice.call(document.querySelectorAll('.bio p')).filter(function (p) { return !p.querySelector('.photo'); });
+    // then the rows of whichever tab is open, so arrows never reach a hidden panel
     function openRows() {
       var panel = section.querySelector('[role="tabpanel"]:not([hidden])');
       return panel ? Array.prototype.slice.call(panel.querySelectorAll('.row')) : [];
     }
-    var rows = openRows();
-    var idx = -1;
+    var stops = [], idx = -1, cur = null;
+    function build() { stops = bio.concat(openRows()); }
+    function isRow(n) { return n.classList.contains('row'); }
     function fire(row, type) { row.dispatchEvent(new PointerEvent(type)); }
+    function clear() {
+      if (cur) {
+        cur.classList.remove('fx-key');
+        if (isRow(cur)) fire(cur, 'pointerleave');
+      }
+      cur = null;
+      idx = -1;
+    }
     function select(i) {
-      if (idx > -1) { rows[idx].classList.remove('fx-key'); fire(rows[idx], 'pointerleave'); }
+      clear();
+      if (i < 0 || !stops[i]) return;
       idx = i;
-      if (idx < 0) return;
-      var row = rows[idx];
-      row.classList.add('fx-key');
-      fire(row, 'pointerenter');
-      var r = row.getBoundingClientRect();
-      if (r.top < 120 || r.bottom > innerHeight - 80) row.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+      cur = stops[i];
+      cur.classList.add('fx-key');
+      if (isRow(cur)) fire(cur, 'pointerenter');
+      var r = cur.getBoundingClientRect();
+      if (r.top < 120 || r.bottom > innerHeight - 80) cur.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+    }
+    // left / right: previous / next tab; from inside the list, land on its first row
+    function switchTab(dir) {
+      var c = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
+      var n = clamp(c + dir, 0, tabs.length - 1);
+      if (n === c) return;
+      var inRows = cur && isRow(cur);
+      tabs[n].click();
+      build();
+      if (inRows) select(bio.length);
     }
     document.addEventListener('keydown', function (e) {
-      if (e.target.closest && e.target.closest('input, textarea')) return;
+      // leave browser shortcuts (Cmd+Left is Back) and typing alone
+      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
       var k = e.key;
-      if (idx < 0) rows = openRows();
-      if (!rows.length) return;
-      if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); select(Math.min(rows.length - 1, idx + 1)); }
-      else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); select(Math.max(0, idx - 1)); }
-      else if (k === 'Escape') select(-1);
-      else if (k === 'Enter' && idx > -1) {
-        var a = rows[idx].querySelector('a.title');
+      if (idx < 0) build();
+      if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); select(Math.min(stops.length - 1, idx + 1)); }
+      else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); if (idx > 0) select(idx - 1); }
+      else if (k === 'ArrowRight') { e.preventDefault(); switchTab(1); }
+      else if (k === 'ArrowLeft') { e.preventDefault(); switchTab(-1); }
+      else if (k === 'Escape') clear();
+      else if (k === 'Enter' && cur && isRow(cur)) {
+        var a = cur.querySelector('a.title');
         if (a) a.click();
       }
     });
-    // the pointer takes over again as soon as it moves
-    section.addEventListener('pointermove', function () { if (idx > -1) select(-1); });
-    // switching tab drops the selection; the next arrow starts in the new list
-    section.querySelectorAll('.tab').forEach(function (t) {
-      t.addEventListener('click', function () { if (idx > -1) select(-1); });
+    // the pointer takes over again as soon as it really moves
+    document.addEventListener('pointermove', function (e) {
+      if (cur && (e.movementX || e.movementY)) clear();
     });
+    // a tab chosen with the pointer drops the selection
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function (e) { if (e.isTrusted) clear(); });
+    });
+    if (hints) keyHint(section.querySelector('.section-head'), '\u2191\u2193 move \u00b7 \u2190\u2192 tabs \u00b7 enter open');
+  }
+
+  /* Optional key hint (?hints or fx key-hint): off by default */
+  var hints = has('key-hint') || new URLSearchParams(location.search).has('hints');
+  function keyHint(after, text) {
+    if (!after) return;
+    var h = document.createElement('span');
+    h.className = 'fx-hint';
+    h.setAttribute('aria-hidden', 'true');
+    h.textContent = text;
+    after.appendChild(h);
   }
 
   /* ---------- Pixel reveal ---------- */

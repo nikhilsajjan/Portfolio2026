@@ -348,6 +348,9 @@
   [data-fx~="key-nav"] .list .row.fx-key .row-desc { grid-template-rows: 1fr; opacity: 1; }
   [data-fx~="key-nav"] .list:has(.row.fx-key) .row:not(.fx-key) .title { color: var(--year); }
   [data-fx~="key-nav"] .row[data-wip].fx-key .wip { display: inline-flex; }
+  /* the introduction: the paragraph in focus keeps its colour, the rest go grey */
+  [data-fx~="key-nav"] .bio p { transition: color 250ms ease; }
+  [data-fx~="key-nav"] .bio:has(p.fx-key) p:not(.fx-key) { color: var(--year); }
   /* as on hover: the featured title fills the column, so its label stays 12px */
   [data-fx~="key-nav"] .featured .row.fx-key .company { font-size: 12px; line-height: 16px; }
 }
@@ -388,4 +391,18 @@
 
 @media (prefers-reduced-motion: reduce) {
   [data-fx] *, [data-fx] *::before, [data-fx] *::after { animation: none !important; }
+}
+
+/* ---------- Key hint (?hints): off by default, wide screens with a pointer only ---------- */
+.fx-hint { display: none; }
+@media (min-width: 768px) and (hover: hover) {
+  .fx-hint {
+    display: inline;
+    margin-left: auto;
+    font-family: 'Roboto Mono', ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
 }
