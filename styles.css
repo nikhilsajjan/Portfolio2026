@@ -187,8 +187,10 @@ img { max-width: 100%; }
 }
 .section-head .inactive { color: var(--muted); }
 
-/* Tabs: work / lab / experiments */
+/* Tabs: work / lab / experiments / featured / writings */
 .tab { padding: 0; color: var(--muted); }
+/* five tabs overrun a 320px column at the 20px gap */
+@media (max-width: 399px) { .section-head { gap: 12px; } }
 .tab[aria-selected="true"] { color: var(--heading); }
 
 .list { display: flex; flex-direction: column; gap: 14px; }
