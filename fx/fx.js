@@ -297,9 +297,11 @@
 
   /* ---------- 15 Image follows the cursor (eased) ---------- */
   function previewFollow() {
-    var list = document.getElementById('panel-work');
+    // every list whose rows carry a preview; aim() tracks the one under the pointer
+    var lists = ['panel-work', 'panel-writings'].map(function (id) { return document.getElementById(id); }).filter(Boolean);
     var frames = document.querySelectorAll('.row-preview');
-    if (!list || !frames.length) return;
+    if (!lists.length || !frames.length) return;
+    var list = lists[0];
     var target = null, current = null, raf = null, inside = false, pointerY = 0;
     // everything in the coordinates of the box the images are positioned in
     function aim() {
@@ -324,12 +326,15 @@
       frames.forEach(function (f) { f.style.top = current.toFixed(1) + 'px'; });
       raf = inside || Math.abs(target - current) > 0.3 ? requestAnimationFrame(loop) : null;
     }
-    list.addEventListener('pointerenter', function (e) {
-      inside = true; pointerY = e.clientY; current = null; aim();
-      if (!raf) raf = requestAnimationFrame(loop);
+    lists.forEach(function (l) {
+      l.addEventListener('pointerenter', function (e) {
+        list = l;
+        inside = true; pointerY = e.clientY; current = null; aim();
+        if (!raf) raf = requestAnimationFrame(loop);
+      });
+      l.addEventListener('pointermove', function (e) { pointerY = e.clientY; });
+      l.addEventListener('pointerleave', function () { inside = false; });
     });
-    list.addEventListener('pointermove', function (e) { pointerY = e.clientY; });
-    list.addEventListener('pointerleave', function () { inside = false; });
   }
 
   /* ---------- 16 Image tilt toward the pointer ---------- */
@@ -521,8 +526,14 @@
 
   /* ---------- Keyboard browsing ---------- */
   function keyNav() {
-    var rows = Array.prototype.slice.call(document.querySelectorAll('#panel-work .row'));
-    if (!rows.length) return;
+    var section = document.querySelector('.section.work');
+    if (!section) return;
+    // rows of whichever tab is open, so arrows never reach a hidden panel
+    function openRows() {
+      var panel = section.querySelector('[role="tabpanel"]:not([hidden])');
+      return panel ? Array.prototype.slice.call(panel.querySelectorAll('.row')) : [];
+    }
+    var rows = openRows();
     var idx = -1;
     function fire(row, type) { row.dispatchEvent(new PointerEvent(type)); }
     function select(i) {
@@ -538,6 +549,8 @@
     document.addEventListener('keydown', function (e) {
       if (e.target.closest && e.target.closest('input, textarea')) return;
       var k = e.key;
+      if (idx < 0) rows = openRows();
+      if (!rows.length) return;
       if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); select(Math.min(rows.length - 1, idx + 1)); }
       else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); select(Math.max(0, idx - 1)); }
       else if (k === 'Escape') select(-1);
@@ -547,7 +560,11 @@
       }
     });
     // the pointer takes over again as soon as it moves
-    document.getElementById('panel-work').addEventListener('pointermove', function () { if (idx > -1) select(-1); });
+    section.addEventListener('pointermove', function () { if (idx > -1) select(-1); });
+    // switching tab drops the selection; the next arrow starts in the new list
+    section.querySelectorAll('.tab').forEach(function (t) {
+      t.addEventListener('click', function () { if (idx > -1) select(-1); });
+    });
   }
 
   /* ---------- Pixel reveal ---------- */

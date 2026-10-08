@@ -342,12 +342,14 @@
 
 /* ---------- Keyboard browsing: .fx-key mirrors the hover state ---------- */
 @media (min-width: 768px) {
-  [data-fx~="key-nav"] #panel-work .row.fx-key .title { font-weight: 700; font-style: italic; }
-  [data-fx~="key-nav"] #panel-work .row.fx-key .company { font-size: 14px; line-height: 18px; }
-  [data-fx~="key-nav"] #panel-work .row.fx-key .tags { color: var(--subtitle); }
-  [data-fx~="key-nav"] #panel-work .row.fx-key .row-desc { grid-template-rows: 1fr; opacity: 1; }
-  [data-fx~="key-nav"] #panel-work:has(.row.fx-key) .row:not(.fx-key) .title { color: var(--year); }
+  [data-fx~="key-nav"] .list .row.fx-key .title { font-weight: 700; font-style: italic; }
+  [data-fx~="key-nav"] .list .row.fx-key .company { font-size: 14px; line-height: 18px; }
+  [data-fx~="key-nav"] .list .row.fx-key .tags { color: var(--subtitle); }
+  [data-fx~="key-nav"] .list .row.fx-key .row-desc { grid-template-rows: 1fr; opacity: 1; }
+  [data-fx~="key-nav"] .list:has(.row.fx-key) .row:not(.fx-key) .title { color: var(--year); }
   [data-fx~="key-nav"] .row[data-wip].fx-key .wip { display: inline-flex; }
+  /* as on hover: the featured title fills the column, so its label stays 12px */
+  [data-fx~="key-nav"] .featured .row.fx-key .company { font-size: 12px; line-height: 16px; }
 }
 
 /* ---------- Pixel reveal ---------- */

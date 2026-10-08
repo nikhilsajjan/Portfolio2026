@@ -18,6 +18,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=2026-10-09a">
+  <script>
+    /* Section index on the left, as on the case study. ?fx=none turns it off.
+       Bump V when fx/ changes so returning visitors get the new files. */
+    (function () {
+      var V = '2026-10-09a';
+      var DEFAULT = 'toc-rail';
+      var q = new URLSearchParams(location.search).get('fx');
+      var fx = q === 'none' ? '' : (q || DEFAULT);
+      if (!fx) return;
+      document.documentElement.setAttribute('data-fx-quiet', '');
+      var ids = fx.split(',').filter(function (id) { return /^[a-z0-9-]+$/.test(id); });
+      if (!ids.length) return;
+      document.documentElement.setAttribute('data-fx', ids.join(' '));
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'fx/case-fx.css?v=' + V;
+      document.head.appendChild(l);
+      var s = document.createElement('script');
+      s.src = 'fx/case-fx.js?v=' + V;
+      s.async = false;
+      document.head.appendChild(s);
+    })();
+  </script>
 </head>
 <body>
   <div class="page">
@@ -45,14 +68,14 @@
 
       <div class="case-body">
 
-        <section class="case-section" id="introduction">
+        <section class="case-section" id="introduction" data-toc="Introduction">
           <h2>Introduction</h2>
           <div class="prose">
             <p>Building with AI has become significantly easier these days. So when I started building my portfolio, my idea was to always build it in Figma first, then give it to Claude and get the static pages built. This process was fairly easy to do with MCP and everything running around, but the bigger task was to upload it to the website. I checked multiple platforms. I checked my own website hosting platform to see what works, and most of what was around was kind of a paid solution. So, me being a curious person and currently a broke international student, I went ahead and started looking for free alternatives. There were several alternatives that I found on the internet, but I went with GitHub, and the document mostly suggests that. But I've also included how I can use other platforms to do the same, so let's get building/clauding.</p>
           </div>
         </section>
 
-        <section class="case-section" id="overview">
+        <section class="case-section" id="overview" data-toc="Overview">
           <h2>Overview</h2>
           <div class="prose">
             <p>This guide documents how to host a static website (HTML, CSS, JS, images, GIFs) for free using GitHub Pages, and connect it to a custom domain purchased on Hostinger or any other platform. No paid hosting plan is needed — only the domain registration should work well. I mean, who would want to pay the extra 5 dollars for something that's available for free and that you can do on your own?</p>
@@ -62,7 +85,7 @@
           </div>
         </section>
 
-        <section class="case-section" id="file-structure">
+        <section class="case-section" id="file-structure" data-toc="File structure">
           <h2>File structure</h2>
           <div class="prose">
             <p>Your project folder must have index.html at its root. GitHub Pages looks for this file specifically — any other name won't be served as the homepage.</p>
@@ -81,7 +104,7 @@
           </div>
         </section>
 
-        <section class="case-section" id="git">
+        <section class="case-section" id="git" data-toc="Git and GitHub">
           <h2>Setting up Git and pushing to GitHub</h2>
           <div class="prose">
             <p>Go to <a href="https://github.com" target="_blank" rel="noopener">github.com</a> and create a new repository. Do not initialise it with a README — leave it empty, then copy the GitHub URL you are on.</p>
@@ -112,7 +135,7 @@ git push</code></pre>
           </div>
         </section>
 
-        <section class="case-section" id="pages">
+        <section class="case-section" id="pages" data-toc="GitHub Pages">
           <h2>Enabling GitHub Pages</h2>
           <div class="prose">
             <ol>
@@ -127,7 +150,7 @@ git push</code></pre>
           </div>
         </section>
 
-        <section class="case-section" id="domain">
+        <section class="case-section" id="domain" data-toc="Custom domain">
           <h2>Connecting a custom domain (Hostinger DNS + GitHub CNAME)</h2>
           <div class="prose">
             <p>This connects your domain (e.g. yourname.com) directly to GitHub Pages — no redirect, clean URL, free SSL. This is a lengthy step, but it's worth it, trust me.</p>
@@ -175,7 +198,7 @@ git push</code></pre>
           </div>
         </section>
 
-        <section class="case-section" id="https">
+        <section class="case-section" id="https" data-toc="HTTPS">
           <h2>Enabling HTTPS</h2>
           <div class="prose">
             <p>Once GitHub's DNS check passes, a TLS certificate is provisioned automatically. This can take anywhere from a few minutes to 1 hour. This part generally takes longer than I thought, so I would say patience is the key.</p>
@@ -190,7 +213,7 @@ git push</code></pre>
           </div>
         </section>
 
-        <section class="case-section" id="updating">
+        <section class="case-section" id="updating" data-toc="Updating the site">
           <h2>Updating the site after launch (Serviceability)</h2>
           <div class="prose">
             <p>I think we did it, lesgooooooo! Now your portfolio is live, and your hiring managers are going to call you non-stop, hehehe.</p>
@@ -206,7 +229,7 @@ git push</code></pre>
 
         <!-- Not in the Figma frame: carried over from the original guide (.md),
              since the introduction promises other platforms. -->
-        <section class="case-section" id="alternatives">
+        <section class="case-section" id="alternatives" data-toc="Alternatives">
           <details class="more">
             <summary>
               <span class="more-title">
