@@ -260,7 +260,7 @@
 
     // warm the cache so the first hover doesn't show an empty frame
     if (previewOK.matches) {
-      ['cdc', 'bulk', 'learn', 'saveplus'].forEach(function (k) {
+      ['cdc', 'bulk', 'learn', 'saveplus', 'figma'].forEach(function (k) {
         ['light', 'dark'].forEach(function (t) {
           var im = new Image();
           im.src = 'assets/previews/' + k + '-' + t + '.webp';
@@ -284,7 +284,8 @@
     box.className = 'row-inline';
     if (link) {
       box.setAttribute('href', link.getAttribute('href'));
-      box.setAttribute('aria-label', link.textContent.trim() + ' — open case study');
+      var kind = row.closest('#panel-writings') ? 'article' : 'case study';
+      box.setAttribute('aria-label', link.textContent.trim() + ' — open ' + kind);
     }
     var img = document.createElement('img');
     img.alt = '';
@@ -294,7 +295,7 @@
     return box;
   }
 
-  document.querySelectorAll('#panel-work .row').forEach(function (row) {
+  document.querySelectorAll('#panel-work .row, #panel-writings .row').forEach(function (row) {
     row.addEventListener('click', function (e) {
       if (!inlineOK.matches) return;
       // first tap opens the row rather than following its link

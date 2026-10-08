@@ -257,8 +257,8 @@ img { max-width: 100%; }
 }
 
 /* The CDC row is one link end to end, as in Figma (323:15726) */
-#panel-work .row-title a::after { content: ""; position: absolute; inset: 0; }
-#panel-work .row-title a:hover { text-decoration: none; }
+#panel-work .row-title a::after, #panel-writings .row-title a::after { content: ""; position: absolute; inset: 0; }
+#panel-work .row-title a:hover, #panel-writings .row-title a:hover { text-decoration: none; }
 
 /* WIP badge — revealed on hover (pointer) or tap (touch) for work rows
    with no case study. display:none keeps it out of flow so nothing shifts. */
@@ -289,7 +289,7 @@ img { max-width: 100%; }
   .row[data-wip]:focus-within .wip { display: inline-flex; }
 }
 @media (hover: none) {
-  #panel-work .row { cursor: pointer; }
+  #panel-work .row, #panel-writings .row { cursor: pointer; }
 }
 .row.is-open .wip { display: inline-flex; }
 
@@ -543,9 +543,9 @@ img { max-width: 100%; }
   .list { gap: 12px; }
   /* Spacing as padding, not gap, so the pointer never falls between work rows
      (which would drop the hover and snap every row back for a moment) */
-  #panel-work { gap: 0; }
-  #panel-work .row { padding-bottom: 12px; }
-  #panel-work .row:last-child { padding-bottom: 0; }
+  #panel-work, #panel-writings { gap: 0; }
+  #panel-work .row, #panel-writings .row { padding-bottom: 12px; }
+  #panel-work .row:last-child, #panel-writings .row:last-child { padding-bottom: 0; }
   .row-head { align-items: baseline; }
   .row-title { flex: none; gap: 12px; font-size: 32px; line-height: 42px; letter-spacing: 1.6px; }
   .row-title .company {
@@ -571,15 +571,15 @@ img { max-width: 100%; }
 
   /* Hover (Figma 323:16443): the row goes bold italic, its company steps up to
      14px and its summary opens; the other rows fall back to grey */
-  #panel-work .row:hover .title,
-  #panel-work .row:focus-within .title { font-weight: 700; font-style: italic; }
-  #panel-work .row:hover .company,
-  #panel-work .row:focus-within .company { font-size: 14px; line-height: 18px; }
-  #panel-work .row:hover .tags,
-  #panel-work .row:focus-within .tags { color: var(--subtitle); }
-  #panel-work:has(.row:hover) .row:not(:hover) .title { color: var(--year); }
-  #panel-work .row:hover .row-desc,
-  #panel-work .row:focus-within .row-desc { grid-template-rows: 1fr; opacity: 1; }
+  #panel-work .row:hover .title, #panel-writings .row:hover .title,
+  #panel-work .row:focus-within .title, #panel-writings .row:focus-within .title { font-weight: 700; font-style: italic; }
+  #panel-work .row:hover .company, #panel-writings .row:hover .company,
+  #panel-work .row:focus-within .company, #panel-writings .row:focus-within .company { font-size: 14px; line-height: 18px; }
+  #panel-work .row:hover .tags, #panel-writings .row:hover .tags,
+  #panel-work .row:focus-within .tags, #panel-writings .row:focus-within .tags { color: var(--subtitle); }
+  #panel-work:has(.row:hover) .row:not(:hover) .title, #panel-writings:has(.row:hover) .row:not(:hover) .title { color: var(--year); }
+  #panel-work .row:hover .row-desc, #panel-writings .row:hover .row-desc,
+  #panel-work .row:focus-within .row-desc, #panel-writings .row:focus-within .row-desc { grid-template-rows: 1fr; opacity: 1; }
   .sep { display: inline; font-size: 16px; line-height: 21px; letter-spacing: 2.08px; color: var(--muted); }
   .year { display: inline; font-size: 14px; line-height: 18px; color: var(--year); }
 
