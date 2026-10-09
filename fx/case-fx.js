@@ -217,7 +217,7 @@
   function keySections() {
     if (!sections.length) return;
     var aim = -1, aimedAt = 0, flashTimer = null;
-    var guide = keyGuide([[['\u2191', '\u2193'], 'sections'], [['\u2190'], 'home']]);
+    var guide = keyGuide([[['\u2191', '\u2193'], 'sections'], [['space'], 'next'], [['\u2190'], 'home']]);
     function flash(i) {
       var h = sections[i].querySelector('h2');
       if (!h) return;
@@ -227,19 +227,43 @@
       clearTimeout(flashTimer);
       flashTimer = setTimeout(function () { h.classList.remove('fx-arrive'); }, 1400);
     }
+    // where the page sits when section i is in place (-1: the top of the page)
+    function pos(i) { return i < 0 ? 0 : sections[i].getBoundingClientRect().top + scrollY - 72; }
     document.addEventListener('keydown', function (e) {
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+      var space = e.key === ' ';
+      if (e.metaKey || e.ctrlKey || e.altKey || (e.shiftKey && !space)) return;
       if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+      // Space on a focused link, button or the collapsible heading still presses it
+      if (space && e.target.closest && e.target.closest('button, a, summary')) return;
       if (document.querySelector('.fx-lightbox')) return;
       var dir = e.key === 'ArrowDown' || e.key === 'j' ? 1 : e.key === 'ArrowUp' || e.key === 'k' ? -1 : 0;
+      if (space) dir = e.shiftKey ? -1 : 1;
       if (!dir) return;
-      e.preventDefault();
       guide.show();
       // presses during the scroll count from where it's heading, not where it is
-      var from = performance.now() - aimedAt < 700 ? aim : activeIndex();
-      // up from the first section returns to the top of the page
-      var next = clamp(from + dir, -1, sections.length - 1);
-      if (next === from && !(next === -1 && scrollY > 2)) return;
+      var recent = performance.now() - aimedAt < 700;
+      var from = recent ? aim : activeIndex();
+      var next;
+      if (space) {
+        /* Smart Space: snap to the next (or previous) heading when it's within
+           a screen; otherwise leave the browser's own page scroll alone, so a
+           long section is read rather than skipped. */
+        var at = recent ? pos(aim) : scrollY;
+        var reach = innerHeight * 0.85;
+        if (dir > 0) {
+          next = from + 1;
+          if (next >= sections.length || pos(next) - at > reach) return;
+        } else {
+          // the heading of the section we're in if it's above us, else the one before
+          next = from > -1 && pos(from) < at - 2 ? from : from - 1;
+          if (next < -1 || (next === -1 && at <= 2) || at - pos(next) > reach) return;
+        }
+      } else {
+        // up from the first section returns to the top of the page
+        next = clamp(from + dir, -1, sections.length - 1);
+        if (next === from && !(next === -1 && scrollY > 2)) { e.preventDefault(); return; }
+      }
+      e.preventDefault();
       aim = next;
       aimedAt = performance.now();
       goTo(next);

@@ -559,7 +559,7 @@
       if (r.top < 120 || r.bottom > innerHeight - 80) cur.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
     }
     // left / right: previous / next tab; from inside the list, land on its first row
-    var guide = keyGuide([[['\u2191', '\u2193'], 'move'], [['\u2190', '\u2192'], 'tabs'], [['enter'], 'open'], [['esc'], 'clear']]);
+    var guide = keyGuide([[['\u2191', '\u2193'], 'move'], [['space'], 'next'], [['\u2190', '\u2192'], 'tabs'], [['enter'], 'open'], [['esc'], 'clear']]);
     function switchTab(dir) {
       var c = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
       var n = clamp(c + dir, 0, tabs.length - 1);
@@ -569,15 +569,35 @@
       build();
       if (inRows) select(bio.length);
     }
+    // first press: start at the first stop on screen, not back up at the intro
+    function firstOnScreen() {
+      for (var i = 0; i < stops.length; i++) if (stops[i].getBoundingClientRect().top >= 60) return i;
+      return stops.length - 1;
+    }
+    function lastOnScreen() {
+      for (var i = stops.length - 1; i >= 0; i--) if (stops[i].getBoundingClientRect().top < innerHeight - 60) return i;
+      return 0;
+    }
+    var released = false;
     document.addEventListener('keydown', function (e) {
-      // leave browser shortcuts (Cmd+Left is Back) and typing alone
-      if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
       var k = e.key;
+      var space = k === ' ';
+      // leave browser shortcuts (Cmd+Left is Back) and typing alone; Shift only matters with Space
+      if (e.metaKey || e.ctrlKey || e.altKey || (e.shiftKey && !space)) return;
+      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+      // Space on a focused tab, link or button still presses it
+      if (space && e.target.closest && e.target.closest('button, a, summary, [role="tab"]')) return;
       if (idx < 0) build();
-      if (k.indexOf('Arrow') === 0) guide.show();
-      if (k === 'ArrowDown' || k === 'j') { e.preventDefault(); select(Math.min(stops.length - 1, idx + 1)); }
-      else if (k === 'ArrowUp' || k === 'k') { e.preventDefault(); if (idx > 0) select(idx - 1); }
+      if (k.indexOf('Arrow') === 0 || space) guide.show();
+      // Space follows the down arrow, Shift+Space the up arrow; past either end
+      // it falls back to the browser's own scrolling so the footer stays reachable
+      // and stays released (plain scrolling) until an arrow or Shift+Space takes over again
+      if (space && !e.shiftKey && (released || idx >= stops.length - 1)) { released = true; clear(); return; }
+      if (space && e.shiftKey && idx < 0 && released) { released = false; e.preventDefault(); select(lastOnScreen()); return; }
+      if (space && e.shiftKey && idx <= 0) { clear(); return; }
+      if (k.indexOf('Arrow') === 0) released = false;
+      if (k === 'ArrowDown' || k === 'j' || (space && !e.shiftKey)) { e.preventDefault(); select(idx < 0 ? firstOnScreen() : Math.min(stops.length - 1, idx + 1)); }
+      else if (k === 'ArrowUp' || k === 'k' || (space && e.shiftKey)) { e.preventDefault(); if (idx > 0) select(idx - 1); }
       else if (k === 'ArrowRight') { e.preventDefault(); switchTab(1); }
       else if (k === 'ArrowLeft') { e.preventDefault(); switchTab(-1); }
       else if (k === 'Escape') clear();
@@ -592,7 +612,7 @@
     });
     // a tab chosen with the pointer drops the selection
     tabs.forEach(function (t) {
-      t.addEventListener('click', function (e) { if (e.isTrusted) clear(); });
+      t.addEventListener('click', function (e) { if (e.isTrusted) { clear(); released = false; } });
     });
   }
 
