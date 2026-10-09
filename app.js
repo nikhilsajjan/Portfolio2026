@@ -44,6 +44,37 @@
     });
   }
 
+  /* ---------- Text size: +a / -a in the inner-page top bar ----------
+     Reading text scales by --fs; the step is remembered across pages. The
+     <head> of each inner page applies the saved step before first paint. */
+  var TEXT_STEPS = [0.875, 1, 1.125, 1.25, 1.375];
+  var textButtons = Array.prototype.slice.call(document.querySelectorAll('.text-step'));
+  if (textButtons.length) {
+    var textStep = 1;
+    try {
+      var saved = parseInt(localStorage.getItem('textStep'), 10);
+      if (TEXT_STEPS[saved]) textStep = saved;
+    } catch (e) {}
+    var setText = function (i, persist) {
+      textStep = Math.max(0, Math.min(TEXT_STEPS.length - 1, i));
+      if (textStep === 1) root.style.removeProperty('--fs');
+      else root.style.setProperty('--fs', TEXT_STEPS[textStep]);
+      textButtons.forEach(function (b) {
+        var up = +b.dataset.step > 0;
+        b.disabled = up ? textStep === TEXT_STEPS.length - 1 : textStep === 0;
+      });
+      if (persist) {
+        try { localStorage.setItem('textStep', textStep); } catch (e) {}
+        // the page got taller or shorter: let the side index re-measure
+        dispatchEvent(new Event('resize'));
+      }
+    };
+    textButtons.forEach(function (b) {
+      b.addEventListener('click', function () { setText(textStep + +b.dataset.step, true); });
+    });
+    setText(textStep, false);
+  }
+
   applyTheme(root.getAttribute('data-theme') || 'light', false);
   buildDots();
   mq.addEventListener('change', buildDots);

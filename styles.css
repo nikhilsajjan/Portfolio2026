@@ -362,10 +362,11 @@ img { max-width: 100%; }
 }
 
 /* ================= Case study ================= */
-/* Fixed rather than sticky: as a flex item, sticky is constrained to its own
-   flex line in Safari and never engages. The bar always sits at top:0 anyway,
-   so fixed is visually identical and works everywhere. */
-.case .back {
+/* Top bar on every inner page (Figma 367:19583): back on the left, text size
+   and theme on the right. Fixed rather than sticky: as a flex item, sticky is
+   constrained to its own flex line in Safari and never engages. The bar always
+   sits at top:0 anyway, so fixed is visually identical and works everywhere. */
+.case .topbar {
   position: fixed;
   top: 0;
   left: 0;
@@ -373,9 +374,15 @@ img { max-width: 100%; }
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 16px;
   padding: 24px 32px 8px;
   background: var(--bg);
+}
+.case .back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'Handjet', 'Roboto Mono', monospace;
   font-weight: 400;
   font-variation-settings: "ELGR" 1, "ELSH" 2;
@@ -387,6 +394,29 @@ img { max-width: 100%; }
 }
 .case .back:hover { text-decoration: underline; }
 .case .back svg { flex: none; display: block; width: 5px; height: 9px; }
+.topbar-tools { display: flex; align-items: center; gap: 8px; }
+/* +a / -a: 14px chips in the dot-grid grey, Handjet like the back link */
+.text-step {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
+  background: var(--dot);
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-weight: 400;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 0;
+  color: var(--footer);
+  text-align: center;
+}
+@media (hover: hover) {
+  .text-step { transition: border-radius 200ms ease-out; }
+  .text-step:hover:not(:disabled), .text-step:focus-visible { border-radius: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .text-step { transition: none; } }
+.text-step:disabled { opacity: 0.4; cursor: default; }
 
 .column.case { padding-top: 52px; }
 .case-head { margin-top: 48px; display: flex; flex-direction: column; gap: 8px; }
@@ -415,15 +445,15 @@ img { max-width: 100%; }
 }
 .case-credit .year { display: inline; color: var(--year); }
 .case-credit .sep, .case-credit .client { display: inline; color: var(--muted); }
-.case-sub { font-size: 12px; line-height: 16px; color: var(--subtitle); }
+.case-sub { font-size: calc(12px * var(--fs, 1)); line-height: calc(16px * var(--fs, 1)); color: var(--subtitle); }
 
 .case-meta {
   margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
 }
 .case-meta .meta-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
 .case-meta dt { color: var(--year); white-space: nowrap; }
@@ -432,21 +462,21 @@ img { max-width: 100%; }
 .case-body { margin-top: 32px; display: flex; flex-direction: column; gap: 32px; min-width: 0; }
 .case-section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .case-section h2 {
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   font-weight: 500;
-  line-height: 16px;
+  line-height: calc(16px * var(--fs, 1));
   color: var(--body);
 }
 .case-section h3 {
-  font-size: 12px;
+  font-size: calc(12px * var(--fs, 1));
   font-weight: 400;
-  line-height: 16px;
+  line-height: calc(16px * var(--fs, 1));
   color: var(--body);
 }
 .case-section p,
 .case-section li {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--subtitle);
   overflow-wrap: break-word;
 }
@@ -594,7 +624,7 @@ img { max-width: 100%; }
   .home .footer { left: 50%; width: 700px; padding: 8px 0 9px; transform: translateX(-50%); }
 
   /* Case study */
-  .case .back {
+  .case .topbar {
     left: 50%;
     width: 700px;
     transform: translateX(-50%);
@@ -603,11 +633,11 @@ img { max-width: 100%; }
   }
   .case-head { margin-top: 48px; }
   .case-credit { font-size: 14px; }
-  .case-sub { font-size: 14px; line-height: 18px; }
-  .case-meta { font-size: 14px; line-height: 18px; }
-  .case-section h2 { font-size: 14px; line-height: 18px; }
-  .case-section h3 { font-size: 14px; line-height: 18px; }
-  .case-section p, .case-section li { font-size: 14px; line-height: 18px; }
+  .case-sub { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+  .case-meta { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+  .case-section h2 { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+  .case-section h3 { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+  .case-section p, .case-section li { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
   .flow { min-width: 0; }
 }
 
@@ -625,14 +655,14 @@ img { max-width: 100%; }
 .v2 .case-head { margin-top: 20px; }
 .v2 .v2-hero { margin-top: 24px; }
 .v2 .case-body { margin-top: 24px; gap: 32px; }
-.v2 .case-section h2 { font-weight: 500; font-size: 14px; line-height: 18px; letter-spacing: 0.13em; }
+.v2 .case-section h2 { font-weight: 500; font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); letter-spacing: 0.13em; }
 .v2 .case-section .prose { gap: 16px; }
 .v2-fig { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .v2-fig figcaption {
   font-style: italic;
   font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--subtitle);
   text-align: center;
 }
@@ -642,15 +672,15 @@ img { max-width: 100%; }
 @media (min-width: 768px) {
   .v2 .case-title { font-size: 32px; line-height: 36px; letter-spacing: 0.13em; }
   .v2 .case-credit { letter-spacing: 0.13em; }
-  .v2 .case-sub { font-size: 16px; line-height: 21px; }
+  .v2 .case-sub { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
   .v2 .case-meta { letter-spacing: 0.13em; }
   .v2 .v2-hero { margin-top: 32px; }
   .v2 .case-body { margin-top: 32px; gap: 24px; }
-  .v2 .case-section h2 { font-size: 18px; line-height: 24px; }
+  .v2 .case-section h2 { font-size: calc(18px * var(--fs, 1)); line-height: calc(24px * var(--fs, 1)); }
   /* paragraphs are a blank line apart, as in Figma */
   .v2 .case-section .prose { gap: 21px; }
-  .v2 .case-section p, .v2 .case-section li { font-size: 16px; line-height: 21px; }
-  .v2-fig figcaption { font-size: 14px; line-height: 18px; }
+  .v2 .case-section p, .v2 .case-section li { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
+  .v2-fig figcaption { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
 }
 /* 300px of room after the last section, so the story can finish scrolling
    before the footer */
@@ -661,7 +691,7 @@ img { max-width: 100%; }
 /* ================= Guide (Figma 352:19420) ================= */
 /* Command blocks with a copy button, the way Claude shows code. The Figma
    frame sets commands as plain text; the box and button are added here. */
-.guide .case-sub { font-size: 14px; line-height: 18px; }
+.guide .case-sub { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
 .guide .prose strong { font-weight: 700; }
 .guide .prose a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 /* Numbers drawn by hand so they start on the column edge; the browser's
@@ -683,8 +713,8 @@ img { max-width: 100%; }
   padding-right: 72px;
   overflow-x: auto;
   font-family: 'Roboto Mono', ui-monospace, monospace;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(18px * var(--fs, 1));
   color: var(--body);
   white-space: pre;
 }
@@ -714,8 +744,8 @@ img { max-width: 100%; }
 .guide table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--subtitle);
   text-align: left;
 }
@@ -738,16 +768,16 @@ img { max-width: 100%; }
 .more[open] > summary::after { content: "\2212"; }
 .more > summary:hover h2, .more > summary:focus-visible h2 { text-decoration: underline; text-underline-offset: 3px; }
 .more-title { display: flex; flex-direction: column; gap: 4px; }
-.more-hint { font-size: 12px; line-height: 16px; color: var(--year); }
+.more-hint { font-size: calc(12px * var(--fs, 1)); line-height: calc(16px * var(--fs, 1)); color: var(--year); }
 .more[open] .more-hint { display: none; }
 .more-body { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; min-width: 0; }
 
 @media (min-width: 768px) {
-  .more-hint { font-size: 14px; line-height: 18px; }
-  .guide .case-sub { font-size: 16px; line-height: 21px; }
-  .cmd pre { font-size: 14px; line-height: 21px; }
-  .guide table { font-size: 14px; line-height: 18px; }
-  .guide .case-section h3 { font-size: 16px; line-height: 21px; }
+  .more-hint { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+  .guide .case-sub { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
+  .cmd pre { font-size: calc(14px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
+  .guide table { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+  .guide .case-section h3 { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
 }
 
 /* ================= Key guide (fx/fx.js, fx/case-fx.js) ================= */
