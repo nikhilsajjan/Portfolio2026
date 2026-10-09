@@ -3,6 +3,8 @@
   var dots = document.getElementById('dots');
   var toggle = document.getElementById('theme-toggle');
   var mq = matchMedia('(min-width: 768px)');
+  // the grid's last cells are controls (+a, -a, theme); the rest are dots
+  var gridTools = dots ? Array.prototype.slice.call(dots.children) : [];
 
   function buildDots() {
     if (!dots || !toggle) return;
@@ -11,12 +13,13 @@
     var cols = mq.matches ? parseInt(style.getPropertyValue('--dot-cols'), 10) || 32 : 14;
     var rows = mq.matches ? parseInt(style.getPropertyValue('--dot-rows'), 10) || 16 : 11;
     var frag = document.createDocumentFragment();
-    for (var i = 0; i < rows * cols - 1; i++) {
+    for (var i = 0; i < rows * cols - gridTools.length; i++) {
       var d = document.createElement('span');
       d.className = 'dot';
       frag.appendChild(d);
     }
-    dots.replaceChildren(frag, toggle);
+    gridTools.forEach(function (t) { frag.appendChild(t); });
+    dots.replaceChildren(frag);
   }
 
   /* Swap screenshots per theme. Only the needed file is fetched; images with no

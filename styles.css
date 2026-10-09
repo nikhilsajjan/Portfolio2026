@@ -152,8 +152,8 @@ img { max-width: 100%; }
 }
 
 .role {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--subtitle);
 }
 
@@ -163,8 +163,8 @@ img { max-width: 100%; }
   flex-direction: column;
   gap: 16px;
   margin-top: 20px;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--body);
   overflow-wrap: break-word;
 }
@@ -207,8 +207,8 @@ img { max-width: 100%; }
   display: flex;
   align-items: baseline;
   gap: 4px;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--body);
 }
 .row-title a { text-decoration: none; }
@@ -229,8 +229,8 @@ img { max-width: 100%; }
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calc(12px * var(--fs, 1));
+  line-height: calc(16px * var(--fs, 1));
   color: var(--year);
   white-space: normal;
   /* Rows ease open and shut rather than snapping, so moving between them
@@ -558,9 +558,9 @@ img { max-width: 100%; }
   .hero { margin-top: 24px; }
   .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
   .links { font-size: 14px; line-height: 18px; }
-  .role { font-size: 16px; line-height: 21px; }
+  .role { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
 
-  .bio { margin-top: 32px; font-size: 16px; line-height: 21px; }
+  .bio { margin-top: 32px; font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
 
   .section { margin-top: 80px; }
   .section-head {
@@ -585,8 +585,8 @@ img { max-width: 100%; }
     color: var(--year);
     transition: color 250ms ease, font-size 250ms ease;
   }
-  .tags { display: inline; font-size: 16px; line-height: 21px; color: var(--year); }
-  .row-desc { font-size: 14px; line-height: 18px; }
+  .tags { display: inline; font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); color: var(--year); }
+  .row-desc { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
   .row-desc p { max-width: 450px; }
   /* Figma 323:16436: 12px after the company, sat on the baseline */
   .wip {

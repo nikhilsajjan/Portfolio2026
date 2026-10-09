@@ -110,8 +110,10 @@
 /* ---------- 05 Dot ripple ---------- */
 [data-fx~="dots-wave"] .dot.fx-wave,
 [data-fx~="dots-wave"] .toggle.fx-wave,
+[data-fx~="dots-wave"] .text-step.fx-wave,
 [data-fx~="intro-sequence"] .dot.fx-wave,
-[data-fx~="intro-sequence"] .toggle.fx-wave {
+[data-fx~="intro-sequence"] .toggle.fx-wave,
+[data-fx~="intro-sequence"] .text-step.fx-wave {
   animation: fx-pop 520ms cubic-bezier(0.2, 0.8, 0.3, 1.3) both;
   animation-delay: var(--d, 0ms);
 }
@@ -139,7 +141,7 @@
    Hidden until their stage (index-v2 also inlines these hiding rules in <head>
    so nothing flashes before this file arrives). Footer and dots fade or pop
    without a slide: the fixed footer's own transform must not be overridden. */
-[data-fx~="intro-sequence"]:not(.fx-s1) :is(.dot, .toggle) { opacity: 0; }
+[data-fx~="intro-sequence"]:not(.fx-s1) :is(.dot, .toggle, .text-step) { opacity: 0; }
 [data-fx~="intro-sequence"]:not(.fx-s2) .hero .name { opacity: 0; }
 [data-fx~="intro-sequence"]:not(.fx-s3) :is(.links, .role, .bio p, .footer) { opacity: 0; }
 [data-fx~="intro-sequence"]:not(.fx-s3):not([data-fx~="rows-on-scroll"]) .section { opacity: 0; }
