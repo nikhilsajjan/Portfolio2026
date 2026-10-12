@@ -120,6 +120,19 @@ img { max-width: 100%; }
 .toggle .icon-dark { display: none; }
 [data-theme="dark"] .toggle .icon-light { display: none; }
 [data-theme="dark"] .toggle .icon-dark { display: block; }
+/* Theme ripple (app.js): drop the default cross-fade so only the circle shows.
+   Scoped to .theme-ripple so page-to-page View Transitions keep theirs. */
+.theme-ripple::view-transition-old(root),
+.theme-ripple::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+/* Page-to-page morphs (only on pages that opt in with @view-transition, i.e.
+   the inner pages and index_experiments_*.html; index.html doesn't). A project
+   title and its preview land on the case title and hero. Left off during a
+   theme ripple, which would otherwise lift them out of the circle. */
+html:not(.theme-ripple) .case-title { view-transition-name: vt-title; }
+html:not(.theme-ripple) :is(.v2-hero img, .photo-stack > .photo-item:first-child img) { view-transition-name: vt-hero; }
+/* Playbook timing: page changes settle in about 300ms */
+::view-transition-group(*) { animation-duration: 300ms; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* ---------- Hero ---------- */
 .hero { margin-top: 20px; }
@@ -135,9 +148,9 @@ img { max-width: 100%; }
 .name {
   font-family: 'Redaction 100', 'Courier New', monospace;
   font-weight: 700;
-  font-size: 20px;
-  line-height: 24px;
-  letter-spacing: 2.6px;
+  font-size: calc(20px * var(--fs, 1));
+  line-height: calc(24px * var(--fs, 1));
+  letter-spacing: calc(2.6px * var(--fs, 1));
   color: var(--name);
 }
 /* Typing caret — present only while the name is being typed */
@@ -556,7 +569,7 @@ img { max-width: 100%; }
   .home .dots { grid-template-columns: repeat(var(--dot-cols), 14px); }
 
   .hero { margin-top: 24px; }
-  .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
+  .name { font-size: calc(24px * var(--fs, 1)); line-height: calc(29px * var(--fs, 1)); letter-spacing: calc(3.12px * var(--fs, 1)); }
   .links { font-size: 14px; line-height: 18px; }
   .role { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
 

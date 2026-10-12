@@ -19,19 +19,33 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2026-10-10b">
+  <link rel="stylesheet" href="styles.css?v=2026-10-12a">
+  <script>
+    /* Page-to-page View Transitions, only when the visit came from the homepage
+       experiments (index_experiments_*.html), which opt in too. From index.html,
+       which doesn't, opting in here would only start a transition the browser
+       then cancels with a console error. app.js records the home page. */
+    (function () {
+      var home = null;
+      try { home = sessionStorage.getItem('home'); } catch (e) {}
+      if (!home || home === 'index.html' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var s = document.createElement('style');
+      s.textContent = '@view-transition { navigation: auto; }';
+      document.head.appendChild(s);
+    })();
+  </script>
   <script>
     /* Interactions chosen in the lab (interactions.html), on by default.
        ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
        changes so returning visitors get the new files. */
     (function () {
-      var V = '2026-10-10a';
-      var DEFAULT = 'toc-rail,key-sections,img-reveal,img-lightbox';
+      var V = '2026-10-11a';
+      var DEFAULT = 'toc-rail,key-sections,hero-parallax,img-reveal,img-lightbox';
       var q = new URLSearchParams(location.search).get('fx');
       var fx = q === 'none' ? '' : (q || DEFAULT);
       if (!fx) return;
-      if (!q) document.documentElement.setAttribute('data-fx-quiet', '');
-      var ids = fx.split(',').filter(function (id) { return /^[a-z-]+$/.test(id); });
+      if (!q || new URLSearchParams(location.search).has('quiet')) document.documentElement.setAttribute('data-fx-quiet', '');
+      var ids = fx.split(',').filter(function (id) { return /^[a-z0-9-]+$/.test(id); });
       if (!ids.length) return;
       document.documentElement.setAttribute('data-fx', ids.join(' '));
       ['fx/fx.css', 'fx/case-fx.css'].forEach(function (href) {
@@ -219,6 +233,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=2026-10-10b"></script>
+  <script src="app.js?v=2026-10-12a"></script>
 </body>
 </html>

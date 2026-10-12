@@ -130,10 +130,6 @@ window.FX_LIST = [
     name: 'Magnetic links',
     desc: 'LinkedIn, Email and Resume lean a few pixels toward the pointer as it comes near.',
     look: 'Move near the contact links.' },
-  { id: 'theme-circle', group: 'Details',
-    name: 'Theme ripple',
-    desc: 'Switching theme spreads the new one out in a circle from the toggle (Chrome, Edge, Safari 18+).',
-    look: 'Click the round toggle at the end of the grid.' }
 ];
 
 /* Lab for the CDC w Xendit case study: cdc-w-xendit.html?fx=<id> */

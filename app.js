@@ -41,11 +41,60 @@
     if (persist) { try { localStorage.setItem('theme', theme); } catch (e) {} }
   }
 
-  if (toggle) {
-    toggle.addEventListener('click', function () {
-      applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
-    });
+  /* Theme ripple: the new theme spreads out in a circle from the toggle, via
+     the View Transitions API (Chrome, Edge, Safari 18+). Elsewhere, and with
+     reduced motion, the theme simply switches. */
+  var reduceRipple = matchMedia('(prefers-reduced-motion: reduce)');
+
+  function switchTheme() {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    if (!document.startViewTransition || reduceRipple.matches) {
+      applyTheme(next, true);
+      return;
+    }
+    var r = toggle.getBoundingClientRect();
+    var x = r.left + r.width / 2, y = r.top + r.height / 2;
+    var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    // .theme-ripple scopes the ripple's CSS to this transition, so page-to-page
+    // View Transitions (on pages that opt in) keep their normal cross-fade
+    root.classList.add('theme-ripple');
+    var vt = document.startViewTransition(function () { applyTheme(next, true); });
+    vt.ready.then(function () {
+      root.animate({ clipPath: ['circle(0 at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 700, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' });
+    }).catch(function () {});
+    vt.finished.finally(function () { root.classList.remove('theme-ripple'); });
   }
+
+  if (toggle) toggle.addEventListener('click', switchTheme);
+
+  /* A page-to-page View Transition is cancelled when only one side opts in
+     (e.g. an inner page going back to index.html). That's expected, so don't
+     let the browser report it as an unhandled error. */
+  function quietTransition(e) {
+    var t = e.viewTransition;
+    if (!t) return;
+    [t.ready, t.finished, t.updateCallbackDone].forEach(function (p) { if (p) p.catch(function () {}); });
+  }
+  addEventListener('pageswap', quietTransition);
+  addEventListener('pagereveal', quietTransition);
+
+  /* ---------- Which home page to go back to ----------
+     The homepage experiments (index_experiments_*.html) link to the same inner
+     pages as index.html. Each home page records itself for the session, and an
+     inner page's back link returns to it, keeping any ?tab= or #hash. */
+  try {
+    if (document.querySelector('main.home')) {
+      sessionStorage.setItem('home', location.pathname.split('/').pop() || 'index.html');
+    } else {
+      var homePage = sessionStorage.getItem('home');
+      if (homePage && homePage !== 'index.html') {
+        document.querySelectorAll('a.back').forEach(function (a) {
+          a.setAttribute('href', a.getAttribute('href').replace(/^index\.html/, homePage));
+        });
+      }
+    }
+  } catch (e) {}
 
   /* ---------- Text size: +a / -a in the inner-page top bar ----------
      Reading text scales by --fs; the step is remembered across pages. The
@@ -378,11 +427,12 @@
   });
 
   /* ---------- WIP rows: reachable by keyboard ----------
-     Focus opens the row in CSS, as hover does. */
+     Focus opens the row in CSS, as hover does. Rows whose title is a link
+     (a draft page, e.g. Bulk download) are focusable already. */
   document.querySelectorAll('.row[data-wip]').forEach(function (row) {
     var title = row.querySelector('.row-title');
     var name = row.querySelector('.title');
-    if (!title || !name) return;
+    if (!title || !name || name.tagName === 'A') return;
     title.setAttribute('tabindex', '0');
     title.setAttribute('aria-label', name.textContent.trim() + ' — work in progress');
   });
