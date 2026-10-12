@@ -85,12 +85,18 @@
      inner page's back link returns to it, keeping any ?tab= or #hash. */
   try {
     if (document.querySelector('main.home')) {
-      sessionStorage.setItem('home', location.pathname.split('/').pop() || 'index.html');
+      // the page and its ?query (e.g. ?preset=bonkers), so back returns to the same view
+      sessionStorage.setItem('home', (location.pathname.split('/').pop() || 'index.html') + location.search);
+      // whether this home page opts into page-to-page View Transitions; the
+      // inner pages only opt in when it did (a one-sided opt-in is cancelled)
+      sessionStorage.setItem('home-vt', document.getElementById('v2-vt') ? '1' : '0');
     } else {
       var homePage = sessionStorage.getItem('home');
-      if (homePage && homePage !== 'index.html') {
+      if (homePage && !/^index\.html(\?|$)/.test(homePage)) {
         document.querySelectorAll('a.back').forEach(function (a) {
-          a.setAttribute('href', a.getAttribute('href').replace(/^index\.html/, homePage));
+          // index.html#work + index_experiments_version2.html?preset=x -> ...?preset=x#work
+          var hp = homePage.split('?'), q = hp[1] ? '?' + hp[1] : '';
+          a.setAttribute('href', a.getAttribute('href').replace(/^index\.html(\?[^#]*)?/, hp[0] + q));
         });
       }
     }

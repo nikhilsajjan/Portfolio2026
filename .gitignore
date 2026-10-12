@@ -30,3 +30,6 @@ fx/x2-pre.js
 
 # Local-only: Claude Code worktrees
 .claude/
+
+# Local-only: build script for the homepage experiments
+tools/

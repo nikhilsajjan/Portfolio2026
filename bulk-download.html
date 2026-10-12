@@ -21,14 +21,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=2026-10-12a">
   <script>
-    /* Page-to-page View Transitions, only when the visit came from the homepage
-       experiments (index_experiments_*.html), which opt in too. From index.html,
-       which doesn't, opting in here would only start a transition the browser
-       then cancels with a console error. app.js records the home page. */
+    /* Page-to-page View Transitions, only when the home page this visit came
+       from opts in too (experiments v1 does; index.html doesn't). A one-sided
+       opt-in only starts a transition the browser cancels with a console
+       error. app.js records it as sessionStorage 'home-vt'. */
     (function () {
-      var home = null;
-      try { home = sessionStorage.getItem('home'); } catch (e) {}
-      if (!home || home === 'index.html' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var vt = null;
+      try { vt = sessionStorage.getItem('home-vt'); } catch (e) {}
+      if (vt !== '1' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       var s = document.createElement('style');
       s.textContent = '@view-transition { navigation: auto; }';
       document.head.appendChild(s);
@@ -102,6 +102,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=2026-10-12a"></script>
+  <script src="app.js?v=2026-10-13a"></script>
 </body>
 </html>
