@@ -252,10 +252,6 @@
   transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-/* ---------- 20 Theme ripple ---------- */
-::view-transition-old(root),
-::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-
 /* ---------- Pinned header, Figma 326:17182 ----------
    The grid scrolls until two rows remain, then grid + hero pin as one bar and
    the hero folds into a single line: name 20px, role 12px inline, links 12px. */
@@ -396,3 +392,88 @@
   [data-fx] *, [data-fx] *::before, [data-fx] *::after { animation: none !important; }
 }
 
+/* ================= Mobile lab (phones only, max-width 767px) =================
+   Layout options m-l1..m-l3 and scroll options m-*, switched on from
+   mobile-lab.html. Desktop is untouched. */
+@media (max-width: 767px) {
+
+  /* ---------- Layout 1: Scaled up, closer to the desktop type ---------- */
+  [data-fx~="m-l1"] .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
+  [data-fx~="m-l1"] .role { font-size: 14px; line-height: 18px; }
+  [data-fx~="m-l1"] .bio { margin-top: 24px; font-size: 14px; line-height: 19px; }
+  [data-fx~="m-l1"] .section { margin-top: 48px; }
+  [data-fx~="m-l1"] .section-head { font-weight: 400; font-size: 20px; line-height: 22px; letter-spacing: 0; }
+  [data-fx~="m-l1"] .tab[aria-selected="true"] { font-weight: 600; }
+  [data-fx~="m-l1"] .list { gap: 12px; }
+  [data-fx~="m-l1"] .row-head { flex-wrap: wrap; align-items: baseline; }
+  [data-fx~="m-l1"] .row-title { flex: none; flex-wrap: wrap; max-width: 100%; gap: 0 8px; white-space: normal; font-size: 22px; line-height: 28px; letter-spacing: 1.1px; }
+  [data-fx~="m-l1"] .row-title .company { margin-left: 0; font-size: 11px; line-height: 14px; letter-spacing: 0; color: var(--year); }
+  [data-fx~="m-l1"] .tags { display: block; width: 100%; font-size: 12px; line-height: 16px; color: var(--year); }
+  [data-fx~="m-l1"] .row-desc { font-size: 13px; line-height: 17px; }
+  [data-fx~="m-l1"] .wip { align-self: center; }
+
+  /* ---------- Layout 2: Big & open, summaries always showing ---------- */
+  [data-fx~="m-l2"] .name { font-size: 26px; line-height: 31px; letter-spacing: 3.4px; }
+  [data-fx~="m-l2"] .role { font-size: 14px; line-height: 18px; }
+  [data-fx~="m-l2"] .bio { margin-top: 24px; font-size: 15px; line-height: 20px; }
+  [data-fx~="m-l2"] .section { margin-top: 56px; }
+  [data-fx~="m-l2"] .section-head { font-weight: 400; font-size: 22px; line-height: 24px; letter-spacing: 0; margin-bottom: 20px; }
+  [data-fx~="m-l2"] .tab[aria-selected="true"] { font-weight: 600; }
+  [data-fx~="m-l2"] .list { gap: 28px; }
+  /* title on its own line, then company · tags on one muted line */
+  [data-fx~="m-l2"] .row-head { flex-wrap: wrap; justify-content: flex-start; align-items: baseline; column-gap: 8px; white-space: normal; }
+  [data-fx~="m-l2"] .row-title { display: contents; }
+  [data-fx~="m-l2"] .row-title .title { flex-basis: 100%; font-size: 28px; line-height: 34px; letter-spacing: 1.4px; }
+  [data-fx~="m-l2"] .row-title .company { margin-left: 0; font-size: 12px; line-height: 16px; letter-spacing: 0; color: var(--year); }
+  [data-fx~="m-l2"] .row-title .wip { order: 1; }
+  [data-fx~="m-l2"] .tags { display: inline; font-size: 12px; line-height: 16px; color: var(--year); }
+  [data-fx~="m-l2"] .tags::before { content: "\00b7\00a0"; }
+  [data-fx~="m-l2"] #panel-work .row-desc { grid-template-rows: 1fr; opacity: 1; font-size: 13px; line-height: 18px; }
+  [data-fx~="m-l2"] .wip { display: inline-flex; align-self: center; }
+
+  /* ---------- Layout 3: Feed with images (plus Layout 1 type) ---------- */
+  [data-fx~="m-l3"] .name { font-size: 24px; line-height: 29px; letter-spacing: 3.12px; }
+  [data-fx~="m-l3"] .role { font-size: 14px; line-height: 18px; }
+  [data-fx~="m-l3"] .bio { margin-top: 24px; font-size: 14px; line-height: 19px; }
+  [data-fx~="m-l3"] .section { margin-top: 48px; }
+  [data-fx~="m-l3"] .section-head { font-weight: 400; font-size: 20px; line-height: 22px; letter-spacing: 0; }
+  [data-fx~="m-l3"] .tab[aria-selected="true"] { font-weight: 600; }
+  [data-fx~="m-l3"] #panel-work { gap: 32px; }
+  [data-fx~="m-l3"] .row-head { flex-wrap: wrap; align-items: baseline; }
+  [data-fx~="m-l3"] .row-title { flex: none; flex-wrap: wrap; max-width: 100%; gap: 0 8px; white-space: normal; font-size: 22px; line-height: 28px; letter-spacing: 1.1px; }
+  [data-fx~="m-l3"] .row-title .company { margin-left: 0; font-size: 11px; line-height: 14px; letter-spacing: 0; color: var(--year); }
+  [data-fx~="m-l3"] .tags { display: block; width: 100%; font-size: 12px; line-height: 16px; color: var(--year); }
+  [data-fx~="m-l3"] #panel-work .row-desc { grid-template-rows: 1fr; opacity: 1; font-size: 13px; line-height: 17px; }
+  [data-fx~="m-l3"] .wip { display: inline-flex; align-self: center; }
+  [data-fx~="m-l3"] .row-inline { display: none !important; } /* the feed image replaces tap-to-expand */
+  .fx-feed-img { display: block; margin-top: 12px; text-decoration: none; }
+  .fx-feed-img img { display: block; width: 100%; aspect-ratio: 600 / 338; object-fit: cover; }
+
+  /* ---------- Scroll: tabs stick under the header ---------- */
+  [data-fx~="m-tabs-stick"] .section-head {
+    position: sticky;
+    top: var(--fx-top, 0px);
+    z-index: 15;
+    margin-bottom: 8px;
+    padding: 10px 0 8px;
+    background: var(--bg);
+    box-shadow: 0 0 0 100vmax var(--bg);
+    clip-path: inset(0 -100vmax -16px);
+  }
+  /* only as wide as the screen (the column has 32px gutters): wider would make
+     the page scroll sideways */
+  [data-fx~="m-tabs-stick"] .section-head::after {
+    content: "";
+    position: absolute;
+    left: -32px; right: -32px; top: 100%;
+    height: 16px;
+    background: linear-gradient(var(--bg), transparent);
+    pointer-events: none;
+  }
+
+  /* ---------- Scroll: swipe between tabs ---------- */
+  .list.fx-swipe-in-left { animation: fx-swipe-l 320ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+  .list.fx-swipe-in-right { animation: fx-swipe-r 320ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+}
+@keyframes fx-swipe-l { from { opacity: 0; transform: translateX(32px); } }
+@keyframes fx-swipe-r { from { opacity: 0; transform: translateX(-32px); } }

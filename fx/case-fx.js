@@ -464,6 +464,61 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   }
 
+  /* ---------- Phones: chip strip under the back bar ---------- */
+  function chips() {
+    var strip = el('nav', 'fx-chips');
+    strip.setAttribute('aria-label', 'Sections');
+    var links = sections.map(function (s, i) {
+      var a = el('a', '', label(s));
+      a.href = '#' + s.id;
+      a.addEventListener('click', function (e) { goTo(i, e); });
+      strip.appendChild(a);
+      return a;
+    });
+    document.body.appendChild(strip);
+    var shown = -2;
+    onScroll(function () {
+      var cur = Math.max(0, activeIndex());
+      if (cur === shown) return;
+      shown = cur;
+      links.forEach(function (a, i) { a.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
+      // keep the current chip in view inside the strip
+      var a = links[cur];
+      strip.scrollTo({ left: a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  }
+
+  /* ---------- Phones: dots on the right edge ---------- */
+  function edgeDots() {
+    var nav = el('nav', 'fx-edge');
+    nav.setAttribute('aria-label', 'Sections');
+    var tip = el('div', 'fx-edge-label');
+    var links = sections.map(function (s, i) {
+      var a = el('a');
+      a.href = '#' + s.id;
+      a.setAttribute('aria-label', label(s));
+      a.appendChild(el('i'));
+      a.addEventListener('click', function (e) { goTo(i, e); });
+      nav.appendChild(a);
+      return a;
+    });
+    document.body.append(nav, tip);
+    var shown = -2, timer = null;
+    onScroll(function () {
+      var cur = activeIndex();
+      if (cur === shown) return;
+      var first = shown === -2;
+      shown = cur;
+      links.forEach(function (a, i) { a.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
+      // name the new section for a moment as it changes
+      if (cur < 0 || first) return;
+      tip.textContent = label(sections[cur]);
+      tip.classList.add('is-on');
+      clearTimeout(timer);
+      timer = setTimeout(function () { tip.classList.remove('is-on'); }, 1200);
+    });
+  }
+
   ready(function () {
     sections = Array.prototype.slice.call(document.querySelectorAll('[data-toc]'));
     badge();
@@ -474,6 +529,8 @@
     if (has('key-sections')) keySections();
     if (has('toc-crumb')) crumb();
     if (has('toc-pill')) pill();
+    if (has('toc-chips')) chips();
+    if (has('toc-edge')) edgeDots();
     if (has('read-progress')) readProgress();
     if (has('text-focus')) textFocus();
     if (has('stat-marker')) statMarker();

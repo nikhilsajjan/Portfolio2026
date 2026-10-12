@@ -399,25 +399,6 @@
     }, { passive: true });
   }
 
-  /* ---------- 20 Theme ripple via the View Transitions API ---------- */
-  function themeCircle() {
-    var toggle = document.getElementById('theme-toggle');
-    if (!toggle || !document.startViewTransition || reduce) return;
-    var passing = false;
-    toggle.addEventListener('click', function (e) {
-      if (passing) return;
-      e.stopImmediatePropagation();
-      var r = toggle.getBoundingClientRect();
-      var x = r.left + r.width / 2, y = r.top + r.height / 2;
-      var end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-      var vt = document.startViewTransition(function () { passing = true; toggle.click(); passing = false; });
-      vt.ready.then(function () {
-        root.animate({ clipPath: ['circle(0 at ' + x + 'px ' + y + 'px)', 'circle(' + end + 'px at ' + x + 'px ' + y + 'px)'] },
-          { duration: 700, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' });
-      });
-    }, true);
-  }
-
   var POSTITS = [
     [255, 255, 153], [255, 235, 161], [254, 230,  59], [255, 173, 100], [210, 222,  64],
     [ 55, 210, 216], [248,  58, 167], [255, 249, 165], [249, 184, 188], [176, 205, 235]
@@ -721,8 +702,77 @@
     addEventListener('pageshow', function () { document.body.classList.remove('fx-leaving'); });
   }
 
+  /* ================= Mobile lab ================= */
+  var phone = matchMedia('(max-width: 767px)');
+
+  /* Layout 3: every project with artwork shows its image in the list */
+  function feedImages() {
+    function src(key) {
+      return 'assets/previews/' + key + '-' + (root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light') + '.webp';
+    }
+    var imgs = [];
+    document.querySelectorAll('#panel-work .row[data-preview]').forEach(function (row) {
+      var link = row.querySelector('a.title');
+      var box = document.createElement(link ? 'a' : 'span');
+      box.className = 'fx-feed-img';
+      if (link) { box.href = link.getAttribute('href'); box.setAttribute('aria-label', link.textContent + ' — open case study'); }
+      var img = document.createElement('img');
+      img.alt = '';
+      img.loading = 'lazy';
+      img.dataset.key = row.dataset.preview;
+      img.src = src(row.dataset.preview);
+      box.appendChild(img);
+      row.appendChild(box);
+      imgs.push(img);
+    });
+    document.addEventListener('themechange', function () { imgs.forEach(function (i) { i.src = src(i.dataset.key); }); });
+    // the feed is shown only on phones
+    function sync() { document.querySelectorAll('.fx-feed-img').forEach(function (b) { b.hidden = !phone.matches; }); }
+    sync();
+    phone.addEventListener('change', sync);
+  }
+
+  /* Tabs stick: sit just under the pinned header when there is one */
+  function tabsStick() {
+    onScroll(function () {
+      var bar = document.querySelector('.hero.fx-stuck, .fx-bar.fx-pinned');
+      root.style.setProperty('--fx-top', bar ? Math.round(bar.getBoundingClientRect().bottom) + 'px' : '0px');
+    });
+  }
+
+  /* Swipe left / right on the project list to change tab */
+  function swipeTabs() {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+    var section = document.querySelector('.section.work');
+    if (!tabs.length || !section) return;
+    var x0 = 0, y0 = 0, tracking = false;
+    section.addEventListener('touchstart', function (e) {
+      tracking = e.touches.length === 1;
+      x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+    }, { passive: true });
+    section.addEventListener('touchend', function (e) {
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      if (Math.abs(dx) < 60 || Math.abs(dy) > 40) return;
+      var cur = tabs.findIndex(function (b) { return b.getAttribute('aria-selected') === 'true'; });
+      var next = clamp(cur + (dx < 0 ? 1 : -1), 0, tabs.length - 1);
+      if (next === cur) return;
+      tabs[next].click();
+      var panel = document.getElementById(tabs[next].getAttribute('aria-controls'));
+      if (panel && !reduce) {
+        panel.classList.remove('fx-swipe-in-left', 'fx-swipe-in-right');
+        void panel.offsetWidth;
+        panel.classList.add(dx < 0 ? 'fx-swipe-in-left' : 'fx-swipe-in-right');
+      }
+    }, { passive: true });
+  }
+
   ready(function () {
     badge();
+    if (has('m-l3')) feedImages();
+    if (has('m-tabs-stick')) tabsStick();
+    if (has('m-swipe-tabs')) swipeTabs();
     if (has('pin-header')) pinHeader();
     else if (has('sticky-hero') || has('compact-header') || has('compact-inline')) stickyHero();
     if (has('rows-on-scroll')) rowsOnScroll();
@@ -743,6 +793,5 @@
     if (has('preview-tilt')) previewTilt();
     if (has('dots-proximity')) dotsProximity();
     if (has('magnetic-links')) magneticLinks();
-    if (has('theme-circle')) themeCircle();
   });
 })();

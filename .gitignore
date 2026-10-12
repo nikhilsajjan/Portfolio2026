@@ -5,3 +5,28 @@ PROJECT-NOTES.md
 interactions.html
 index-v*.html
 *-previous-*.html
+mobile-lab.html
+
+# Local-only: interaction research crawl (scripts, data)
+research/
+
+# Local-only: portfolio crawl output (2 GB, scripts and data)
+Nikhil - Crawl output/
+
+# Local-only: reference / backup files the site doesn't use
+_not-needed/
+
+# Local-only: homepage experiments (open via a local server)
+index_experiments_*.html
+interactions_experiments_*.html
+compare.html
+fx/v2.css
+fx/v2.js
+fx/v2-list.js
+fx/x2.css
+fx/x2.js
+fx/x2-list.js
+fx/x2-pre.js
+
+# Local-only: Claude Code worktrees
+.claude/
