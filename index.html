@@ -31,18 +31,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2026-10-10b">
+  <link rel="stylesheet" href="styles.css?v=2026-10-12a">
   <script>
     /* Interactions chosen in the lab (interactions.html), on by default.
        ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
        changes so returning visitors get the new files. */
     (function () {
-      var V = '2026-10-10a';
+      var V = '2026-10-11a';
       var DEFAULT = 'intro-sequence,compact-inline,rows-on-scroll,stat-countup,key-nav,tab-slider,preview-follow,page-fade,underline-draw';
       var q = new URLSearchParams(location.search).get('fx');
       var fx = q === 'none' ? '' : (q || DEFAULT);
       if (!fx) return;
-      if (!q) document.documentElement.setAttribute('data-fx-quiet', '');
+      if (!q || new URLSearchParams(location.search).has('quiet')) document.documentElement.setAttribute('data-fx-quiet', '');
       /* Intro: hide everything that arrives later straight away, before fx.css
          has loaded, so nothing flashes and then disappears. Same rules as fx.css. */
       if (fx.split(',').indexOf('intro-sequence') > -1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -55,7 +55,7 @@
         // never leave the page blank if the lab files fail to load
         setTimeout(function () { document.documentElement.classList.add('fx-s1', 'fx-s2', 'fx-s3'); }, 4000);
       }
-      var ids = fx.split(',').filter(function (id) { return /^[a-z-]+$/.test(id); });
+      var ids = fx.split(',').filter(function (id) { return /^[a-z0-9-]+$/.test(id); });
       if (!ids.length) return;
       document.documentElement.setAttribute('data-fx', ids.join(' '));
       var css = document.createElement('link');
@@ -126,7 +126,7 @@
           </div>
           <div class="row" data-wip data-preview="bulk">
             <div class="row-head">
-              <div class="row-title"><span class="title">Bulk download</span><span class="company">Pepper Content</span><span class="wip">WIP</span></div>
+              <div class="row-title"><a class="title" href="bulk-download.html">Bulk download</a><span class="company">Pepper Content</span><span class="wip">DRAFT</span></div>
               <span class="tags">SASS</span>
             </div>
             <div class="row-desc"><p>Turning a manual engineering workaround into a <em>self-serve bulk download feature</em></p></div>
@@ -224,6 +224,6 @@
     </main>
   </div>
 
-  <script src="app.js?v=2026-10-10b"></script>
+  <script src="app.js?v=2026-10-12a"></script>
 </body>
 </html>
