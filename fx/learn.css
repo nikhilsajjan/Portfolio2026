@@ -1,0 +1,163 @@
+/* Learn case study (learn.html), with fx/learn.js. Chosen from 26 ways of
+   moving through it section by section: snap to beats, text that fills as
+   you read, numbered headings with number keys, a ⌘K palette and the heading
+   relay in the top bar. 300ms base, ease-out-quint arriving, Material
+   standard for fades. */
+:root {
+  --learn-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --learn-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Snap to beats (proximity: long sections still scroll) ---------- */
+html.learn-snap { scroll-snap-type: y proximity; }
+html.learn-snap.learn-snap-off { scroll-snap-type: none; }
+.learn-snap-start { scroll-snap-align: start; scroll-margin-top: 72px; }
+.learn-snap-center { scroll-snap-align: center; }
+
+/* ---------- Text fills as you read ---------- */
+html.learn-fill .learn-word { opacity: 0.22; transition: opacity 180ms linear; }
+html.learn-fill .learn-word.is-lit { opacity: 1; }
+
+/* ---------- Numbered headings ---------- */
+.case-section h2.learn-numbered { display: flex; gap: 12px; align-items: baseline; }
+.learn-num {
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+/* a jump landed here */
+.learn-flash { animation: learn-flash 1.4s var(--learn-ease); }
+@keyframes learn-flash {
+  0%, 30% { background: color-mix(in srgb, var(--accent, #fee63b) 55%, transparent); }
+  100% { background: transparent; }
+}
+
+/* ---------- Command palette ---------- */
+.learn-cmdk {
+  margin: 14vh auto auto;
+  width: min(560px, calc(100% - 32px));
+  max-height: 70vh;
+  padding: 0;
+  border: 0;
+  background: var(--wip-bg);
+  color: var(--body);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  font-family: 'Roboto Mono', monospace;
+}
+.learn-cmdk::backdrop { background: color-mix(in srgb, var(--bg) 60%, transparent); backdrop-filter: blur(2px); }
+.learn-cmdk[open] { animation: learn-rise 200ms var(--learn-out); }
+.learn-cmdk-input {
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-bottom: 1px solid var(--dot);
+  background: transparent;
+  color: var(--body);
+  font: inherit;
+  font-size: 15px;
+  outline: none;
+}
+.learn-cmdk-list { list-style: none; max-height: 52vh; overflow-y: auto; padding: 6px; }
+.learn-cmdk-item { padding: 8px 10px; font-size: 13px; line-height: 18px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.learn-cmdk-item[aria-selected="true"] { background: var(--dot); }
+.learn-cmdk-where { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+.learn-cmdk-text { color: var(--subtitle); }
+.learn-cmdk-item mark { background: color-mix(in srgb, var(--accent, #fee63b) 70%, transparent); color: inherit; }
+.learn-cmdk-empty { padding: 10px; font-size: 13px; color: var(--muted); }
+/* bottom left: the lab's key guide has the bottom right */
+.learn-cmdk-chip {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 20;
+  padding: 6px 10px;
+  background: var(--wip-bg);
+  font-size: 12px;
+  color: var(--year);
+}
+.learn-cmdk-chip kbd { font: inherit; color: var(--body); }
+.learn-cmdk-chip:hover { color: var(--body); }
+
+/* ---------- Heading relay, in the top bar ---------- */
+.learn-relay {
+  flex: 1;
+  min-width: 0;
+  margin: 0 8px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  translate: 0 4px;
+  pointer-events: none;
+  transition: opacity 250ms var(--learn-ease), translate 300ms var(--learn-out);
+}
+.learn-relay.is-on { opacity: 1; translate: 0 0; pointer-events: auto; }
+.learn-relay-chips { display: flex; gap: 3px; flex: none; }
+.learn-relay-chip {
+  font-family: 'Handjet', 'Roboto Mono', monospace;
+  font-variation-settings: "ELGR" 1, "ELSH" 2;
+  font-size: 14px;
+  line-height: 16px;
+  padding: 0 3px;
+  color: var(--year);
+  background: var(--dot);
+  animation: learn-chip-in 300ms var(--learn-out);
+}
+.learn-relay-chip.is-cur { background: var(--accent, #fee63b); color: #242424; }
+@keyframes learn-chip-in { from { opacity: 0; transform: scale(0.6); } }
+.learn-relay-now {
+  display: block;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-align: left;
+  color: var(--body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.learn-relay-now:hover { text-decoration: underline; text-underline-offset: 3px; }
+.learn-relay-now.is-in-down { animation: learn-rise 300ms var(--learn-out); }
+.learn-relay-now.is-in-up { animation: learn-drop 300ms var(--learn-out); }
+@keyframes learn-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes learn-drop { from { opacity: 0; transform: translateY(-10px); } }
+@media (max-width: 767px) {
+  /* phones: only the current number next to the heading */
+  .learn-relay-chip:not(.is-cur) { display: none; }
+  .learn-relay { margin: 0 4px 0 8px; gap: 6px; }
+  .learn-relay-now { font-size: 11px; letter-spacing: 0.06em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learn-word, .learn-relay, .learn-relay-now, .learn-relay-chip, .learn-cmdk, .learn-flash { transition: none !important; animation: none !important; }
+}
+
+/* ---------- Side rail: line and blocks only ----------
+   The relay in the top bar already names the section, so the lab's rail drops
+   its names. They stay in the links for screen readers, just not on screen. */
+.fx-rail a span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Soft edges on the section videos ----------
+   Safari paints a video's flat grey a shade off the page's, which shows as a
+   box; a short fade at each edge leaves no line to see. Not on the hero: its
+   photo fills the frame. */
+.case-section .shot video {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent),
+                      linear-gradient(to bottom, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent),
+              linear-gradient(to bottom, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+  mask-composite: intersect;
+}

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn — nikhil sajjan</title>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get('theme');
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      var t = q || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+      var steps = [0.875, 1, 1.125, 1.25, 1.375], s = null;
+      try { s = parseInt(localStorage.getItem('textStep'), 10); } catch (e) {}
+      if (steps[s] && s !== 1) document.documentElement.style.setProperty('--fs', steps[s]);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2026-10-19a">
+  <!-- This page's own interactions (fx/learn.*), on top of the lab set below.
+       One post-it colour per visit, shared by both. -->
+  <link rel="stylesheet" href="fx/learn.css?v=2026-10-19a">
+  <script>
+    (function () {
+      var P = ['#ffff99', '#ffeba1', '#fee63b', '#ffad64', '#d2de40', '#37d2d8', '#f83aa7', '#fff9a5', '#f9b8bc', '#b0cdeb'];
+      try { if (!sessionStorage.getItem('accent')) sessionStorage.setItem('accent', P[Math.floor(Math.random() * P.length)]); } catch (e) {}
+    })();
+  </script>
+  <script>
+    /* Page-to-page View Transitions, only when the home page this visit came
+       from opts in too (experiments v1 does; index.html doesn't). A one-sided
+       opt-in only starts a transition the browser cancels with a console
+       error. app.js records it as sessionStorage 'home-vt'. */
+    (function () {
+      var vt = null;
+      try { vt = sessionStorage.getItem('home-vt'); } catch (e) {}
+      if (vt !== '1' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var s = document.createElement('style');
+      s.textContent = '@view-transition { navigation: auto; }';
+      document.head.appendChild(s);
+    })();
+  </script>
+  <script>
+    /* Interactions chosen in the lab (interactions.html), on by default.
+       ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
+       changes so returning visitors get the new files. */
+    (function () {
+      var V = '2026-10-11a';
+      var DEFAULT = 'toc-rail,key-sections,hero-parallax,img-reveal,img-lightbox';
+      var q = new URLSearchParams(location.search).get('fx');
+      var fx = q === 'none' ? '' : (q || DEFAULT);
+      if (!fx) return;
+      if (!q || new URLSearchParams(location.search).has('quiet')) document.documentElement.setAttribute('data-fx-quiet', '');
+      var ids = fx.split(',').filter(function (id) { return /^[a-z0-9-]+$/.test(id); });
+      if (!ids.length) return;
+      document.documentElement.setAttribute('data-fx', ids.join(' '));
+      ['fx/fx.css', 'fx/case-fx.css'].forEach(function (href) {
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = href + '?v=' + V;
+        document.head.appendChild(l);
+      });
+      ['fx/fx-list.js', 'fx/case-fx.js'].forEach(function (src) {
+        var s = document.createElement('script');
+        s.src = src + '?v=' + V;
+        s.async = false;
+        document.head.appendChild(s);
+      });
+    })();
+  </script>
+</head>
+<body>
+  <div class="page">
+    <main class="column case v2 v3">
+
+      <!-- Figma 367:19583 -->
+      <header class="topbar">
+        <a class="back" href="index.html#work">
+          <svg viewBox="0 0 5 9" fill="none" aria-hidden="true"><path d="M4.5 8.5L0.5 4.5L4.5 0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          back
+        </a>
+        <div class="topbar-tools">
+          <button class="text-step" type="button" data-step="1" aria-label="Larger text">+a</button>
+          <button class="text-step" type="button" data-step="-1" aria-label="Smaller text">-a</button>
+          <button class="toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+            <img class="icon-light" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiB2aWV3Qm94PSIwIDAgMTQgMTQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSA2MCIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzBfNCkiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IiMyNDI0MjQiLz4KPGNpcmNsZSBpZD0iRWxsaXBzZSAxIiBjeD0iOS41IiBjeT0iNi41IiByPSIyLjEiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz4KPGNpcmNsZSBpZD0iRWxsaXBzZSAyIiBjeD0iNCIgY3k9IjkiIHI9IjEuNiIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2Utd2lkdGg9IjAuOCIvPgo8Y2lyY2xlIGlkPSJFbGxpcHNlIDMiIGN4PSI0IiBjeT0iNCIgcj0iMS42IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNCIgY3g9IjkiIGN5PSItMSIgcj0iMi42IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNiIgY3g9Ii0yIiBjeT0iNyIgcj0iMi42IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNSIgY3g9IjkuNSIgY3k9IjE0LjUiIHI9IjMuMSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2Utd2lkdGg9IjAuOCIvPgo8bGluZSBpZD0iTGluZSAxIiB4MT0iMTMuNzQxMiIgeTE9IjcuMjk5ODgiIHgyPSIxMy42MzM1IiB5Mj0iNy40MDc1OSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPGxpbmUgaWQ9IkxpbmUgMiIgeDE9IjMuNzYzMjkiIHkxPSIxMi4zNDk2IiB4Mj0iMy42MTY3OCIgeTI9IjEyLjM5MTMiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxsaW5lIGlkPSJMaW5lIDMiIHgxPSI3LjUwMDAzIiB5MT0iMTAuMzE0OCIgeDI9IjcuNTAwMDIiIHkyPSIxMC41IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSBpZD0iTGluZSA1IiB4MT0iNy44NTU3OSIgeTE9IjIuNjUwMDMiIHgyPSI3LjY1MzkxIiB5Mj0iMi45OTc3MSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPGxpbmUgaWQ9IkxpbmUgNiIgeDE9IjExLjYxMTMiIHkxPSIyLjAxODU3IiB4Mj0iMTEuNjExMyIgeTI9IjIuMjAzNzYiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxsaW5lIGlkPSJMaW5lIDQiIHgxPSIxMS43NTg5IiB5MT0iMTAuMDczNCIgeDI9IjExLjY4MDUiIHkyPSIxMC4yNDExIiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzBfNCI+CjxyZWN0IHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt="">
+            <img class="icon-dark" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSA2MCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI0Q4RDhEOCIvPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTUuODc0NSAxNC4wMzE4QzE0LjYzMSAxNS4zMDEgMTIuOTc4NiAxNiAxMS4yMiAxNkM5LjQ2MTQ0IDE2IDcuODA4OTYgMTUuMzAxIDYuNTY1NTMgMTQuMDMxOEM0LjQ3ODE2IDExLjkwMTMgNC40NzgxNiA4LjQzNTI3IDYuNTY1NTMgNi4zMDQ2OEM4LjI2OTgyIDQuNTY1MTEgMTEuMDQyIDQuNTY1MTEgMTIuNzQ2MiA2LjMwNDY4QzEzLjQyMjcgNi45OTUyMyAxMy43OTYzIDcuOTE0MzYgMTMuNzk2MyA4Ljg5MTJDMTMuNzk2MyA5Ljg2ODA1IDEzLjQyMzkgMTAuNzg3MiAxMi43NDYyIDExLjQ3NzdDMTIuMTg4NyAxMi4wNDY4IDExLjQ0NjEgMTIuMzYwOCAxMC42NTY0IDEyLjM2MDhDOS44NjY3NiAxMi4zNjA4IDkuMTI1NDEgMTIuMDQ2OCA4LjU2NjcyIDExLjQ3NzdDOC4xMDM1MSAxMS4wMDQ5IDcuODQ4OTQgMTAuMzc2OSA3Ljg0ODk0IDkuNzA4MDVDNy44NDg5NCA5LjAzOTE1IDguMTAzNTIgOC40MTExOSA4LjU2NjcyIDcuOTM4MzhDOS4zNjU4MyA3LjEyMjczIDEwLjY2NDcgNy4xMjI3MyAxMS40NjM4IDcuOTM4MzhDMTIuMTM2OCA4LjYyNTMzIDEyLjEzNjggOS43NDQxNSAxMS40NjM4IDEwLjQzMTFDMTEuMTg2OCAxMC43MTM4IDEwLjgxNzkgMTAuODcwMiAxMC40MjU0IDEwLjg3MDJDMTAuMDMzIDEwLjg3MDIgOS42NjQwNiAxMC43MTM4IDkuMzg3MDcgMTAuNDMxMUM5LjE0ODk4IDEwLjE4ODEgOS4wMTY5NiA5Ljg2NDQ3IDkuMDE2OTYgOS41MTkyQzkuMDE2OTYgOS4xNzUxMyA5LjE0Nzc5IDguODUxNSA5LjM4NzA3IDguNjA3MzFDOS41NTc5NyA4LjQzMjg3IDkuODM0OTYgOC40MzI4NyAxMC4wMDcgOC42MDczMUMxMC4xNzc5IDguNzgxNzUgMTAuMTc3OSA5LjA2NDQ3IDEwLjAwNyA5LjI0MDExQzkuOTMzOTYgOS4zMTQ3IDkuODkzODggOS40MTMzNSA5Ljg5Mzg4IDkuNTE5MjFDOS44OTM4OCA5LjYyNTA4IDkuOTMzOTYgOS43MjM3MyAxMC4wMDcgOS43OTgzMkMxMC4xMTkgOS45MTI2MSAxMC4yNjc1IDkuOTc1MTcgMTAuNDI2NiA5Ljk3NTE3QzEwLjU4NDYgOS45NzUxNyAxMC43MzQyIDkuOTEyNjEgMTAuODQ2MiA5Ljc5ODMyQzExLjE3NzQgOS40NjAyNSAxMS4xNzc0IDguOTA5MjggMTAuODQ2MiA4LjU3MDAxQzEwLjYyNDYgOC4zNDM4NCAxMC4zMyA4LjIxOTkzIDEwLjAxNjQgOC4yMTk5M0M5LjcwMjkyIDguMjE5OTMgOS40MDgyOCA4LjM0NTA1IDkuMTg2NjkgOC41NzAwMUM4Ljg4OTY3IDguODczMTggOC43MjQ2OCA5LjI3NzQxIDguNzI0NjggOS43MDY4OEM4LjcyNDY4IDEwLjEzNjQgOC44ODg1MSAxMC41NDA2IDkuMTg1NTEgMTAuODQzN0M5LjU3OCAxMS4yNDQ0IDEwLjEwMDEgMTEuNDY1NyAxMC42NTUzIDExLjQ2NTdDMTEuMjEwNCAxMS40NjU3IDExLjczMjUgMTEuMjQ1NiAxMi4xMjUgMTAuODQzN0MxMi42MzY2IDEwLjMyMTYgMTIuOTE4MiA5LjYyNzQ4IDEyLjkxODIgOC44OUMxMi45MTgyIDguMTUxMzUgMTIuNjM2NiA3LjQ1NzIgMTIuMTI1IDYuOTM2MjVDMTAuNzYyNSA1LjU0NTU1IDguNTQ1NiA1LjU0NTU1IDcuMTgyOTkgNi45MzYyNUM1LjQzNzQyIDguNzE3OTcgNS40Mzc0MiAxMS42MTcyIDcuMTgyOTkgMTMuMzk4OUM4LjI2MDI2IDE0LjQ5ODQgOS42OTM0NyAxNS4xMDQ4IDExLjIxNzQgMTUuMTA0OEMxMi43NDE0IDE1LjEwNDggMTQuMTc0NiAxNC40OTg0IDE1LjI1MTkgMTMuMzk4OUMxNS40MjI4IDEzLjIyNDQgMTUuNjk5NyAxMy4yMjQ0IDE1Ljg3MTggMTMuMzk4OUMxNi4wNDI3IDEzLjU3MzMgMTYuMDQyNyAxMy44NTYgMTUuODcxOCAxNC4wMzE3TDE1Ljg3NDUgMTQuMDMxOFoiIGZpbGw9ImJsYWNrIi8+CjwvZz4KPC9zdmc+Cg==" alt="">
+          </button>
+        </div>
+      </header>
+
+      <!-- Figma 429:19419 (V1- Learn - Light - Desktop) -->
+      <header class="case-head">
+        <div class="case-title-row">
+          <h1 class="case-title">Learn</h1>
+          <p class="case-credit"><span class="year">2023</span><span class="sep">.</span><span class="client">INDmoney</span></p>
+        </div>
+        <p class="case-sub">Designing an engaging and fast learning experience for users to make them understand simple finance topics</p>
+      </header>
+
+      <dl class="case-meta">
+        <div class="meta-row"><dt>Role</dt><dd>Product Designer</dd></div>
+        <div class="meta-row"><dt>Duration</dt><dd>1.5 months</dd></div>
+        <div class="meta-row"><dt>Team</dt><dd>PM- 1, Product Designer- 1, BE Developer- 2, FE Developer- 1</dd></div>
+        <div class="meta-row"><dt>Impact</dt><dd>5% opened Learn, 90%+ finished a course</dd></div>
+      </dl>
+
+      <!-- Videos carry no src in the markup: the script at the bottom picks the
+           theme's file as each one nears the screen, so a visitor downloads one
+           set, and only what they scroll to. -->
+      <span class="shot v2-hero" style="--ar-light: 1920 / 1080">
+        <video class="shot-video" data-light="assets/learn/INDlearn_Page_Light.mp4" data-dark="assets/learn/INDlearn_Page_Dark.mp4"
+               muted loop playsinline preload="none" width="1920" height="1080"
+               aria-label="The Learn page in the INDmoney app"></video>
+      </span>
+
+      <div class="case-body">
+
+        <section class="case-section" id="context" data-toc="Context">
+          <h2>Context, people wanted to understand before they invested</h2>
+          <div class="prose">
+            <p>INDmoney&rsquo;s users could buy stocks, mutual funds and a dozen other instruments in the app. Plenty of them didn&rsquo;t, because they didn&rsquo;t know what they were buying.</p>
+            <p>We spoke to five customers, repeat users the company put us in touch with. The pattern was the same each time. They wanted to understand a product before putting money into it, and the way to do that was a twenty to thirty minutes YouTube video or an article. Most of them watched the videos. And all of them felt overwhelmed about it.</p>
+            <p>For INDmoney the gap was commercial. People don&rsquo;t invest in what they don&rsquo;t understand, so the company wanted something that closed it. My brief was to make learning a finance topic fast enough that someone would finish it.</p>
+            <p>Learn also had to be findable. The three places that made sense the product pages, the home screen, the notification feed.</p>
+          </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 3840 / 2160">
+              <img class="shot-img" src="assets/Learn_context_Light.webp"
+                   data-light="assets/Learn_context_Light.webp" data-dark="assets/Learn_context_Dark.webp"
+                   alt="Learn entry points on a product page, the home screen and the notification feed" width="3840" height="2160" loading="lazy">
+            </span>
+            <figcaption>Multiple entry points for users to easily find and learn about specific financial instruments</figcaption>
+          </figure>
+        </section>
+
+        <section class="case-section" id="sequence" data-toc="Sequence">
+          <h2>Sequence, everyone starts at zero</h2>
+          <div class="prose">
+            <p>You can only take the lessons in order. Finish one and the next unlocks.</p>
+            <p>We did it because people arrived knowing wildly different amounts. A course on Fixed Deposits(FD) would get someone who had held an FD for years and someone who had only ever heard the term, and if we let people skip ahead the second person would land in a lesson full of words they&rsquo;d never seen. Starting everyone at lesson one meant that couldn&rsquo;t happen.</p>
+            <p>The cost was obvious in hindsight. If you already knew what an FD was and just wanted the lesson on premature withdrawal penalties, you still had to sit through four others to get there. We never designed for that person. We never really talked about them either.</p>
+          </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 1920 / 1080">
+              <video class="shot-video" data-light="assets/learn/ind-learn-unlock-light.mp4" data-dark="assets/learn/ind-learn-unlock-dark.mp4"
+                     muted loop playsinline preload="none" width="1920" height="1080"
+                     aria-label="A course's lessons moving through their states"></video>
+            </span>
+            <figcaption>The four lesson states — unstarted, next unlocked, all completed, failed.</figcaption>
+          </figure>
+        </section>
+
+        <section class="case-section" id="format" data-toc="Format">
+          <h2>Format, short enough to finish</h2>
+          <div class="prose">
+            <p>People told us the twenty to thirty minute video was the problem. Five lessons at three minutes each adds up to fifteen, which is not far off.</p>
+            <p>What made it different was that nobody had to do all fifteen in one go. A lesson was five questions and the explanations that came with them. It ended, and you could leave. The video put the whole topic in front of you all in one go. What people told us was that it was too much at once, not that it was too long.</p>
+            <p>The PM, the content team and I worked backwards from how long someone would actually sit still. Three minutes per lesson, five lessons. Any longer and we were back to the problem we started with.</p>
+          </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 1920 / 1080">
+              <video class="shot-video" data-light="assets/learn/ind-learn-tour-light.mp4" data-dark="assets/learn/ind-learn-tour-dark.mp4"
+                     muted loop playsinline preload="none" width="1920" height="1080"
+                     aria-label="A tour of a course, lesson by lesson"></video>
+            </span>
+            <figcaption>The whole topic, in pieces you can put down.</figcaption>
+          </figure>
+        </section>
+
+        <section class="case-section" id="lessons" data-toc="Lessons">
+          <h2>Lessons, answering is the learning</h2>
+          <div class="prose">
+            <p>You don&rsquo;t read a lesson and then get tested on it. The lesson is the five questions. You learn from the explanation that comes up after you answer.</p>
+            <p>Pick an option and it tells you straight away whether you got it, and why. It also shows what percentage of people picked each of the four, so a wrong answer usually comes with the fact that most people pick that one too.</p>
+            <p>How many you got right decides your badge. Two out of five is the lowest you can score and still move on. One or none and you do the lesson again.</p>
+            <p>You could also redo a lesson you&rsquo;d already passed, if you wanted a better badge. Going back into a lesson wasn&rsquo;t only what happened after a fail. It was also how you got from silver to diamond.</p>
+          </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 1920 / 1080">
+              <video class="shot-video" data-light="assets/learn/ind-learn-flow-light.mp4" data-dark="assets/learn/ind-learn-flow-dark.mp4"
+                     muted loop playsinline preload="none" width="1920" height="1080"
+                     aria-label="Answering a lesson question: the explanation and what everyone else picked"></video>
+            </span>
+            <figcaption>Every answer comes with a reason, and what everyone else picked.</figcaption>
+          </figure>
+        </section>
+
+        <section class="case-section" id="certificate" data-toc="Certificate">
+          <h2>Certificate, the part people shared</h2>
+          <div class="prose">
+            <p>You get a badge at the end of every lesson. Once all five are done the certificate unlocks, with your name on it and your badges along the bottom. Until then it sits there greyed out, with a note saying which lessons are still left.</p>
+            <p>It was built to be shared, which served two things at once. Someone who&rsquo;s just got through a course on mutual funds wants people to see it. INDmoney gets its name onto a post in front of people who have never opened the app.</p>
+            <p>People still post them on LinkedIn, and they keep appearing in my feed even a year after I left</p>
+          </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 1920 / 1080">
+              <video class="shot-video" data-light="assets/learn/ind-learn-certificate-light_1.mp4" data-dark="assets/learn/ind-learn-certificate-dark_1.mp4"
+                     muted loop playsinline preload="none" width="1920" height="1080"
+                     aria-label="The course certificate unlocking after five badges"></video>
+            </span>
+            <figcaption>Five badges, then your name on something you can post.</figcaption>
+          </figure>
+        </section>
+
+        <section class="case-section" id="results" data-toc="Results">
+          <h2>Results, 5% opened it and most of them finished</h2>
+          <div class="prose">
+            <p><span class="stat-big">5%</span>of monthly active users were opening Learn.</p>
+            <p><span class="stat-big">90%</span>of people who started a course finished it</p>
+            <p>People were overwhelmed with 20&ndash;30 minute videos, which is why Learn existed at all. Completion was the number that mattered.</p>
+            <p>Plenty went unmeasured. How many certificates went out, whether anyone came back for a second course, whether people who finished a course bought the product it was about.</p>
+          </div>
+
+          <figure class="v2-fig">
+            <span class="shot" style="--ar-light: 1920 / 1080">
+              <video class="shot-video" data-light="assets/learn/ind-learn-proof-count-E-light.mp4" data-dark="assets/learn/ind-learn-proof-count-E-dark.mp4"
+                     muted loop playsinline preload="none" width="1920" height="1080"
+                     aria-label="Counter rising to 5% of monthly active users opening Learn"></video>
+            </span>
+          </figure>
+        </section>
+
+      </div>
+
+      <footer class="footer">
+        <div class="line">
+          <span><span class="copy"><span class="copy-mark">&copy;</span>2026</span> <span class="sig">nikhil sajjan</span></span>
+        </div>
+        <div class="line updated">last updated 09/26</div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script>
+    /* Case-study videos: load the theme's file as each one comes within a
+       screen of view, play while visible, pause off screen. Swaps file on
+       theme change (app.js fires 'themechange'). With reduced motion they
+       don't autoplay; they show controls instead. */
+    (function () {
+      var root = document.documentElement;
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var vids = [].slice.call(document.querySelectorAll('.shot-video'));
+
+      function srcFor(v) {
+        return (root.getAttribute('data-theme') === 'dark' && v.dataset.dark) || v.dataset.light;
+      }
+      function load(v) {
+        var next = srcFor(v);
+        if (v.getAttribute('src') === next) return;
+        v.setAttribute('src', next);
+        v.preload = 'auto';
+      }
+      // videos in a hidden slide or closed chapter ([inert]) wait their turn
+      function play(v) {
+        if (reduce || v.closest('[inert]')) return;
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+      window.learnVideos = { load: load, play: play };
+
+      if (reduce) vids.forEach(function (v) { v.controls = true; });
+
+      if (!('IntersectionObserver' in window)) {
+        vids.forEach(function (v) { load(v); play(v); });
+      } else {
+        var near = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (!e.isIntersecting || e.target.closest('[inert]')) return;
+            load(e.target);
+            near.unobserve(e.target);
+          });
+        }, { rootMargin: '100% 0px' });
+        var seen = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            e.target.dataset.visible = e.isIntersecting ? '1' : '';
+            if (e.isIntersecting && !e.target.closest('[inert]')) { load(e.target); play(e.target); }
+            else e.target.pause();
+          });
+        }, { threshold: 0.25 });
+        vids.forEach(function (v) { near.observe(v); seen.observe(v); });
+      }
+
+      document.addEventListener('themechange', function () {
+        vids.forEach(function (v) {
+          if (!v.getAttribute('src')) return;
+          load(v);
+          if (v.dataset.visible) play(v);
+        });
+      });
+    })();
+  </script>
+  <script src="app.js?v=2026-10-19a"></script>
+  <script src="fx/learn.js?v=2026-10-19a"></script>
+</body>
+</html>

@@ -33,3 +33,32 @@ fx/x2-pre.js
 
 # Local-only: build script for the homepage experiments
 tools/
+
+# Local-only: Learn page iterations (learn.html?it=<id>)
+learn_iterations.html
+fx/learn-it.js
+fx/learn-it.css
+fx/learn-it-list.js
+
+# Local-only: Safari video colour test (video_test.html)
+video_test.html
+assets/video-test/
+
+# Local-only: Learn versions V2–V4 (V1 is learn-previous-2026-10-19.html)
+learn_v2.html
+learn_v3.html
+learn_v4.html
+fx/learn-v2.js
+fx/learn-v2.css
+fx/learn-v3.css
+fx/learn-v4.css
+
+# Local-only: Learn video sources (the site serves assets/learn/ and assets/previews/learn-*.mp4)
+assets/ind-learn-*.mp4
+assets/INDlearn_Page_*.mp4
+assets/video-srgb/
+
+# Local-only: an npm install in the site folder, not part of the site
+node_modules/
+package.json
+package-lock.json
