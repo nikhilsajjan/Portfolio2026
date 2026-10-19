@@ -312,6 +312,19 @@
     return 'assets/previews/' + key + '-' + theme + '.webp';
   }
 
+  /* Rows marked data-preview-video (Learn) preview a short muted loop, the
+     .mp4 beside their .webp; with reduced motion they keep the still. */
+  var reducePreview = matchMedia('(prefers-reduced-motion: reduce)');
+  function previewIsVideo(row) { return row.hasAttribute('data-preview-video') && !reducePreview.matches; }
+  function previewMedia(row) {
+    var src = previewSrc(row.dataset.preview);
+    return previewIsVideo(row) ? src.replace(/\.webp$/, '.mp4') : src;
+  }
+  function playQuiet(v) {
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+
   if (preview) {
     /* Two stacked frames so moving between rows crossfades rather than swapping:
        300ms fade in from nothing and out to nothing, 450ms when the previous
@@ -321,9 +334,23 @@
     preview.after(frames[1]);
     var active = 0;
     var leftAt = -Infinity;
+    // a third frame for video previews, crossfading with the two images
+    var clip = document.createElement('video');
+    clip.className = 'row-preview';
+    clip.muted = true;
+    clip.loop = true;
+    clip.playsInline = true;
+    clip.preload = 'none';
+    clip.setAttribute('aria-hidden', 'true');
+    frames[1].after(clip);
+    var shown = null; // the frame on screen, or the last one that was
 
     function setFade(ms) {
-      frames.forEach(function (f) { f.style.transitionDuration = ms + 'ms'; });
+      frames.concat(clip).forEach(function (f) { f.style.transitionDuration = ms + 'ms'; });
+    }
+    // pause the loop once it has faded out, unless it came straight back
+    function pauseClip() {
+      setTimeout(function () { if (!clip.classList.contains('is-visible')) clip.pause(); }, SWITCH_MS + 50);
     }
 
     /* Top of the row as it will sit once the list settles: rows above it close
@@ -343,23 +370,29 @@
     }
 
     function showPreview(row) {
-      var key = row.dataset.preview;
-      var cur = frames[active];
-      var src = previewSrc(key);
-      if (cur.getAttribute('src') === src) {
+      var isClip = previewIsVideo(row);
+      var cur = shown;
+      var src = previewMedia(row);
+      if (cur && cur.getAttribute('src') === src) {
         setFade(FADE_MS);
         cur.classList.add('is-visible');
+        if (cur === clip) playQuiet(clip);
         return;
       }
-      var showing = cur.classList.contains('is-visible') || performance.now() - leftAt < FADE_MS;
+      var showing = cur && (cur.classList.contains('is-visible') || performance.now() - leftAt < FADE_MS);
       setFade(showing ? SWITCH_MS : FADE_MS);
-      var next = frames[1 - active];
-      next.src = src;
+      var next = isClip ? clip : frames[1 - active];
+      if (next.getAttribute('src') !== src) next.src = src;
       // level with the top of the hovered row
       next.style.top = rowTop(row, next) + 'px';
       next.classList.add('is-visible');
-      cur.classList.remove('is-visible');
-      active = 1 - active;
+      if (isClip) { clip.currentTime = 0; playQuiet(clip); }
+      if (cur && cur !== next) {
+        cur.classList.remove('is-visible');
+        if (cur === clip) pauseClip();
+      }
+      if (!isClip) active = 1 - active;
+      shown = next;
     }
 
     document.querySelectorAll('.row[data-preview]').forEach(function (row) {
@@ -368,7 +401,8 @@
       });
       row.addEventListener('pointerleave', function () {
         setFade(FADE_MS);
-        frames[active].classList.remove('is-visible');
+        if (shown) shown.classList.remove('is-visible');
+        if (shown === clip) pauseClip();
         leftAt = performance.now();
       });
     });
@@ -380,6 +414,13 @@
           var im = new Image();
           im.src = 'assets/previews/' + k + '-' + t + '.webp';
         });
+      });
+      // and the video preview for this theme, once the page itself has loaded
+      var clipRow = document.querySelector('.row[data-preview-video]');
+      if (clipRow && previewIsVideo(clipRow)) addEventListener('load', function () {
+        if (clip.getAttribute('src')) return;
+        clip.preload = 'auto';
+        clip.src = previewMedia(clipRow);
       });
     }
   }
@@ -402,12 +443,25 @@
       var kind = row.closest('#panel-writings') ? 'article' : 'case study';
       box.setAttribute('aria-label', link.textContent.trim() + ' — open ' + kind);
     }
-    var img = document.createElement('img');
-    img.alt = '';
-    box.appendChild(img);
+    var media = document.createElement(previewIsVideo(row) ? 'video' : 'img');
+    if (media.tagName === 'VIDEO') {
+      media.muted = true;
+      media.loop = true;
+      media.playsInline = true;
+      media.setAttribute('aria-hidden', 'true');
+    } else media.alt = '';
+    box.appendChild(media);
     box.hidden = true;
     row.parentNode.insertBefore(box, row.nextSibling);
     return box;
+  }
+
+  // the expanded image (or loop) for this theme; loops play only while open
+  function setInline(box, row) {
+    var m = box.firstElementChild;
+    var src = previewMedia(row);
+    if (m.getAttribute('src') !== src) m.src = src;
+    if (m.tagName === 'VIDEO') { if (box.hidden) m.pause(); else playQuiet(m); }
   }
 
   document.querySelectorAll('#panel-work .row, #panel-writings .row').forEach(function (row) {
@@ -418,8 +472,8 @@
       var open = row.classList.toggle('is-open');
       if (row.dataset.preview) {
         var box = inlineBox(row);
-        box.querySelector('img').src = previewSrc(row.dataset.preview);
         box.hidden = !open;
+        setInline(box, row);
       }
     });
   });
@@ -428,7 +482,7 @@
   document.addEventListener('themechange', function () {
     document.querySelectorAll('.row-inline:not([hidden])').forEach(function (box) {
       var row = box.previousElementSibling;
-      if (row && row.dataset.preview) box.querySelector('img').src = previewSrc(row.dataset.preview);
+      if (row && row.dataset.preview) setInline(box, row);
     });
   });
 
