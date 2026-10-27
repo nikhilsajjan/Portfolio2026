@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just ask it I say — nikhil sajjan</title>
+  <meta name="description" content="I built a data set of 9,000 portfolios so Claude could show me the things I hadn’t thought of.">
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search).get('theme');
+      var saved = null;
+      try { saved = localStorage.getItem('theme'); } catch (e) {}
+      var t = q || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', t);
+      var steps = [0.875, 1, 1.125, 1.25, 1.375], s = null;
+      try { s = parseInt(localStorage.getItem('textStep'), 10); } catch (e) {}
+      if (steps[s] && s !== 1) document.documentElement.style.setProperty('--fs', steps[s]);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2026-10-20b">
+  <script>
+    /* Page-to-page View Transitions, only when the home page this visit came
+       from opts in too (experiments v1 does; index.html doesn't). A one-sided
+       opt-in only starts a transition the browser cancels with a console
+       error. app.js records it as sessionStorage 'home-vt'. */
+    (function () {
+      var vt = null;
+      try { vt = sessionStorage.getItem('home-vt'); } catch (e) {}
+      if (vt !== '1' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var s = document.createElement('style');
+      s.textContent = '@view-transition { navigation: auto; }';
+      document.head.appendChild(s);
+    })();
+  </script>
+  <script>
+    /* Section index on the left, as on the case studies and the guide. ?fx=none turns it off.
+       Bump V when fx/ changes so returning visitors get the new files. */
+    (function () {
+      var V = '2026-10-11a';
+      var DEFAULT = 'toc-rail,key-sections,hero-parallax';
+      var q = new URLSearchParams(location.search).get('fx');
+      var fx = q === 'none' ? '' : (q || DEFAULT);
+      if (!fx) return;
+      document.documentElement.setAttribute('data-fx-quiet', '');
+      var ids = fx.split(',').filter(function (id) { return /^[a-z0-9-]+$/.test(id); });
+      if (!ids.length) return;
+      document.documentElement.setAttribute('data-fx', ids.join(' '));
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = 'fx/case-fx.css?v=' + V;
+      document.head.appendChild(l);
+      var s = document.createElement('script');
+      s.src = 'fx/case-fx.js?v=' + V;
+      s.async = false;
+      document.head.appendChild(s);
+    })();
+  </script>
+  <link rel="stylesheet" href="fx/case.css?v=2026-10-28a">
+</head>
+<body>
+  <div class="page">
+    <main class="column case v2 v3 essay">
+
+      <!-- Figma 367:19583 -->
+      <header class="topbar">
+        <a class="back" href="index.html#experiments">
+          <svg viewBox="0 0 5 9" fill="none" aria-hidden="true"><path d="M4.5 8.5L0.5 4.5L4.5 0.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          back
+        </a>
+        <div class="topbar-tools">
+          <button class="text-step" type="button" data-step="1" aria-label="Larger text">+a</button>
+          <button class="text-step" type="button" data-step="-1" aria-label="Smaller text">-a</button>
+          <button class="toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+            <img class="icon-light" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE0IiBoZWlnaHQ9IjE0IiB2aWV3Qm94PSIwIDAgMTQgMTQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSA2MCIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzBfNCkiPgo8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIGZpbGw9IiMyNDI0MjQiLz4KPGNpcmNsZSBpZD0iRWxsaXBzZSAxIiBjeD0iOS41IiBjeT0iNi41IiByPSIyLjEiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLXdpZHRoPSIwLjgiLz4KPGNpcmNsZSBpZD0iRWxsaXBzZSAyIiBjeD0iNCIgY3k9IjkiIHI9IjEuNiIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2Utd2lkdGg9IjAuOCIvPgo8Y2lyY2xlIGlkPSJFbGxpcHNlIDMiIGN4PSI0IiBjeT0iNCIgcj0iMS42IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNCIgY3g9IjkiIGN5PSItMSIgcj0iMi42IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNiIgY3g9Ii0yIiBjeT0iNyIgcj0iMi42IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS13aWR0aD0iMC44Ii8+CjxjaXJjbGUgaWQ9IkVsbGlwc2UgNSIgY3g9IjkuNSIgY3k9IjE0LjUiIHI9IjMuMSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2Utd2lkdGg9IjAuOCIvPgo8bGluZSBpZD0iTGluZSAxIiB4MT0iMTMuNzQxMiIgeTE9IjcuMjk5ODgiIHgyPSIxMy42MzM1IiB5Mj0iNy40MDc1OSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPGxpbmUgaWQ9IkxpbmUgMiIgeDE9IjMuNzYzMjkiIHkxPSIxMi4zNDk2IiB4Mj0iMy42MTY3OCIgeTI9IjEyLjM5MTMiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxsaW5lIGlkPSJMaW5lIDMiIHgxPSI3LjUwMDAzIiB5MT0iMTAuMzE0OCIgeDI9IjcuNTAwMDIiIHkyPSIxMC41IiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8bGluZSBpZD0iTGluZSA1IiB4MT0iNy44NTU3OSIgeTE9IjIuNjUwMDMiIHgyPSI3LjY1MzkxIiB5Mj0iMi45OTc3MSIgc3Ryb2tlPSIjN0I3QjdCIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPGxpbmUgaWQ9IkxpbmUgNiIgeDE9IjExLjYxMTMiIHkxPSIyLjAxODU3IiB4Mj0iMTEuNjExMyIgeTI9IjIuMjAzNzYiIHN0cm9rZT0iIzdCN0I3QiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxsaW5lIGlkPSJMaW5lIDQiIHgxPSIxMS43NTg5IiB5MT0iMTAuMDczNCIgeDI9IjExLjY4MDUiIHkyPSIxMC4yNDExIiBzdHJva2U9IiM3QjdCN0IiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzBfNCI+CjxyZWN0IHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt="">
+            <img class="icon-dark" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSA2MCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0iI0Q4RDhEOCIvPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTUuODc0NSAxNC4wMzE4QzE0LjYzMSAxNS4zMDEgMTIuOTc4NiAxNiAxMS4yMiAxNkM5LjQ2MTQ0IDE2IDcuODA4OTYgMTUuMzAxIDYuNTY1NTMgMTQuMDMxOEM0LjQ3ODE2IDExLjkwMTMgNC40NzgxNiA4LjQzNTI3IDYuNTY1NTMgNi4zMDQ2OEM4LjI2OTgyIDQuNTY1MTEgMTEuMDQyIDQuNTY1MTEgMTIuNzQ2MiA2LjMwNDY4QzEzLjQyMjcgNi45OTUyMyAxMy43OTYzIDcuOTE0MzYgMTMuNzk2MyA4Ljg5MTJDMTMuNzk2MyA5Ljg2ODA1IDEzLjQyMzkgMTAuNzg3MiAxMi43NDYyIDExLjQ3NzdDMTIuMTg4NyAxMi4wNDY4IDExLjQ0NjEgMTIuMzYwOCAxMC42NTY0IDEyLjM2MDhDOS44NjY3NiAxMi4zNjA4IDkuMTI1NDEgMTIuMDQ2OCA4LjU2NjcyIDExLjQ3NzdDOC4xMDM1MSAxMS4wMDQ5IDcuODQ4OTQgMTAuMzc2OSA3Ljg0ODk0IDkuNzA4MDVDNy44NDg5NCA5LjAzOTE1IDguMTAzNTIgOC40MTExOSA4LjU2NjcyIDcuOTM4MzhDOS4zNjU4MyA3LjEyMjczIDEwLjY2NDcgNy4xMjI3MyAxMS40NjM4IDcuOTM4MzhDMTIuMTM2OCA4LjYyNTMzIDEyLjEzNjggOS43NDQxNSAxMS40NjM4IDEwLjQzMTFDMTEuMTg2OCAxMC43MTM4IDEwLjgxNzkgMTAuODcwMiAxMC40MjU0IDEwLjg3MDJDMTAuMDMzIDEwLjg3MDIgOS42NjQwNiAxMC43MTM4IDkuMzg3MDcgMTAuNDMxMUM5LjE0ODk4IDEwLjE4ODEgOS4wMTY5NiA5Ljg2NDQ3IDkuMDE2OTYgOS41MTkyQzkuMDE2OTYgOS4xNzUxMyA5LjE0Nzc5IDguODUxNSA5LjM4NzA3IDguNjA3MzFDOS41NTc5NyA4LjQzMjg3IDkuODM0OTYgOC40MzI4NyAxMC4wMDcgOC42MDczMUMxMC4xNzc5IDguNzgxNzUgMTAuMTc3OSA5LjA2NDQ3IDEwLjAwNyA5LjI0MDExQzkuOTMzOTYgOS4zMTQ3IDkuODkzODggOS40MTMzNSA5Ljg5Mzg4IDkuNTE5MjFDOS44OTM4OCA5LjYyNTA4IDkuOTMzOTYgOS43MjM3MyAxMC4wMDcgOS43OTgzMkMxMC4xMTkgOS45MTI2MSAxMC4yNjc1IDkuOTc1MTcgMTAuNDI2NiA5Ljk3NTE3QzEwLjU4NDYgOS45NzUxNyAxMC43MzQyIDkuOTEyNjEgMTAuODQ2MiA5Ljc5ODMyQzExLjE3NzQgOS40NjAyNSAxMS4xNzc0IDguOTA5MjggMTAuODQ2MiA4LjU3MDAxQzEwLjYyNDYgOC4zNDM4NCAxMC4zMyA4LjIxOTkzIDEwLjAxNjQgOC4yMTk5M0M5LjcwMjkyIDguMjE5OTMgOS40MDgyOCA4LjM0NTA1IDkuMTg2NjkgOC41NzAwMUM4Ljg4OTY3IDguODczMTggOC43MjQ2OCA5LjI3NzQxIDguNzI0NjggOS43MDY4OEM4LjcyNDY4IDEwLjEzNjQgOC44ODg1MSAxMC41NDA2IDkuMTg1NTEgMTAuODQzN0M5LjU3OCAxMS4yNDQ0IDEwLjEwMDEgMTEuNDY1NyAxMC42NTUzIDExLjQ2NTdDMTEuMjEwNCAxMS40NjU3IDExLjczMjUgMTEuMjQ1NiAxMi4xMjUgMTAuODQzN0MxMi42MzY2IDEwLjMyMTYgMTIuOTE4MiA5LjYyNzQ4IDEyLjkxODIgOC44OUMxMi45MTgyIDguMTUxMzUgMTIuNjM2NiA3LjQ1NzIgMTIuMTI1IDYuOTM2MjVDMTAuNzYyNSA1LjU0NTU1IDguNTQ1NiA1LjU0NTU1IDcuMTgyOTkgNi45MzYyNUM1LjQzNzQyIDguNzE3OTcgNS40Mzc0MiAxMS42MTcyIDcuMTgyOTkgMTMuMzk4OUM4LjI2MDI2IDE0LjQ5ODQgOS42OTM0NyAxNS4xMDQ4IDExLjIxNzQgMTUuMTA0OEMxMi43NDE0IDE1LjEwNDggMTQuMTc0NiAxNC40OTg0IDE1LjI1MTkgMTMuMzk4OUMxNS40MjI4IDEzLjIyNDQgMTUuNjk5NyAxMy4yMjQ0IDE1Ljg3MTggMTMuMzk4OUMxNi4wNDI3IDEzLjU3MzMgMTYuMDQyNyAxMy44NTYgMTUuODcxOCAxNC4wMzE3TDE1Ljg3NDUgMTQuMDMxOFoiIGZpbGw9ImJsYWNrIi8+CjwvZz4KPC9zdmc+Cg==" alt="">
+          </button>
+        </div>
+      </header>
+
+      <!-- Figma 531:45312 (Just ask it I say V3) -->
+      <header class="case-head">
+        <div class="case-title-row">
+          <h1 class="case-title">Just ask it I say</h1>
+          <p class="case-credit"><span class="client">13 Oct 2026</span></p>
+        </div>
+        <p class="case-sub">I built a data set of 9,000 portfolios so Claude could show me the things I hadn&rsquo;t thought of.</p>
+      </header>
+
+      <span class="shot v2-hero" style="--ar-light: 1400 / 788">
+        <img class="shot-img" src="assets/just-ask-it/spider-light.webp"
+             data-light="assets/just-ask-it/spider-light.webp" data-dark="assets/just-ask-it/spider-dark.webp"
+             alt="" width="1400" height="788">
+      </span>
+
+      <div class="case-body">
+
+        <section class="case-section" id="introduction" data-toc="Introduction">
+          <h2>Introduction</h2>
+          <div class="prose">
+            <p>While creating (more vibe coding than designing) my portfolio the past few days I kept getting stuck on what new elements I could bring to it to make it fun, interactive and memorable. So I remembered a legendary designer in a class saying &ldquo;Just ask it I say&rdquo; (in a very British accent). I could just ask Claude to make iterations on what I already had. The outputs were fine, but they were missing the key thing we actually do, which is look at other designers&rsquo; portfolios for inspiration.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="plan" data-toc="The plan">
+          <h2>The plan</h2>
+          <div class="prose">
+            <p>So I felt I needed a database of the best design portfolios in the world. My hypothesis was that with a data set of trends from them, I could get more interaction iterations out of Claude Code.</p>
+            <p>I listed the sites that collect, award or feature portfolios: Awwwards, Wall of Portfolios, SiteInspire, Webflow, Framer, Figma and Killer Portfolio. Then I told Claude to crawl them from 2020 to 2026, so the data would be as relevant as I could make it.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="crawl" data-toc="The crawl">
+          <h2>The Crawl</h2>
+          <div class="prose">
+            <p>I tried the crawl on my laptop first but it was slow, and I couldn&rsquo;t use it for anything else while it ran. So I borrowed a bigger computer.</p>
+            <p><strong>The crawl set up</strong> - The computer was something I couldn&rsquo;t carry around, so the script ran locally on it while I checked in from my phone through Claude Code Remote Control.</p>
+          </div>
+
+          <figure class="essay-pair">
+            <div class="essay-pair-row">
+              <span class="essay-setup">
+                <span class="essay-setup-turn"><span class="essay-setup-crop">
+                  <img src="assets/just-ask-it/crawl-setup.webp" alt="The borrowed desktop computer running the crawl, on a desk" width="1300" height="976" loading="lazy">
+                </span></span>
+              </span>
+              <img class="essay-phone" src="assets/just-ask-it/crawl-phone.webp" alt="Claude Code Remote Control on a phone, showing the crawl's progress" width="320" height="696" loading="lazy">
+            </div>
+            <figcaption>Checking the crawl from my phone. Wall of Portfolios almost done, Awwwards and four other galleries still queued, around 7,800 sites to go.</figcaption>
+          </figure>
+
+          <div class="prose">
+            <p>It ran from 7 to 9 October across seven galleries. After that it went back over 275 of the sites and recorded video of each interaction, timed every hover and opened each one on a phone.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="output" data-toc="What came back">
+          <h2>The Crawl output, what came back</h2>
+          <div class="prose">
+            <p>The galleries listed just over 10,000 pages between them. Each site counts once even when three galleries listed it, so that left 9,186 live sites. Of those, 4,254 were selling a person or a studio, which is the part I cared about.</p>
+            <div>
+              <p>Claude split them into two groups:</p>
+              <ul>
+                <li>Peers: 1,489 product, UX, UI and interaction designer portfolios. This is what&rsquo;s normal for people like me looking for a job.</li>
+                <li>Award winners: 781 sites that won an Awwwards award in 2020 or later. This is the craft ceiling.</li>
+              </ul>
+            </div>
+            <div>
+              <p>What came out was a set of documents rather than one big spreadsheet:</p>
+              <ul>
+                <li>a Portfolio Playbook on structure, layout, interactions and motion values</li>
+                <li>a Try-list of 97 interactions with values and build recipes</li>
+                <li>unique interactions from 293 sites</li>
+                <li>copy patterns, and a scorecard of my site against the peers</li>
+              </ul>
+            </div>
+            <p><strong>What surprised me</strong> - juries and recruiters want different things. Juries reward immersive sites. Recruiters just want clarity. Sound is the strongest jury signal in the data and only 1% of designers use it. Juries score resume links down, while 62% of peers have one. My site scored 100% on the basics and 70% on hiring content.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="rerun" data-toc="Re-run">
+          <h2>Re Run of iteration experiments</h2>
+          <h3>Round one</h3>
+          <div class="prose">
+            <p>I gave Claude the playbook and asked for a version of my homepage with every interaction that could work on it. It came back with 16: the project thumbnail morphing into the case study hero, arrows sliding in on hover, copy email with post-it confetti, a sound toggle, a live Copenhagen clock (Claude thinks I live in Copenhagen because my school CIID has it in the name), scroll reveals in pure CSS.</p>
+            <p>It also wrote down what it was leaving out and why. WebGL, 3D, shaders and preloaders were all out for being heavy and against the mono look of the site. It built an index page so each experiment opens on its own, and a compare page putting V1 and V2 side by side.</p>
+            <p>Why only 16? - I expected more out of 9,000 sites, so I asked. Claude had filtered hard: it skipped the richest file, the 293 unique interactions, and built one take on each idea instead of several. It had read the data fine. I just hadn&rsquo;t told it what I wanted out of it.</p>
+          </div>
+          <h3>Round Two</h3>
+          <div class="prose">
+            <p>So the second time I told it what I actually wanted. Make the dots more alive and more fun, play with the copy, try different layouts, and go bonkers.</p>
+            <div>
+              <p>Nothing about the data had changed. This time it built 51 experiments in 10 groups:</p>
+              <ul>
+                <li>dot games: Snake, Game of Life, whack-a-dot, a music sequencer</li>
+                <li>a little pet that lives in the grid</li>
+                <li>the name glitching and waving</li>
+                <li>six hero copy options and four contact labels, each with a &#10003; works / &#10005; risk verdict from the crawl data</li>
+                <li>seven layouts</li>
+                <li>playable mini versions of two of my case studies</li>
+              </ul>
+            </div>
+            <p>It also made five presets that mix them together, from Calm to Bonkers. Those are the easiest way in.</p>
+          </div>
+        </section>
+
+        <section class="case-section" id="conclusion" data-toc="Conclusion">
+          <h2>Conclusion, Did it help me?</h2>
+          <div class="prose">
+            <p>It helped. Having the data set meant I had a clear list of things to try when I&rsquo;d run out of my own ideas, and it brought back things I could do with what I already had.</p>
+            <p>The part I didn&rsquo;t expect was how much the asking mattered. The same crawl gave me 16 experiments the first time and 51 the second, and the only thing that changed in between was how much direction I gave. The data was the ceiling, and how much I asked for decided how close I got to it.<br>
+            Does this work for everyone? There&rsquo;s enough data here to start from. Now it&rsquo;s on me, or anyone else who wants to try it, to actually use it on a portfolio.</p>
+          </div>
+          <p class="essay-closing">So &ldquo;just ask it I say&rdquo; was right. It just mattered more than I thought what I asked for.</p>
+        </section>
+
+      </div>
+
+      <footer class="footer">
+        <div class="line">
+          <span><span class="copy"><span class="copy-mark">&copy;</span>2026</span> <span class="sig">nikhil sajjan</span></span>
+        </div>
+        <div class="line updated">last updated Oct 26</div>
+      </footer>
+
+    </main>
+  </div>
+
+  <script src="app.js?v=2026-10-19a"></script>
+  <script src="fx/case.js?v=2026-10-28a"></script>
+</body>
+</html>

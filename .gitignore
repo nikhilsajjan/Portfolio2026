@@ -62,3 +62,52 @@ assets/video-srgb/
 node_modules/
 package.json
 package-lock.json
+
+# Local-only: Just ask it I say, version 2 (Learn interactions on the article)
+just-ask-it_v2.html
+
+# Local-only: home v3 iteration (new top bar and footer, Figma 538:46921)
+fx/home-v3.css
+fx/home-v3.js
+
+# Local-only: version 3.1 (one rising footer on every page, games in it)
+fx/v31.css
+fx/v31.js
+*_v3.1.html
+tools/build_v31.py
+
+# Local-only: version 3.2 (as 3.1, the page moves up with the rising footer)
+fx/v32.css
+fx/v32.js
+*_v3.2.html
+tools/build_v32.py
+
+# Local-only: full-screen home layout iterations (index_experimentation.html?it=<id>)
+index_experimentation.html
+index_experimentation_iterations.html
+fx/home-wide.css
+fx/home-wide.js
+fx/home-wide-list.js
+# Local-only: home 2026-10-27 v1 (name owns the first screen + ribbon + pinned name)
+index_2026-10-27_v1.html
+fx/home-2026-10-27-v1.css
+fx/home-2026-10-27-v1.js
+# Local-only: home 2026-10-27 v2
+index_2026-10-27_v2.html
+fx/home-2026-10-27-v2.css
+fx/home-2026-10-27-v2.js
+fx/home-2026-10-27-v2-play.js
+# Local-only: home 2026-10-27 v3
+index_2026-10-27_v3.html
+fx/home-2026-10-27-v3.css
+fx/home-2026-10-27-v3.js
+fx/home-2026-10-27-v3-play.js
+# Local-only: home 2026-10-27 v3, phone page + QR helper
+index_2026-10-27_v3_mobile.html
+fx/home-2026-10-27-v3-mobile.css
+fx/home-2026-10-27-v3-mobile.js
+open_on_phone.html
+# Local-only: v3 case studies
+*_2026-10-27_v3.html
+fx/inner-2026-10-27-v3.css
+fx/inner-2026-10-27-v3.js

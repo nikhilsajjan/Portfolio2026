@@ -715,6 +715,46 @@ html:not(.theme-ripple) :is(.v2-hero img, .photo-stack > .photo-item:first-child
   .v3 .stat-big { font-size: calc(40px * var(--fs, 1)); line-height: calc(53px * var(--fs, 1)); }
 }
 
+/* ================= Essay (Figma 531:45312, Just ask it I say) =================
+   On top of .v3: 18px body on desktop, 20px sub-headings, 8px between a heading
+   and what follows it, 32px between sections. Paragraphs are a blank line apart. */
+.essay .case-section { gap: 8px; }
+.essay .case-section p, .essay .case-section li { font-size: calc(14px * var(--fs, 1)); line-height: calc(19px * var(--fs, 1)); }
+.essay .case-section .prose { gap: calc(19px * var(--fs, 1)); }
+.essay .case-section ul { padding-left: 27px; }
+.essay .case-section h3 { font-weight: 600; color: var(--subtitle); letter-spacing: 0; font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
+.essay .prose strong { font-weight: 700; }
+.essay-closing { font-style: italic; font-weight: 500; color: var(--subtitle); }
+.essay .case-section .essay-closing { font-size: calc(16px * var(--fs, 1)); line-height: calc(21px * var(--fs, 1)); }
+/* the crawl photos: the set-up straightened by 0.54° and cropped, the phone beside it */
+.essay-pair { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.essay-pair-row { display: grid; grid-template-columns: 550fr 142fr; gap: 8px; }
+.essay-setup { position: relative; display: block; aspect-ratio: 550 / 309; overflow: hidden; background: #fff; }
+.essay-setup-turn {
+  position: absolute;
+  left: -1.08%;
+  top: -32.02%;
+  width: 101.84%;
+  height: 149.17%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.essay-setup-crop { position: relative; width: 99.24%; height: 98.88%; overflow: hidden; transform: rotate(0.54deg); }
+.essay-setup-crop img { position: absolute; left: 0; top: -0.01%; width: 109.35%; height: 100.02%; max-width: none; }
+.essay-phone { display: block; width: 100%; height: 100%; object-fit: cover; }
+.essay .essay-pair figcaption { font-style: italic; font-weight: 500; color: var(--subtitle); text-align: left; font-size: calc(12px * var(--fs, 1)); line-height: calc(16px * var(--fs, 1)); }
+
+@media (min-width: 768px) {
+  .essay .v2-hero { margin-top: 24px; }
+  .essay .case-body { gap: 32px; }
+  .essay .case-section p, .essay .case-section li { font-size: calc(18px * var(--fs, 1)); line-height: calc(24px * var(--fs, 1)); }
+  .essay .case-section .prose { gap: calc(24px * var(--fs, 1)); }
+  .essay .case-section h3 { font-size: calc(20px * var(--fs, 1)); line-height: calc(26px * var(--fs, 1)); }
+  .essay .case-section .essay-closing { font-size: calc(20px * var(--fs, 1)); line-height: calc(26px * var(--fs, 1)); }
+  .essay .essay-pair figcaption { font-size: calc(14px * var(--fs, 1)); line-height: calc(18px * var(--fs, 1)); }
+}
+
 /* ================= Guide (Figma 352:19420) ================= */
 /* Command blocks with a copy button, the way Claude shows code. The Figma
    frame sets commands as plain text; the box and button are added here. */

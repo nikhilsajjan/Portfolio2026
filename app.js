@@ -415,6 +415,8 @@
           im.src = 'assets/previews/' + k + '-' + t + '.webp';
         });
       });
+      // animated previews are heavier: only this theme's, once the page has loaded
+      addEventListener('load', function () { new Image().src = previewSrc('askit'); });
       // and the video preview for this theme, once the page itself has loaded
       var clipRow = document.querySelector('.row[data-preview-video]');
       if (clipRow && previewIsVideo(clipRow)) addEventListener('load', function () {
@@ -440,7 +442,7 @@
     box.className = 'row-inline';
     if (link) {
       box.setAttribute('href', link.getAttribute('href'));
-      var kind = row.closest('#panel-writings') ? 'article' : 'case study';
+      var kind = row.closest('#panel-writings, #panel-experiments') ? 'article' : 'case study';
       box.setAttribute('aria-label', link.textContent.trim() + ' — open ' + kind);
     }
     var media = document.createElement(previewIsVideo(row) ? 'video' : 'img');
@@ -464,7 +466,8 @@
     if (m.tagName === 'VIDEO') { if (box.hidden) m.pause(); else playQuiet(m); }
   }
 
-  document.querySelectorAll('#panel-work .row, #panel-writings .row').forEach(function (row) {
+  // experiments: only rows with artwork, so a plain outside link still opens on tap
+  document.querySelectorAll('#panel-work .row, #panel-experiments .row[data-preview], #panel-writings .row').forEach(function (row) {
     row.addEventListener('click', function (e) {
       if (!inlineOK.matches) return;
       // first tap opens the row rather than following its link

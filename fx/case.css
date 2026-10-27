@@ -1,0 +1,43 @@
+/* Case studies: the top bar's +a, -a and the pet at the home grid's 24px;
+   videos without player chrome until tapped; Learn calmer on phones. */
+
+.topbar-tools { gap: 12px; }
+.topbar-tools .text-step,
+.topbar-tools .toggle { width: 24px; height: 24px; }
+.topbar-tools .text-step { font-size: 22px; line-height: 24px; }
+
+/* the pet: the theme toggle as a square creature; only its eyes move */
+.toggle.hm-pet { background: var(--name); border-radius: 0; transition: background-color 1000ms ease; }
+.toggle.hm-pet:hover, .toggle.hm-pet:focus-visible { border-radius: 0; }
+.toggle.hm-pet img { display: none !important; }
+.hm-eye {
+  position: absolute;
+  top: 29%;
+  width: 21%;
+  height: 21%;
+  background: var(--bg);
+  transform: translate(var(--ex, 0), var(--ey, 0));
+  transition: transform 150ms ease-out, height 80ms ease, top 80ms ease;
+}
+.hm-eye:first-of-type { left: 21%; }
+.hm-eye:last-of-type { right: 21%; }
+.hm-pet.is-blink .hm-eye { top: 37%; height: 7%; }
+
+/* videos: no player chrome until a tap asks for it (iPhones otherwise draw
+   their big play button over a video that isn't playing yet) */
+.shot-video { cursor: pointer; }
+.shot-video:not([controls])::-webkit-media-controls-start-playback-button { display: none !important; -webkit-appearance: none; }
+.shot-video:not([controls])::-webkit-media-controls { display: none !important; }
+
+/* Learn on phones: no snapping (it grabbed the page mid-flick), and the text
+   arrives a paragraph at a time instead of word by word */
+@media (max-width: 767px), (hover: none) {
+  html.learn-snap { scroll-snap-type: none; }
+  html.hm-calm.learn-fill .learn-word { opacity: 1; transition: none; }
+  html.hm-calm .hm-para { opacity: 0.25; transform: translateY(6px); transition: opacity 500ms ease, transform 500ms ease; }
+  html.hm-calm .hm-para.hm-in { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hm-eye { transition: none; }
+  html.hm-calm .hm-para { transform: none; transition: opacity 300ms ease; }
+}

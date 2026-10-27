@@ -1,0 +1,407 @@
+/* Home (index.html), live from 2026-10-28 (the earlier home is kept locally
+   as index-previous-2026-10-27.html).
+   From 1024px: the first screen from Figma 580:26314. The dot grid covers
+   most of the screen (24px dots, rows in the Figma grid's 51 x 19
+   proportions), the name runs the full width under it, then a tilted ribbon
+   with the bio's first line running round. On scroll the grid rises to one
+   row while the name shrinks, and both pin. The bio gets a screen of its own,
+   then the work list with large titles; the project image follows the pointer.
+   Below 1024px: the same idea for a phone. The grid fills the first screen
+   above a one-line name, and when it pins the role sits beside the name.
+   Every width: the pet is the theme toggle, ▶ plays snake / music in the grid
+   (fx/home-play.js). Layout and sizes come from fx/home.js. */
+
+/* The ribbon is set in Roboto Mono for now. The Figma faces are PP Neue
+   Montreal Mono Book (the text) and Replica Mono (the star): both commercial,
+   so their files stay local until there are web licences. Then add their
+   @font-face rules back (see fx/home-2026-10-27-v3.css) and put them first
+   in --hm-ribbon-font and --hm-star-font below. */
+:root {
+  --hm-ribbon-font: 'Roboto Mono', monospace;
+  --hm-star-font: 'Roboto Mono', monospace;
+}
+
+.hm-ribbon, .hm-follow { display: none; }
+
+@media (min-width: 1024px) {
+  html[data-home] {
+    --hm-pad: 48px;
+    /* Figma: 24px dots on a 36px pitch, at every width */
+    --hm-dot: 24px;
+    --hm-gap: 12px;
+    --hm-head: 160px; /* pinned header height, set by the script */
+    scroll-snap-type: y proximity;
+    scroll-padding-top: var(--hm-head);
+    overflow-anchor: none;
+  }
+  html[data-home] body { overflow-x: clip; }
+  /* clip, not hidden: keeps the sticky head working */
+  html[data-home] .column { width: 100vw; padding: 0 var(--hm-pad); overflow-x: clip; }
+  html[data-home] .home { padding-bottom: 0; }
+  html[data-home] .home .footer { left: 0; width: 100%; transform: none; padding-left: var(--hm-pad); padding-right: var(--hm-pad); }
+  html[data-home] .row-preview { display: none !important; }
+
+  /* ---------- Head: grid + name, sticky so two rows stay ---------- */
+  .hm-snap { scroll-snap-align: start; height: 0; }
+  .hm-head {
+    position: sticky;
+    z-index: 9;
+    /* top is set by the script: minus everything above the last two rows */
+    padding-top: 24px;
+    background: var(--bg);
+  }
+  /* the fill runs edge to edge so the ribbon's ends never show beside it */
+  .hm-head::before { content: ''; position: absolute; z-index: -1; inset: 0 calc(-1 * var(--hm-pad)); background: var(--bg); }
+  html[data-home] .home .dots {
+    grid-template-columns: repeat(var(--dot-cols), var(--hm-dot));
+    row-gap: var(--hm-gap);
+    align-items: center;
+  }
+  html[data-home] .home .dot { width: var(--hm-dot); height: var(--hm-dot); }
+  /* +a, -a, ▶ and the pet: the same size as the dots */
+  html[data-home] .home .dots > button { width: var(--hm-dot); height: var(--hm-dot); }
+  html[data-home] .home .text-step { font-size: 22px; line-height: var(--hm-dot); }
+  html[data-home] .home .hm-play svg { width: 18px; height: 18px; }
+
+  html[data-home] .hero { margin-top: calc(var(--hm-gap) * 1.5); padding-bottom: 12px; }
+  html[data-home] .hero-top { display: block; }
+  /* font size comes from the script: fitted to the width, shrinking on scroll */
+  html[data-home] .name {
+    white-space: nowrap;
+    line-height: 0.86;
+    letter-spacing: 0.13em; /* Figma: 34px on 262px */
+  }
+  html[data-home] .name-text { cursor: pointer; }
+  /* role on the left, links on the right, on one line under the name */
+  html[data-home] .hm-line { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-top: 6px; }
+  html[data-home] .role { margin: 0; white-space: nowrap; line-height: 1.3; }
+  html[data-home] .hm-line .links { font-size: 14px; line-height: 18px; flex: none; }
+
+  /* ---------- Ribbon: the first line of the bio, tilted, running round ---------- */
+  .hm-ribbon {
+    display: block;
+    position: relative;
+    z-index: 1;
+    width: calc(100vw + 40px);
+    margin: clamp(24px, 4vh, 56px) 0 0 calc(-1 * var(--hm-pad) - 20px);
+    padding: 0.42em 0;
+    background: var(--dot);
+    color: var(--body);
+    font-family: var(--hm-ribbon-font);
+    font-weight: 400;
+    font-size: clamp(24px, 2.5vw, 48px); /* Figma: 48px at 1920 */
+    transition: background-color 250ms ease, color 250ms ease;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    transform: rotate(-1.6deg);
+  }
+  .hm-ribbon-track { display: inline-flex; animation: hm-ribbon 40s linear infinite; }
+  .hm-ribbon:hover .hm-ribbon-track, .hm-ribbon.is-key .hm-ribbon-track { animation-play-state: paused; }
+  /* key-nav's first stop */
+  .hm-ribbon.is-key { background: var(--chip); color: var(--name); }
+  .hm-ribbon-track span { padding-right: 1.2em; }
+  .hm-ribbon-track span::after { content: '*'; display: inline-block; margin-left: 0.8em; font-family: var(--hm-star-font); font-size: 1.6em; line-height: 1; vertical-align: -0.32em; }
+  @keyframes hm-ribbon { to { transform: translateX(-50%); } }
+  /* the ribbon is the bio's first line, so it keeps moving with Reduce Motion,
+     at half speed; a tap pauses it (.is-paused, set by the script) */
+  /* fx/fx.css stops every animation under Reduce Motion (with !important), so
+   this has to out-rank it */
+@media (prefers-reduced-motion: reduce) { html[data-home] .hm-ribbon-track { animation: hm-ribbon 80s linear infinite !important; } }
+  .hm-ribbon.is-paused .hm-ribbon-track { animation-play-state: paused; }
+  .hm-ribbon-track { will-change: transform; }
+
+  /* ---------- About: the bio on a screen of its own ---------- */
+  html[data-home] .bio {
+    min-height: calc(100vh - var(--hm-head));
+    margin: 0;
+    padding: 64px 0 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9em;
+    font-size: clamp(22px, 1.9vw, 36px);
+    line-height: 1.4;
+    scroll-snap-align: start;
+  }
+  html[data-home] .bio p { max-width: 30em; }
+  /* the ribbon already says the first line; keep it for screen readers */
+  html[data-home] .bio p:first-child {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+  html[data-home] .bio p:last-child { font-size: 0.6em; margin-top: 0.8em; }
+
+  /* ---------- Work: giant titles, the image follows the pointer ---------- */
+  html[data-home] .section.work {
+    min-height: calc(100vh - var(--hm-head));
+    margin: 0;
+    padding: 40px 0 120px;
+    scroll-snap-align: start;
+  }
+  /* large titles, a fifth under the first try (7vw), for some breathing room */
+  html[data-home] .row-title { font-size: clamp(38px, 5.6vw, 106px); line-height: 1.05; letter-spacing: 0.01em; gap: 20px; }
+  html[data-home] .row-title .company { font-size: 16px; line-height: 20px; }
+  html[data-home] .list .row:hover .company { font-size: 18px; }
+  html[data-home] .list .row { padding-bottom: 8px; border-bottom: 1px solid var(--dot); }
+  html[data-home] .tags { font-size: 18px; }
+  html[data-home] .row-desc { font-size: 18px; line-height: 24px; }
+  html[data-home] .row-desc p { max-width: 640px; }
+  html[data-home] .row-title br { display: none; }
+
+  .hm-follow {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 20;
+    width: clamp(320px, 28vw, 520px);
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 250ms ease;
+  }
+  .hm-follow.is-on { opacity: 1; }
+}
+
+/* ================= Phone (below 1024px) ================= */
+@media (max-width: 1023px) {
+  html[data-home] {
+    --hm-head: 120px; /* pinned header height, set by the script */
+    scroll-snap-type: y proximity;
+    scroll-padding-top: var(--hm-head);
+    overflow-anchor: none;
+  }
+  html[data-home] body { overflow-x: clip; }
+  html[data-home] .page { justify-content: center; }
+  html[data-home] .column { width: 100%; max-width: 560px; padding: 0 16px; }
+  /* the ribbon runs past the column; clip, not hidden, keeps the head sticky */
+  html[data-home] .page { overflow-x: clip; }
+  html[data-home] .home { padding-bottom: 0; }
+  html[data-home] .home .footer {
+    left: 50%;
+    width: 100%;
+    max-width: 560px;
+    transform: translateX(-50%);
+    padding: 8px 16px 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  html[data-home] .row-preview { display: none !important; }
+
+  /* ---------- Head: grid + name, sticky so one row stays ---------- */
+  .hm-snap { scroll-snap-align: start; height: 0; }
+  html[data-home] .hm-head { position: sticky; z-index: 9; padding-top: 16px; background: var(--bg); }
+  html[data-home] .hm-head::before { content: ''; position: absolute; z-index: -1; inset: 0 -16px; background: var(--bg); }
+  /* 24px dots, as on the computer layout; +a, -a, ▶ and the pet match them */
+  html[data-home] .home .dots {
+    grid-template-columns: repeat(var(--dot-cols, 10), 24px);
+    justify-content: space-between;
+    row-gap: 12px;
+  }
+  html[data-home] .home .dot, html[data-home] .home .dots > button { width: 24px; height: 24px; }
+  html[data-home] .home .text-step { font-size: 22px; line-height: 24px; }
+  html[data-home] .home .hm-play svg { width: 18px; height: 18px; }
+
+  html[data-home] .hero { margin-top: 14px; padding-bottom: 10px; }
+  html[data-home] .hero-top { display: block; }
+  /* one line, as wide as the column; the size comes from the script */
+  html[data-home] .name { line-height: 0.9; letter-spacing: 0.13em; white-space: nowrap; }
+  html[data-home] .hm-line { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  html[data-home] .role { margin: 0; line-height: 1.3; }
+  html[data-home] .hm-line .links { font-size: 14px; line-height: 18px; }
+  /* pinned: the name on one line with the role beside it, links under them.
+     The head keeps the stacked name's height as a margin, so nothing below
+     jumps when it switches */
+  html[data-home] .hm-head.is-pinned { margin-bottom: var(--hm-pin-gap, 0px); }
+  html[data-home] .hm-head.is-pinned .hero {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 12px;
+    align-items: center;
+  }
+  html[data-home] .hm-head.is-pinned .name { white-space: nowrap; }
+  html[data-home] .hm-head.is-pinned .hm-line { display: contents; }
+  html[data-home] .hm-head.is-pinned .role { grid-column: 2; grid-row: 1; line-height: 1.25; }
+  html[data-home] .hm-head.is-pinned .links { grid-column: 1 / -1; grid-row: 2; margin-top: 8px; }
+
+  /* ---------- Ribbon ---------- */
+  .hm-ribbon {
+    position: relative;
+    z-index: 1;
+    /* edge to edge of the screen, past the column on a tablet */
+    width: calc(100vw + 72px);
+    margin: 28px 0 0 calc(50% - 50vw - 36px);
+    padding: 0.45em 0;
+    background: var(--dot);
+    color: var(--body);
+    font-family: var(--hm-ribbon-font);
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    transform: rotate(-3deg);
+  }
+  .hm-ribbon-track { display: inline-flex; animation: hm-ribbon 30s linear infinite; }
+  .hm-ribbon-track span { padding-right: 1.2em; }
+  .hm-ribbon-track span::after { content: '*'; display: inline-block; margin-left: 0.8em; font-family: var(--hm-star-font); font-size: 1.6em; line-height: 1; vertical-align: -0.32em; }
+  @keyframes hm-ribbon { to { transform: translateX(-50%); } }
+  /* the ribbon is the bio's first line, so it keeps moving with Reduce Motion,
+     more slowly; a tap pauses it (.is-paused, set by the script) */
+  /* fx/fx.css stops every animation under Reduce Motion (with !important), so
+     this has to out-rank it */
+  @media (prefers-reduced-motion: reduce) { html[data-home] .hm-ribbon-track { animation: hm-ribbon 80s linear infinite !important; } }
+  .hm-ribbon.is-paused .hm-ribbon-track { animation-play-state: paused; }
+  .hm-ribbon-track { will-change: transform; }
+
+  /* ---------- About: a screen of its own ---------- */
+  html[data-home] .bio {
+    min-height: calc(100svh - var(--hm-head));
+    margin: 0;
+    padding: 56px 0 72px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9em;
+    font-size: 18px;
+    line-height: 1.5;
+    scroll-snap-align: start;
+  }
+  /* the ribbon says the first line; screen readers still get it */
+  html[data-home] .bio p:first-child {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+  }
+  html[data-home] .bio p:last-child { font-size: 14px; margin-top: 0.6em; }
+
+  /* ---------- Work: big titles; a tap opens the summary and picture (app.js) ---------- */
+  html[data-home] .section.work {
+    min-height: calc(100svh - var(--hm-head));
+    margin: 0;
+    padding: 32px 0 96px;
+    scroll-snap-align: start;
+  }
+  html[data-home] .list { gap: 0; }
+  html[data-home] .list .row { padding: 10px 0 12px; border-bottom: 1px solid var(--dot); }
+  html[data-home] .row-head { display: block; white-space: normal; }
+  html[data-home] .row-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+  }
+  html[data-home] .row-title br { display: none; }
+  html[data-home] .row-title .company { margin-left: 0; font-size: 12px; line-height: 16px; text-align: left; }
+  html[data-home] .tags { display: block; margin-top: 2px; font-size: 12px; line-height: 16px; color: var(--year); }
+  html[data-home] .row-desc { font-size: 14px; line-height: 20px; }
+
+  /* the play layer at phone size */
+  .hm-ribbon { display: block; }
+  .hm-menu { font-size: 16px; line-height: 20px; }
+  .hm-menu button { padding: 10px 14px; }
+  .hm-status { right: 0; top: calc(100% + 12px); flex-wrap: wrap; gap: 4px 14px; white-space: normal; }
+  html[data-home] .dots.hm-game + .hero { margin-top: 72px; }
+}
+
+/* ================= Play layer (every width) ================= */
+:root { --hm-ink: #bcbcbc; } /* the sequencer's playhead */
+[data-theme="dark"] { --hm-ink: #6a6a6a; }
+.dots { position: relative; }
+
+/* the pet: the theme toggle as a square creature. It stays put; only its eyes
+   follow the pointer (--ex / --ey from the play script) */
+.toggle.hm-pet { background: var(--name); border-radius: 0; transition: background-color 1000ms ease; }
+.toggle.hm-pet:hover, .toggle.hm-pet:focus-visible { border-radius: 0; }
+.toggle.hm-pet img { display: none !important; }
+.hm-eye {
+  position: absolute;
+  top: 29%;
+  width: 21%;
+  height: 21%;
+  background: var(--bg);
+  transform: translate(var(--ex, 0), var(--ey, 0));
+  transition: transform 150ms ease-out, height 80ms ease, top 80ms ease;
+}
+.hm-eye:first-of-type { left: 21%; }
+.hm-eye:last-of-type { right: 21%; }
+.hm-pet.is-blink .hm-eye { top: 37%; height: 7%; }
+
+/* the ▶ chip: a grid cell like +a / -a */
+.hm-play {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  background: var(--dot);
+  color: var(--footer);
+}
+.hm-play svg { display: block; width: 14px; height: 14px; }
+@media (hover: hover) {
+  .hm-play { transition: border-radius 200ms ease-out; }
+  .hm-play:hover, .hm-play:focus-visible { border-radius: 7px; }
+}
+.hm-play.is-on { background: var(--name); color: var(--bg); }
+
+.hm-menu {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  padding: 4px 0;
+  border: 1px solid var(--chip);
+  background: var(--wip-bg);
+  font-size: 12px;
+  line-height: 16px;
+}
+.hm-menu button { padding: 6px 12px; text-align: left; color: var(--body); }
+.hm-menu button:hover, .hm-menu button:focus-visible { background: var(--dot); outline: none; }
+
+/* games own the grid; the status line sits just under it */
+.hm-game .dot { cursor: pointer; }
+/* 30% over the lab's 12px, with room above and below (the hero moves down) */
+.hm-status {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 14px);
+  z-index: 5;
+  display: flex;
+  gap: 16px;
+  font-size: 16px;
+  line-height: 20px;
+  color: var(--year);
+  white-space: nowrap;
+}
+.hm-status b { font-weight: 600; color: var(--body); }
+.dots + .hero { transition: margin-top 250ms ease; }
+.dots.hm-game + .hero { margin-top: 56px; }
+.hm-status button { font-size: inherit; text-decoration: underline; color: var(--body); }
+
+.hm-trail {
+  position: fixed;
+  z-index: 90;
+  font-size: 12px;
+  line-height: 12px;
+  color: var(--year);
+  pointer-events: none;
+  animation: hm-trail 650ms ease-out forwards;
+}
+@keyframes hm-trail { to { opacity: 0; transform: translateY(6px) scale(0.6); } }
+
+/* loader: rows of dots arrive in order */
+.hm-loading .dots > * { opacity: 0; }
+.hm-loaded .dots > .dot, .hm-loaded .dots > button { animation: hm-cell 260ms steps(2, end) both; animation-delay: var(--hm-l, 0ms); }
+@keyframes hm-cell { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .hm-trail, .hm-loaded .dots > * { animation: none !important; }
+  .hm-eye { transition: none; }
+}

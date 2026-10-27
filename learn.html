@@ -71,6 +71,7 @@
       });
     })();
   </script>
+  <link rel="stylesheet" href="fx/case.css?v=2026-10-28a">
 </head>
 <body>
   <div class="page">
@@ -245,14 +246,17 @@
     /* Case-study videos: load the theme's file as each one comes within a
        screen of view, play while visible, pause off screen. Swaps file on
        theme change (app.js fires 'themechange'). With reduced motion they
-       don't autoplay; they show controls instead. */
+       play too (muted): they are the work being shown. No player controls
+       until a tap; if the phone blocks playing (Low Power Mode) the first
+       frame shows and a tap plays it. */
     (function () {
       var root = document.documentElement;
       var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       var vids = [].slice.call(document.querySelectorAll('.shot-video'));
 
       function srcFor(v) {
-        return (root.getAttribute('data-theme') === 'dark' && v.dataset.dark) || v.dataset.light;
+        // '#t=0.001' makes iPhones draw the first frame before playing
+        return ((root.getAttribute('data-theme') === 'dark' && v.dataset.dark) || v.dataset.light) + '#t=0.001';
       }
       function load(v) {
         var next = srcFor(v);
@@ -262,13 +266,13 @@
       }
       // videos in a hidden slide or closed chapter ([inert]) wait their turn
       function play(v) {
-        if (reduce || v.closest('[inert]')) return;
+        if (v.closest('[inert]')) return;
         var p = v.play();
-        if (p && p.catch) p.catch(function () {});
+        if (p && p.catch) p.catch(function () { v.dataset.blocked = '1'; });
       }
       window.learnVideos = { load: load, play: play };
 
-      if (reduce) vids.forEach(function (v) { v.controls = true; });
+      // no player controls up front: a tap brings them (fx/case.js)
 
       if (!('IntersectionObserver' in window)) {
         vids.forEach(function (v) { load(v); play(v); });
@@ -301,5 +305,6 @@
   </script>
   <script src="app.js?v=2026-10-19a"></script>
   <script src="fx/learn.js?v=2026-10-19a"></script>
+  <script src="fx/case.js?v=2026-10-28a"></script>
 </body>
 </html>

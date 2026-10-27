@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-home>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,14 +31,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2026-10-19a">
+  <link rel="stylesheet" href="styles.css?v=2026-10-20b">
+  <link rel="stylesheet" href="fx/home.css?v=2026-10-28a">
   <script>
     /* Interactions chosen in the lab (interactions.html), on by default.
        ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
        changes so returning visitors get the new files. */
     (function () {
       var V = '2026-10-11a';
-      var DEFAULT = 'intro-sequence,compact-inline,rows-on-scroll,stat-countup,key-nav,tab-slider,preview-follow,page-fade,underline-draw';
+      var DEFAULT = 'key-nav,tab-slider,underline-draw';
       var q = new URLSearchParams(location.search).get('fx');
       var fx = q === 'none' ? '' : (q || DEFAULT);
       if (!fx) return;
@@ -188,6 +189,13 @@
         </div>
 
         <div class="list experiments" id="panel-experiments" role="tabpanel" aria-labelledby="tab-experiments" hidden>
+          <div class="row" data-preview="askit">
+            <div class="row-head">
+              <div class="row-title"><a class="title" href="just-ask-it.html">Just ask it I say</a><span class="company">Oct 2026</span></div>
+              <span class="tags">5 min read</span>
+            </div>
+            <div class="row-desc"><p>I built a data set of 9,000 portfolios so Claude could show me the things I hadn&rsquo;t thought of.</p></div>
+          </div>
           <div class="row">
             <div class="row-head">
               <div class="row-title"><a class="title" href="https://nikhilsajjan.github.io/ai-documentation-website/" target="_blank" rel="noopener">A week of AI shenanigans</a><span class="company">ciid</span></div>
@@ -224,6 +232,9 @@
     </main>
   </div>
 
-  <script src="app.js?v=2026-10-19a"></script>
+  <script src="fx/home.js?v=2026-10-28a"></script>
+  <script src="app.js?v=2026-10-20a"></script>
+  <script>window.homeGrid && window.homeGrid();</script>
+  <script src="fx/home-play.js?v=2026-10-28a"></script>
 </body>
 </html>

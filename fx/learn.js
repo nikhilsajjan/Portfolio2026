@@ -100,7 +100,8 @@
   /* ---------- Text fills as you read ---------- */
   function textFill() {
     var paras = [];
-    document.querySelectorAll('.case-section .prose > p').forEach(function (p) {
+    // paragraphs, list items and a section's closing line (essays have all three)
+    document.querySelectorAll('.case-section .prose p, .case-section .prose li, .case-section > p').forEach(function (p) {
       var words = [];
       var walk = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
       var texts = [];
@@ -168,7 +169,7 @@
     list.setAttribute('role', 'listbox');
     dlg.append(input, list);
     document.body.appendChild(dlg);
-    var paras = [].slice.call(document.querySelectorAll('.case-head .case-sub, .case-section .prose > p, .case-section figcaption'));
+    var paras = [].slice.call(document.querySelectorAll('.case-head .case-sub, .case-section .prose p, .case-section .prose li, .case-section > p, .case-section figcaption'));
     var results = [], sel = 0, MAX = 12;
     function render() {
       var q = input.value.trim().toLowerCase();
