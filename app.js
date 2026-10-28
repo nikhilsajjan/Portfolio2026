@@ -138,7 +138,9 @@
   mq.addEventListener('change', buildDots);
 
   /* ---------- Typing the name ----------
-     Runs on load and on hover (tap on touch). The <h1> carries the real name via
+     Runs on load and on hover (tap on touch). On the home page the hover and
+     tap only count once the name has shrunk to the top (.hm-head.is-small,
+     set by fx/home.js): at full size it is too big to keep retyping. The <h1> carries the real name via
      aria-label, so assistive tech reads it once rather than 13 incremental updates,
      and the literal text in the HTML is what shows if this script never runs. */
   var nameEl = document.querySelector('.name');
@@ -168,11 +170,16 @@
     })();
   }
 
+  function typeAgain() {
+    var head = nameEl.closest('.hm-head');
+    if (!head || head.classList.contains('is-small')) typeName();
+  }
+
   if (nameEl) {
     if (matchMedia('(hover: hover)').matches) {
-      nameEl.addEventListener('pointerenter', typeName);
+      nameEl.addEventListener('pointerenter', typeAgain);
     }
-    nameEl.addEventListener('click', typeName);
+    nameEl.addEventListener('click', typeAgain);
     typeName();
   }
 

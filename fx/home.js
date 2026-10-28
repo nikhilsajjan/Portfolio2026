@@ -82,6 +82,15 @@
   ribbon.appendChild(track);
   head.after(ribbon);
   ribbon.addEventListener('click', function () { ribbon.classList.toggle('is-paused'); });
+  // a pointer over the ribbon slows it to a third (easier to read) rather
+  // than stopping it; a tap still pauses it
+  function rate(r) {
+    (track.getAnimations ? track.getAnimations() : []).forEach(function (a) {
+      if (a.updatePlaybackRate) a.updatePlaybackRate(r); else a.playbackRate = r;
+    });
+  }
+  ribbon.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') rate(1 / 3); });
+  ribbon.addEventListener('pointerleave', function () { rate(1); });
 
   // key-nav's first stop is the bio's first line, which the ribbon shows (the
   // line itself is only there for screen readers): light the ribbon instead
@@ -117,6 +126,9 @@
     var s = sizes();
     var pinned = !wide.matches && p >= 1 && !unpinned;
     head.classList.toggle('is-pinned', pinned);
+    // fully shrunk at the top (both sizes): only then does hovering the name
+    // type it again (app.js)
+    if (!unpinned) head.classList.toggle('is-small', p >= 0.99);
     name.style.fontSize = lerp(big, s.small, p) + 'px';
     role.style.fontSize = (pinned ? s.rolePinned : lerp(roleBig, s.roleSmall, p)) + 'px';
   }

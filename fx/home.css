@@ -97,7 +97,7 @@
     transform: rotate(-1.6deg);
   }
   .hm-ribbon-track { display: inline-flex; animation: hm-ribbon 40s linear infinite; }
-  .hm-ribbon:hover .hm-ribbon-track, .hm-ribbon.is-key .hm-ribbon-track { animation-play-state: paused; }
+  .hm-ribbon.is-key .hm-ribbon-track { animation-play-state: paused; }
   /* key-nav's first stop */
   .hm-ribbon.is-key { background: var(--chip); color: var(--name); }
   .hm-ribbon-track span { padding-right: 1.2em; }
