@@ -405,3 +405,96 @@
   .hm-trail, .hm-loaded .dots > * { animation: none !important; }
   .hm-eye { transition: none; }
 }
+
+/* ---------- 2026-10-28: ribbon text, games, post-its ----------
+   Ribbon text centred in its band. It sat high because the star after each
+   sentence is 1.6x the text and dropped below the baseline, so it made the
+   line taller underneath the words. The star no longer takes up room in the
+   line (line-height 0: it still draws at the same place), the line is one em,
+   and the band's padding centres the capitals between the band's edges. */
+.hm-ribbon-track { line-height: 1; align-items: baseline; }
+.hm-ribbon-track span::after { line-height: 0; }
+@media (min-width: 1024px) {
+  .hm-ribbon { padding: 0.48em 0 0.56em; }
+}
+@media (max-width: 1023px) {
+  .hm-ribbon { padding: 0.485em 0 0.615em; }
+}
+
+/* the games: the grid holds still under a finger, numbers sit inside dots,
+   a keyboard cursor rings a dot, and the ▶ menu runs in two columns */
+.dots.hm-game { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.dots.hm-game .dot { display: flex; align-items: center; justify-content: center; font: 600 14px/1 'Roboto Mono', monospace; color: var(--name); }
+.dots .dot.hm-cur { outline: 2px solid var(--name); outline-offset: 2px; }
+.hm-menu.hm-menu-2 { display: grid; grid-template-columns: repeat(2, auto); }
+.hm-menu.hm-menu-2 button { white-space: nowrap; }
+/* the status line can wrap (phones, longer hints): the name moves down by its height */
+html[data-home] .dots.hm-game + .hero { margin-top: calc(var(--hm-status-h, 20px) + 32px); }
+
+/* a one-line explanation of the game, on its own line under the status */
+.hm-status { right: 0; flex-wrap: wrap; row-gap: 4px; }
+.hm-how { flex-basis: 100%; order: 10; white-space: normal; font-size: 14px; line-height: 18px; color: var(--year); }
+
+/* shaped dots: eat the grid's chomper (it faces where it's going and chews)
+   and its ghosts, and the jumper's eye */
+.dots .dot[data-shape="chomp"] {
+  border-radius: 50%;
+  transform: rotate(var(--rot, 0deg));
+  clip-path: polygon(50% 50%, 100% 12%, 100% 0, 0 0, 0 100%, 100% 100%, 100% 88%);
+  animation: hm-chomp 180ms linear infinite alternate;
+}
+@keyframes hm-chomp { to { clip-path: polygon(50% 50%, 100% 50%, 100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); } }
+.dots .dot[data-shape="ghost"] {
+  border-radius: 50% 50% 0 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 83% 82%, 67% 100%, 50% 82%, 33% 100%, 17% 82%, 0 100%);
+}
+.dots .dot[data-shape="eye"] {
+  background-image: linear-gradient(var(--bg), var(--bg));
+  background-size: 30% 30%;
+  background-position: 40% 35%;
+  background-repeat: no-repeat;
+}
+
+/* post-its visitors dropped (fx/home-2026-10-28-v1-postits.js): a layer over
+   the dot, so the hover paint underneath doesn't wipe them. A game hides them */
+/* on the grid a post-it is only a faint tint of its colour (--pin-tint), so
+   a few dropped ones don't stand out from the rest; the one being looked at
+   (hovered, tapped or just dropped) shows its full colour */
+.dots { --pin-tint: 5%; }
+.dots .dot.hm-pin { background-image: linear-gradient(color-mix(in srgb, var(--pin) var(--pin-tint), transparent), color-mix(in srgb, var(--pin) var(--pin-tint), transparent)); }
+.dots .dot.hm-pin.hm-pin-on { background-image: linear-gradient(var(--pin), var(--pin)); }
+.dots .dot.hm-pick { background-image: linear-gradient(var(--pick), var(--pick)); outline: 2px solid var(--name); outline-offset: 2px; }
+.dots.hm-game .dot.hm-pin { background-image: none; }
+.hm-drop, .hm-tip {
+  position: absolute;
+  z-index: 30;
+  border: 1px solid var(--chip);
+  background: var(--wip-bg);
+  color: var(--body);
+  font-size: 14px;
+  line-height: 18px;
+}
+.hm-drop { width: 400px; max-width: 100%; padding: 20px; display: flex; flex-direction: column; gap: 16px; font-size: 16px; line-height: 22px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+.hm-drop b { font-weight: 600; font-size: 20px; line-height: 26px; }
+.hm-swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.hm-swatch { aspect-ratio: 1; border: 0; padding: 0; }
+.hm-swatch[aria-pressed="true"] { outline: 2px solid var(--name); outline-offset: 2px; }
+.hm-from { margin: 0; color: var(--year); }
+.hm-acts { display: flex; gap: 16px; }
+.hm-acts button { font-size: inherit; text-decoration: underline; color: var(--body); padding: 0; }
+.hm-acts button:first-child { font-weight: 600; }
+/* the label: a big post-it, slightly askew, in the dropped post-it's colour */
+.hm-tip {
+  width: 220px; min-height: 220px; padding: 20px; border: 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  color: #222; pointer-events: none;
+  transform: rotate(-2deg); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+.hm-tip[hidden] { display: none; }
+.hm-tip p { margin: 0; }
+.hm-tip-says { font-size: 24px; line-height: 30px; font-weight: 600; }
+.hm-tip-when { font-size: 14px; line-height: 18px; opacity: 0.7; }
+@media (max-width: 1023px) { .hm-tip { width: 180px; min-height: 180px; padding: 16px; } .hm-tip-says { font-size: 20px; line-height: 26px; } }
+
+/* the jumper's dinosaur: a finer pixel drawing laid over a 4 x 4 block of dots */
+.dots .hm-dino { position: absolute; z-index: 5; color: var(--name); pointer-events: none; }

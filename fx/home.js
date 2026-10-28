@@ -4,7 +4,9 @@
    - While the head rises the name shrinks from the full width; it is fully
      small exactly when the head pins.
    - From 1024px the rows follow the columns in the Figma grid's proportions
-     (51 x 19); below it they fill the first screen above the name, and once
+     (51 x 19), and give up rows until the ribbon is in the first screen,
+     above the footer (the screen height counts too, so resizing re-fits);
+     below it they fill the first screen above the name, and once
      pinned the name goes onto one line with the role beside it.
    - Ribbon: the bio's first line, tilted and running round (CSS); a tap
      pauses it.
@@ -131,7 +133,7 @@
   // phones: the screen height is read once per width, since the toolbars
   // change innerHeight while scrolling and the grid shouldn't jump with them
   function layout(force) {
-    var w = head.clientWidth, key = (wide.matches ? 'd' : 'p') + w;
+    var w = head.clientWidth, key = (wide.matches ? 'd' + innerHeight + 'x' : 'p') + w;
     if (!force && key === lastKey) return;
     lastKey = key;
     var s = sizes();
@@ -149,6 +151,13 @@
       var below = parseFloat(hs.marginTop) + heroH + parseFloat(rs.marginTop) + ribbon.offsetHeight
         + 24 /* the tilt */ + (footer ? footer.offsetHeight : 0) + 12;
       rows = Math.max(4, Math.floor((Math.min(innerHeight, 1000) - s.pad - below + GAP) / (DOT + GAP)));
+    }
+    if (wide.matches) {
+      // everything but the grid, down to the tilted ribbon's lowest corner,
+      // measured before building so the grid is only rebuilt when it changes
+      var rest = ribbon.getBoundingClientRect().bottom + scrollY - dots.offsetHeight;
+      var room = innerHeight - (footer ? footer.offsetHeight : 0) - 12 - rest;
+      rows = Math.min(rows, Math.max(4, Math.floor((room + GAP) / (DOT + GAP))));
     }
     if (cols + 'x' + rows !== lastSize) { lastSize = cols + 'x' + rows; build(cols, rows); }
     var gridH = rows * (DOT + GAP) - GAP;
@@ -200,14 +209,27 @@
 
   /* ---------- From 1024px: the project image follows the pointer ---------- */
   if (matchMedia('(hover: hover)').matches) {
-    var fl = el('img', 'hm-follow');
-    fl.alt = '';
-    document.body.appendChild(fl);
+    var still = el('img', 'hm-follow');
+    still.alt = '';
+    var clip = el('video', 'hm-follow');
+    clip.muted = true;
+    clip.loop = true;
+    clip.playsInline = true;
+    clip.preload = 'auto';
+    clip.setAttribute('aria-hidden', 'true');
+    document.body.append(still, clip);
+    // whichever of the two the row under the pointer shows
+    var fl = still;
+    // fetch this theme's loop once the page has loaded, so the first hover plays
+    addEventListener('load', function () {
+      var vr = document.querySelector('.work .row[data-preview-video]');
+      if (vr && !clip.getAttribute('src')) clip.src = 'assets/previews/' + vr.dataset.preview + '-' + (root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light') + '.mp4';
+    });
     var tx = 0, ty = 0, x = 0, y = 0, fraf = 0, on = false;
     var step = function () {
       x += (tx - x) * (reduce.matches ? 1 : 0.18);
       y += (ty - y) * (reduce.matches ? 1 : 0.18);
-      fl.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      still.style.transform = clip.style.transform = 'translate(' + x + 'px,' + y + 'px)';
       fraf = (Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(step) : 0;
     };
     // key-nav selects rows with a made-up pointerenter: no pointer to follow,
@@ -219,7 +241,7 @@
       var tr = t ? t.getBoundingClientRect() : r;
       tx = x = Math.min(tr.right + 32, innerWidth - fl.offsetWidth - 48);
       ty = y = Math.max(r.top + r.height / 2 - fl.offsetHeight / 2, 0);
-      fl.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      still.style.transform = clip.style.transform = 'translate(' + x + 'px,' + y + 'px)';
     };
     addEventListener('scroll', function () { if (keyRow && on) beside(); }, { passive: true });
     addEventListener('pointermove', function (e) {
@@ -232,14 +254,25 @@
     document.querySelectorAll('.work .row[data-preview]').forEach(function (row) {
       row.addEventListener('pointerenter', function (e) {
         if (!wide.matches) return;
+        var theme = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        var src = 'assets/previews/' + row.dataset.preview + '-' + theme;
+        (fl === clip ? still : clip).classList.remove('is-on');
+        if (row.hasAttribute('data-preview-video')) {
+          fl = clip;
+          if (clip.getAttribute('src') !== src + '.mp4') clip.src = src + '.mp4';
+          var pl = clip.play();
+          if (pl && pl.catch) pl.catch(function () {});
+        } else {
+          fl = still;
+          clip.pause();
+          still.src = src + '.webp';
+        }
         keyRow = e.isTrusted ? null : row;
         if (keyRow) beside();
-        var theme = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-        fl.src = 'assets/previews/' + row.dataset.preview + '-' + theme + '.webp';
         fl.classList.add('is-on');
         on = true;
       });
-      row.addEventListener('pointerleave', function () { fl.classList.remove('is-on'); on = false; });
+      row.addEventListener('pointerleave', function () { fl.classList.remove('is-on'); clip.pause(); on = false; });
     });
   }
 })();
