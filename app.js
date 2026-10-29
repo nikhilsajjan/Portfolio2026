@@ -151,7 +151,9 @@
 
   function typeName() {
     if (!nameText || isTyping) return;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // on the home page it types even with Reduce Motion on: it's part of the
+    // opening, which plays for everyone (fx/home.css)
+    if (!root.hasAttribute('data-home') && matchMedia('(prefers-reduced-motion: reduce)').matches) {
       nameText.textContent = NAME_FULL;
       return;
     }

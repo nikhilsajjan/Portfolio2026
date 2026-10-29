@@ -615,3 +615,25 @@ html[data-home] .hm-head.hm-line-wait .role, html[data-home] .hm-head.hm-line-wa
    here, and fx/home.js brings them in from the right */
 html[data-home] .hm-ribbon.hm-ribbon-wait .hm-ribbon-track,
 html[data-home] .hm-ribbon.hm-ribbon-landing .hm-ribbon-track { animation-play-state: paused; }
+
+/* ---------- 2026-10-29 (c): the ribbon waits fully off screen, and the
+   opening plays even with Reduce Motion on ---------- */
+/* the ribbon waits further off to the right: on a phone it's wider than the
+   screen and tilted, so at 105vw its left corner still showed at the right
+   edge before anything else had arrived */
+html[data-home] .hm-ribbon.hm-ribbon-wait { translate: calc(105vw + 80px) 0; }
+
+/* the opening plays even with Reduce Motion on (the user's choice: many
+   phones have it on, and the site arrived all at once there), and the
+   post-its still glow. Everything else keeps respecting it. (!important:
+   fx/fx.css switches off every animation on the site under Reduce Motion) */
+@media (prefers-reduced-motion: reduce) {
+  .hm-loaded .dots > .dot, .hm-loaded .dots > button { animation: hm-cell 340ms steps(2, end) var(--hm-l, 0ms) both !important; }
+  .hm-loaded .dots > .dot.hm-pin { animation: hm-cell 340ms steps(2, end) var(--hm-l, 0ms) both, hm-firefly var(--ff-d, 4s) ease-in-out var(--ff-o, 0s) infinite !important; }
+  .dots .dot.hm-pin { animation: hm-firefly var(--ff-d, 4s) ease-in-out var(--ff-o, 0s) infinite !important; }
+  .dots .dot.hm-pin.hm-pin-on, .dots.hm-game .dot.hm-pin { animation: none !important; }
+  /* the caret while the name types */
+  .name.is-typing .name-text::after { content: "_"; animation: name-caret 800ms steps(1, end) infinite !important; }
+  html[data-home] .hm-ribbon { transition: translate 1.4s cubic-bezier(0.2, 0.7, 0.3, 1); }
+  html[data-home] .hm-ribbon.hm-ribbon-wait { transition: none; }
+}
