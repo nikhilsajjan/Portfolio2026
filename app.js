@@ -333,12 +333,14 @@
   }
 
   /* Rows marked data-preview-video (Learn) preview a short muted loop, the
-     .mp4 beside their .webp; with reduced motion they keep the still. */
+     .mp4 beside their .webp; with reduced motion the hover preview keeps the
+     still. A row opened by a tap (phones) plays the loop either way: it's
+     only there because someone asked for it */
   var reducePreview = matchMedia('(prefers-reduced-motion: reduce)');
-  function previewIsVideo(row) { return row.hasAttribute('data-preview-video') && !reducePreview.matches; }
-  function previewMedia(row) {
+  function previewIsVideo(row, tapped) { return row.hasAttribute('data-preview-video') && (tapped || !reducePreview.matches); }
+  function previewMedia(row, tapped) {
     var src = previewSrc(row.dataset.preview);
-    return previewIsVideo(row) ? src.replace(/\.webp$/, '.mp4') : src;
+    return previewIsVideo(row, tapped) ? src.replace(/\.webp$/, '.mp4') : src;
   }
   function playQuiet(v) {
     var p = v.play();
@@ -465,7 +467,7 @@
       var kind = row.closest('#panel-writings, #panel-experiments') ? 'article' : 'case study';
       box.setAttribute('aria-label', link.textContent.trim() + ' — open ' + kind);
     }
-    var media = document.createElement(previewIsVideo(row) ? 'video' : 'img');
+    var media = document.createElement(previewIsVideo(row, true) ? 'video' : 'img');
     if (media.tagName === 'VIDEO') {
       media.muted = true;
       media.loop = true;
@@ -478,11 +480,32 @@
     return box;
   }
 
-  // the expanded image (or loop) for this theme; loops play only while open
+  // an opened row starts fetching its case study: the page, and for Learn the
+  // first two videos in their phone-sized copies, so they're ready on arrival
+  var AHEAD = { learn: ['INDlearn_Page_', 'ind-learn-unlock-'] };
+  function ahead(row) {
+    if (row.dataset.ahead) return;
+    row.dataset.ahead = '1';
+    var link = row.querySelector('.row-title a');
+    if (link && /^[\w-]+\.html/.test(link.getAttribute('href'))) {
+      var pre = document.createElement('link');
+      pre.rel = 'prefetch';
+      pre.href = link.getAttribute('href');
+      document.head.appendChild(pre);
+    }
+    var dark = root.getAttribute('data-theme') === 'dark';
+    (AHEAD[row.dataset.preview] || []).forEach(function (name) {
+      var file = name + (/_$/.test(name) ? (dark ? 'Dark' : 'Light') : (dark ? 'dark' : 'light'));
+      fetch('assets/learn/mobile/' + file + '.mp4').then(function (r) { return r.blob(); }).catch(function () {});
+    });
+  }
+
+  // the expanded image (or loop) for this theme; loops play only while open.
+  // '#t=0.001' makes iPhones draw the first frame before the loop can play
   function setInline(box, row) {
     var m = box.firstElementChild;
-    var src = previewMedia(row);
-    if (m.getAttribute('src') !== src) m.src = src;
+    var src = previewMedia(row, true) + (m.tagName === 'VIDEO' ? '#t=0.001' : '');
+    if (m.getAttribute('src') !== src) { m.src = src; if (m.tagName === 'VIDEO') m.preload = 'auto'; }
     if (m.tagName === 'VIDEO') { if (box.hidden) m.pause(); else playQuiet(m); }
   }
 
@@ -490,9 +513,13 @@
   document.querySelectorAll('#panel-work .row, #panel-experiments .row[data-preview], #panel-writings .row').forEach(function (row) {
     row.addEventListener('click', function (e) {
       if (!inlineOK.matches) return;
-      // first tap opens the row rather than following its link
-      if (e.target.closest('.row-title a')) e.preventDefault();
+      // first tap opens the row rather than following its link; a second tap
+      // on the title of an open row follows it
+      var onTitle = e.target.closest('.row-title a');
+      if (onTitle && row.classList.contains('is-open')) return;
+      if (onTitle) e.preventDefault();
       var open = row.classList.toggle('is-open');
+      if (open) ahead(row);
       if (row.dataset.preview) {
         var box = inlineBox(row);
         box.hidden = !open;
