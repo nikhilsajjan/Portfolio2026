@@ -243,8 +243,8 @@
   </div>
 
   <script>
-    /* Case-study videos: load the theme's file as each one comes within a
-       screen of view, play while visible, pause off screen. Swaps file on
+    /* Case-study videos: load the theme's file as each one comes within two
+       screens of view, play while visible, pause off screen. Swaps file on
        theme change (app.js fires 'themechange'). With reduced motion they
        play too (muted): they are the work being shown. No player controls
        until a tap; if the phone blocks playing (Low Power Mode) the first
@@ -254,9 +254,14 @@
       var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
       var vids = [].slice.call(document.querySelectorAll('.shot-video'));
 
+      // phones get the phone-sized copies (800px wide, 30 frames a second,
+      // about a quarter of the size; same colour tags) in assets/learn/mobile/
+      var small = matchMedia('(max-width: 767px)').matches;
       function srcFor(v) {
+        var src = (root.getAttribute('data-theme') === 'dark' && v.dataset.dark) || v.dataset.light;
+        if (small) src = src.replace('assets/learn/', 'assets/learn/mobile/');
         // '#t=0.001' makes iPhones draw the first frame before playing
-        return ((root.getAttribute('data-theme') === 'dark' && v.dataset.dark) || v.dataset.light) + '#t=0.001';
+        return src + '#t=0.001';
       }
       function load(v) {
         var next = srcFor(v);
@@ -283,7 +288,7 @@
             load(e.target);
             near.unobserve(e.target);
           });
-        }, { rootMargin: '100% 0px' });
+        }, { rootMargin: '200% 0px' });
         var seen = new IntersectionObserver(function (entries) {
           entries.forEach(function (e) {
             e.target.dataset.visible = e.isIntersecting ? '1' : '';
