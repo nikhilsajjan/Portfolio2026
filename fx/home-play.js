@@ -100,6 +100,15 @@
   /* ---------- Games: state, status line, keyboard ---------- */
   var busy = false, game = null, status = null;
   var chip = grid.querySelector('.hm-play');
+  // while a game runs the chip is a pause sign, and pressing it leaves the game
+  var PLAY = chip && chip.innerHTML, PLAY_LABEL = chip && chip.getAttribute('aria-label');
+  var PAUSE = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3.4 3h2.8v8H3.4zM7.8 3h2.8v8H7.8z" fill="currentColor"/></svg>';
+  function chipFor(on) {
+    if (!chip) return;
+    chip.classList.toggle('is-on', on);
+    chip.innerHTML = on ? PAUSE : PLAY;
+    chip.setAttribute('aria-label', on ? 'Leave the game' : PLAY_LABEL);
+  }
   function say(parts) {
     if (!status) { status = el('div', 'hm-status'); status.setAttribute('role', 'status'); }
     if (!grid.contains(status)) grid.appendChild(status);
@@ -134,7 +143,7 @@
     game = g;
     grid.classList.add('hm-game');
     clearAll();
-    if (chip) chip.classList.add('is-on');
+    chipFor(true);
     // the game lives in the grid: bring the whole grid into view
     if (scrollY > 0) scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
     g.start();
@@ -148,7 +157,7 @@
     clearAll();
     if (!quiet && status) status.hidden = true;
     if (!quiet) relock();
-    if (chip) chip.classList.remove('is-on');
+    chipFor(false);
   }
   // while a game runs it owns the grid: app.js never sees these events
   ['pointerover', 'pointerdown', 'pointerup', 'pointercancel', 'contextmenu', 'touchstart', 'touchmove', 'touchend', 'click', 'dblclick'].forEach(function (type) {

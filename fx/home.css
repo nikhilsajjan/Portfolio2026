@@ -572,3 +572,46 @@ html[data-home] .hm-head.hm-line-wait .role, html[data-home] .hm-head.hm-line-wa
 
 /* each dot's arrival fade, 30% slower than before (was 260ms) */
 .hm-loaded .dots > .dot, .hm-loaded .dots > button { animation-duration: 340ms; }
+
+/* ---------- 2026-10-29 (b): firefly post-its, visitor count, the ▶ chip open,
+   the ribbon landing ---------- */
+
+/* dropped post-its glow like fireflies: each one's tint rises from nothing to
+   the usual 30%, holds a moment and goes dark again, on its own rhythm and
+   start (--ff-d, --ff-o from fx/home-postits.js). The tint is a
+   registered property so it can animate. The one being looked at stays full
+   colour; Reduce Motion keeps them still at 30% */
+@property --pin-tint { syntax: '<percentage>'; inherits: true; initial-value: 30%; }
+.dots .dot.hm-pin { animation: hm-firefly var(--ff-d, 4s) ease-in-out var(--ff-o, 0s) infinite; }
+.dots .dot.hm-pin.hm-pin-on, .dots.hm-game .dot.hm-pin { animation: none; }
+@keyframes hm-firefly {
+  0%, 25% { --pin-tint: 0%; }
+  55%, 70% { --pin-tint: 30%; }
+  100% { --pin-tint: 0%; }
+}
+/* while the grid arrives, a post-it's dot comes in on its turn like the rest
+   (the glow alone would replace the arrival, so the dot showed at once) */
+.hm-loaded .dots > .dot.hm-pin { animation: hm-cell 340ms steps(2, end) var(--hm-l, 0ms) both, hm-firefly var(--ff-d, 4s) ease-in-out var(--ff-o, 0s) infinite; }
+@media (prefers-reduced-motion: reduce) { .dots .dot.hm-pin, .hm-loaded .dots > .dot.hm-pin { animation: none; } }
+
+/* the running count of unique visitors, bottom right in the footer before
+   "last updated" (fx/home-postits.js);
+   numbers keep their width so it doesn't jiggle while it runs up */
+.footer .visitors[hidden] { display: none; }
+.footer .visitors-n { font-variant-numeric: tabular-nums; }
+/* the picker says which visitor you are */
+.hm-you { margin: 0; font-weight: 600; }
+/* the smallest phones (iPhone SE): no room for both on one line, so the count
+   sits over "last updated", both on the right */
+@media (max-width: 389px) {
+  .footer .updated { flex-direction: column; align-items: flex-end; gap: 4px; }
+  .footer .visitors-sep { display: none; }
+}
+
+/* the ▶ chip turns dark while its games menu is open, as it does during a game */
+.hm-play[aria-expanded="true"] { background: var(--name); color: var(--bg); }
+
+/* the ribbon slides in empty and its words run once it has landed: they wait
+   here, and fx/home.js brings them in from the right */
+html[data-home] .hm-ribbon.hm-ribbon-wait .hm-ribbon-track,
+html[data-home] .hm-ribbon.hm-ribbon-landing .hm-ribbon-track { animation-play-state: paused; }

@@ -129,3 +129,10 @@ fx/home-2026-10-28-v2.js
 fx/home-2026-10-28-v2-postits.js
 app-2026-10-28-v2.js
 app-previous-*.js
+# Local-only: home 2026-10-29 v1 (post-its glow like fireflies)
+index_2026-10-29_v1.html
+fx/home-2026-10-29-v1.css
+fx/home-2026-10-29-v1-postits.js
+fx/home-2026-10-29-v1-play.js
+index_2026-10-29_v2.html
+fx/home-2026-10-29-v1.js

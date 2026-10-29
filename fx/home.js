@@ -92,7 +92,29 @@
     var runIn = function () {
       document.removeEventListener('hm:name-in', runIn); clearTimeout(lateIn);
       requestAnimationFrame(function () { head.classList.remove('hm-line-wait'); });
-      setTimeout(function () { ribbon.classList.remove('hm-ribbon-wait'); }, 700);
+      setTimeout(function () {
+        // the band slides in empty (its words wait just past its right end);
+        // once it has landed the words come in from the right at the ribbon's
+        // own speed, and hand over to the usual run without a jump
+        var W = ribbon.clientWidth;
+        track.style.translate = W + 'px 0';
+        ribbon.classList.add('hm-ribbon-landing');
+        ribbon.classList.remove('hm-ribbon-wait');
+        var done = false;
+        var landed = function (e) {
+          // only the band's own slide counts (not a colour fading with the theme)
+          if (done || (e && (e.target !== ribbon || e.propertyName !== 'translate'))) return;
+          done = true;
+          ribbon.removeEventListener('transitionend', landed); clearTimeout(lateLand);
+          var loop = parseFloat(getComputedStyle(track).animationDuration) * 1000 || 40000;
+          var speed = (track.scrollWidth / 2) / loop; // px per ms, as in the run
+          var enter = track.animate([{ translate: W + 'px 0' }, { translate: '0px 0' }], { duration: W / speed, easing: 'linear', delay: 150, fill: 'backwards' });
+          track.style.translate = '';
+          enter.onfinish = function () { ribbon.classList.remove('hm-ribbon-landing'); };
+        };
+        var lateLand = setTimeout(landed, 1600);
+        ribbon.addEventListener('transitionend', landed);
+      }, 700);
     };
     var lateIn = setTimeout(runIn, 5000);
     document.addEventListener('hm:name-in', runIn);

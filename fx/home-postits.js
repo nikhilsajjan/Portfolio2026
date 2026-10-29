@@ -34,10 +34,37 @@
   }
   function playing() { return grid.classList.contains('hm-game'); }
   function place(p) { return [p.city, p.country].filter(Boolean).join(', ') || 'somewhere'; }
+  // by the calendar, in the visitor's own time: dropped on the same date is
+  // today, the date before is yesterday (not by counting 24-hour stretches)
   function ago(t) {
-    var d = Math.floor((Date.now() - t) / 86400000);
+    var a = new Date(t), n = new Date();
+    var d = Math.round((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(a.getFullYear(), a.getMonth(), a.getDate())) / 86400000);
     return d < 1 ? 'today' : d < 2 ? 'yesterday' : d < 30 ? d + ' days ago' : new Date(t).toLocaleDateString('en', { month: 'short', year: 'numeric' });
   }
+
+  /* ---------- Visitors: counted once a day each; the footer runs up to the total ---------- */
+  var me = null;
+  var count = document.querySelector('.footer .visitors'), countN = count && count.querySelector('.visitors-n');
+  function runUp(total) {
+    if (!count) return;
+    count.hidden = false;
+    count.querySelector('.visitors-w').textContent = total === 1 ? 'visitor' : 'visitors';
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { countN.textContent = total.toLocaleString('en'); return; }
+    var t0 = performance.now(), MS = 1600;
+    (function step(t) {
+      var k = Math.min(1, (t - t0) / MS);
+      countN.textContent = Math.round(total * (1 - Math.pow(1 - k, 3))).toLocaleString('en');
+      if (k < 1) requestAnimationFrame(step);
+    })(t0);
+  }
+  fetch(API + '/visit', { method: 'POST' }).then(function (r) { return r.json(); }).then(function (v) {
+    if (!v || !(v.total > 0)) return;
+    me = v.you;
+    runUp(v.total);
+    if (box && !box.querySelector('.hm-you')) box.querySelector('.hm-from').before(youLine());
+  }).catch(function () {});
+
+  function youLine() { return el('p', 'hm-you', 'You\'re visitor no. ' + me.toLocaleString('en') + '.'); }
 
   /* ---------- The post-its on the grid ---------- */
   var pins = [], here = null;
@@ -50,7 +77,7 @@
   function draw() {
     var l = L();
     grid.querySelectorAll('.dot.hm-pin').forEach(function (d) {
-      d.classList.remove('hm-pin'); d.style.removeProperty('--pin'); delete d.dataset.pin;
+      d.classList.remove('hm-pin'); d.style.removeProperty('--pin'); d.style.removeProperty('--ff-d'); d.style.removeProperty('--ff-o'); delete d.dataset.pin;
     });
     // oldest first, so the newest wins a shared dot
     pins.slice().reverse().forEach(function (p, i) {
@@ -58,6 +85,10 @@
       if (!d) return;
       d.classList.add('hm-pin');
       d.style.setProperty('--pin', postit(p.hue));
+      // each firefly keeps its own time: 3 to 6 seconds a blink, starting anywhere in it
+      var dur = 3 + Math.random() * 3;
+      d.style.setProperty('--ff-d', dur.toFixed(2) + 's');
+      d.style.setProperty('--ff-o', (-Math.random() * dur).toFixed(2) + 's');
       d.dataset.pin = pins.length - 1 - i;
     });
   }
@@ -80,8 +111,11 @@
   function showTip(d) {
     var p = pins[+d.dataset.pin];
     if (!p) return;
+    // the dropper's visitor number goes in the small line, after the country
+    // and the day (the user picked this over putting it in the big text)
+    var no = p.visitor ? 'visitor no. ' + p.visitor.toLocaleString('en') : '';
     tipSays.textContent = p.city || p.country ? 'Someone from ' + (p.city || p.country) + ' visited' : 'Someone visited';
-    tipWhen.textContent = (p.city && p.country ? p.country + ' · ' : '') + ago(p.at);
+    tipWhen.textContent = [p.city && p.country ? p.country : '', ago(p.at), no].filter(Boolean).join(' · ');
     // the post-it's own colour, solid (it's paper in both themes)
     tip.style.background = 'rgb(' + POSTITS[p.hue] + ')';
     grid.querySelectorAll('.hm-pin-on').forEach(function (n) { n.classList.remove('hm-pin-on'); });
@@ -128,6 +162,7 @@
       row.appendChild(s);
     });
     box.appendChild(row);
+    if (me) box.appendChild(youLine());
     var from = el('p', 'hm-from', here ? 'It will say someone from ' + place(here) + ' visited.' : 'It will say where you visited from.');
     box.appendChild(from);
     if (!here) fetch(API + '/where').then(function (r) { return r.json(); }).then(function (w) { here = w; if (box) from.textContent = 'It will say someone from ' + place(w) + ' visited.'; }).catch(function () {});
