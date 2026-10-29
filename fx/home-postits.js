@@ -147,7 +147,7 @@
     box.style.left = Math.max(0, Math.min(grid.clientWidth - box.offsetWidth, left)) + 'px';
     var below = d.offsetTop + d.offsetHeight + 8, above = d.offsetTop - box.offsetHeight - 8;
     box.style.top = (above >= 0 && d.offsetTop > grid.clientHeight / 2 ? above : below) + 'px';
-    go.focus();
+    go.focus({ preventScroll: true });
   }
   function drop(go, from) {
     var l = L(), i = l.all.indexOf(at);
@@ -186,6 +186,30 @@
     open(d);
   });
   document.addEventListener('click', function (e) { if (box && !grid.contains(e.target)) close(); });
+
+  // a mouse resting on one dot for 3.5s counts as a click there. Not on a
+  // post-it (that shows where it's from), and only once per dot: after a
+  // cancel, the mouse has to move to another dot first
+  var DWELL = 3500, dwell = 0, rest = null, spent = null;
+  function still() { clearTimeout(dwell); dwell = 0; rest = null; }
+  grid.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    var d = e.target.closest && e.target.closest('.dot');
+    if (d === rest) return;
+    still();
+    if (!d || d === spent || playing() || box || d.classList.contains('hm-pin')) return;
+    rest = d;
+    dwell = setTimeout(function () {
+      dwell = 0;
+      if (rest !== d || playing() || box || document.hidden || !d.isConnected) return;
+      spent = d;
+      hideTip();
+      open(d);
+    }, DWELL);
+  });
+  grid.addEventListener('pointerleave', function () { still(); spent = null; });
+  grid.addEventListener('pointerdown', still);
+  addEventListener('scroll', still, { passive: true });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box) { close(); } });
   // a game takes the grid: no picker, no labels, and the post-its step aside
   new MutationObserver(function () { if (playing()) { close(); hideTip(); } }).observe(grid, { attributes: true, attributeFilter: ['class'] });

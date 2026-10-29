@@ -1357,10 +1357,24 @@
   if (chip) {
     var menu = null;
     var close = function () { if (menu) { menu.remove(); menu = null; chip.setAttribute('aria-expanded', 'false'); } };
+    // scrolled down, the grid is folded up under the name: go back to the top
+    // first, and open the menu once the page is there
+    var toTop = function (then) {
+      if (scrollY <= 0) { then(); return; }
+      scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      var t0 = Date.now();
+      (function wait() {
+        if (scrollY <= 0 || Date.now() - t0 > 1500) then(); else requestAnimationFrame(wait);
+      })();
+    };
     chip.addEventListener('click', function (e) {
       e.stopPropagation();
       if (game) { stopGame(); return; }
       if (menu) { close(); return; }
+      toTop(open);
+    });
+    var open = function () {
+      if (menu) return;
       menu = el('div', 'hm-menu hm-menu-2');
       menu.setAttribute('role', 'menu');
       GAMES.forEach(function (make) {
@@ -1375,8 +1389,9 @@
       // open upwards: below the grid is the name. A short grid keeps it on the grid
       menu.style.top = Math.max(0, chip.offsetTop - menu.offsetHeight - 6) + 'px';
       chip.setAttribute('aria-expanded', 'true');
-      menu.firstChild.focus();
-    });
+      // without preventScroll the browser scrolls the first item into view
+      menu.firstChild.focus({ preventScroll: true });
+    };
     document.addEventListener('click', function (e) { if (menu && !menu.contains(e.target)) close(); });
     document.addEventListener('keydown', function (e) {
       if (!menu) return;
@@ -1414,26 +1429,47 @@
     }
   }
 
-  /* ---------- ASCII cursor trail ---------- */
+  /* ---------- ASCII cursor trail ----------
+     Each mark starts as a heavy symbol and, as it fades over two seconds,
+     steps down an ASCII shading ramp to a dot. Not over the dot grid: the
+     post-its and games live there */
   if (canHover && !reduce) {
-    var CH = '+·×*', lx = 0, ly = 0;
+    var HEAVY = '+*#%@&$=~^<>/\\|!?x', RAMP = ['*', '+', '=', '-', ':', '.'];
+    var LIFE = 2000, HOLD = 500, lx = 0, ly = 0, marks = [], ticking = 0;
+    var tick = function () {
+      var now = Date.now();
+      marks = marks.filter(function (m) {
+        var age = now - m.t;
+        if (age > LIFE + 100) { m.s.remove(); return false; }
+        if (age > HOLD) {
+          var ch = RAMP[Math.min(RAMP.length - 1, Math.floor((age - HOLD) / ((LIFE - HOLD) / RAMP.length)))];
+          if (m.s.textContent !== ch) m.s.textContent = ch;
+        }
+        return true;
+      });
+      ticking = marks.length ? setTimeout(tick, 80) : 0;
+    };
     addEventListener('pointermove', function (e) {
       if (e.pointerType !== 'mouse') return;
+      if (e.target.closest && e.target.closest('#dots')) return;
       if (Math.hypot(e.clientX - lx, e.clientY - ly) < 26) return;
       lx = e.clientX; ly = e.clientY;
-      var s = el('span', 'hm-trail', CH[rnd(CH.length)]);
+      var s = el('span', 'hm-trail', HEAVY[rnd(HEAVY.length)]);
       s.setAttribute('aria-hidden', 'true');
       s.style.left = e.clientX + 6 + 'px';
       s.style.top = e.clientY + 6 + 'px';
       document.body.appendChild(s);
-      setTimeout(function () { s.remove(); }, 700);
+      // it fades for the same two seconds (fx/home.css)
+      marks.push({ s: s, t: Date.now() });
+      if (!ticking) ticking = setTimeout(tick, 80);
     }, { passive: true });
   }
 
-  /* ---------- Loader: the grid arrives cell by cell, under a second ---------- */
+  /* ---------- Loader: the grid arrives cell by cell, in about a second and a
+     half (SLOW: 30% slower than before; each cell's fade is in fx/home.css) ---------- */
   if (root.classList.contains('hm-loading')) {
-    var l = L(), max = 0;
-    var perRow = Math.min(50, 600 / Math.max(1, l.r)), perCol = Math.min(6, 300 / Math.max(1, l.c));
+    var l = L(), max = 0, SLOW = 1.3;
+    var perRow = SLOW * Math.min(50, 600 / Math.max(1, l.r)), perCol = SLOW * Math.min(6, 300 / Math.max(1, l.c));
     l.all.forEach(function (n, i) {
       var d = Math.round(Math.floor(i / l.c) * perRow + (i % l.c) * perCol);
       max = Math.max(max, d);
@@ -1442,7 +1478,9 @@
     requestAnimationFrame(function () {
       root.classList.remove('hm-loading');
       root.classList.add('hm-loaded');
-      setTimeout(function () { root.classList.remove('hm-loaded'); }, max + 400);
+      setTimeout(function () { root.classList.remove('hm-loaded'); }, max + 500);
+      // the last cell has landed: the name types next (app.js)
+      setTimeout(function () { document.dispatchEvent(new Event('hm:grid-in')); }, max + 340);
     });
   }
 })();

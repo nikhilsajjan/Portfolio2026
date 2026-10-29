@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="fx/learn.css?v=2026-10-19a">
   <script>
     (function () {
-      var P = ['#ffff99', '#ffeba1', '#fee63b', '#ffad64', '#d2de40', '#37d2d8', '#f83aa7', '#fff9a5', '#f9b8bc', '#b0cdeb'];
+      var P = ['#ffff99', '#ffeba1', '#fee63b', '#ffad64', '#d2de40', '#37d2d8', '#fff9a5', '#f9b8bc', '#b0cdeb'];
       try { if (!sessionStorage.getItem('accent')) sessionStorage.setItem('accent', P[Math.floor(Math.random() * P.length)]); } catch (e) {}
     })();
   </script>
@@ -48,7 +48,7 @@
        ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
        changes so returning visitors get the new files. */
     (function () {
-      var V = '2026-10-11a';
+      var V = '2026-10-29a';
       var DEFAULT = 'toc-rail,key-sections,hero-parallax,img-reveal,img-lightbox';
       var q = new URLSearchParams(location.search).get('fx');
       var fx = q === 'none' ? '' : (q || DEFAULT);
@@ -304,7 +304,7 @@
     })();
   </script>
   <script src="app.js?v=2026-10-19a"></script>
-  <script src="fx/learn.js?v=2026-10-19a"></script>
+  <script src="fx/learn.js?v=2026-10-29a"></script>
   <script src="fx/case.js?v=2026-10-28a"></script>
 </body>
 </html>

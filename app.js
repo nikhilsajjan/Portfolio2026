@@ -166,6 +166,7 @@
       } else {
         isTyping = false;
         nameEl.classList.remove('is-typing');
+        document.dispatchEvent(new Event('hm:name-in'));
       }
     })();
   }
@@ -180,7 +181,17 @@
       nameEl.addEventListener('pointerenter', typeAgain);
     }
     nameEl.addEventListener('click', typeAgain);
-    typeName();
+    // the home page opens in order: the grid arrives (fx/home-play.js), then
+    // the name types, then the ribbon runs in
+    if (root.classList.contains('hm-loading')) {
+      // hidden rather than emptied: the layout is measured with the whole name
+      nameEl.classList.add('hm-name-wait');
+      var go = function () { document.removeEventListener('hm:grid-in', go); clearTimeout(late); nameEl.classList.remove('hm-name-wait'); typeName(); };
+      var late = setTimeout(go, 3000);
+      document.addEventListener('hm:grid-in', go);
+    } else {
+      typeName();
+    }
   }
 
   /* ---------- Post-it colours on the dot grid ----------

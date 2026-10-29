@@ -31,7 +31,7 @@
   // head's top padding, pinned name and role px for each size
   function sizes() {
     return wide.matches
-      ? { pad: 24, small: 44, roleSmall: 16 }
+      ? { pad: 24, small: 44, roleSmall: 16, rolePinned: 16 }
       : { pad: 16, small: 20, roleSmall: 12, rolePinned: 11 };
   }
 
@@ -82,6 +82,21 @@
   ribbon.appendChild(track);
   head.after(ribbon);
   ribbon.addEventListener('click', function () { ribbon.classList.toggle('is-paused'); });
+  // on arrival the role and links wait (hidden, still taking their room) and
+  // the ribbon waits off to the right until the name has typed (app.js); then
+  // the role and links fade in, and once they're in the ribbon runs in
+  // (fx/home.css)
+  if (root.classList.contains('hm-loading')) {
+    head.classList.add('hm-line-wait');
+    ribbon.classList.add('hm-ribbon-wait');
+    var runIn = function () {
+      document.removeEventListener('hm:name-in', runIn); clearTimeout(lateIn);
+      requestAnimationFrame(function () { head.classList.remove('hm-line-wait'); });
+      setTimeout(function () { ribbon.classList.remove('hm-ribbon-wait'); }, 700);
+    };
+    var lateIn = setTimeout(runIn, 5000);
+    document.addEventListener('hm:name-in', runIn);
+  }
   // a pointer over the ribbon slows it to a third (easier to read) rather
   // than stopping it; a tap still pauses it
   function rate(r) {
@@ -124,7 +139,7 @@
   // unpinned: measure the head as it is just before the phone switch
   function apply(p, unpinned) {
     var s = sizes();
-    var pinned = !wide.matches && p >= 1 && !unpinned;
+    var pinned = p >= 1 && !unpinned;
     head.classList.toggle('is-pinned', pinned);
     // fully shrunk at the top (both sizes): only then does hovering the name
     // type it again (app.js)
@@ -176,8 +191,8 @@
     // pin with the last row showing and one gap above it
     lift = s.pad + gridH - DOT - GAP;
     head.style.top = -lift + 'px';
-    // phones: the one-line pinned head is shorter than the head just before
-    // it; the difference becomes its margin, so the page below stays put
+    // the one-line pinned head is shorter than the head just before it; the
+    // difference becomes its margin, so the page below stays put
     apply(1, true);
     var beforeH = head.offsetHeight;
     root.style.setProperty('--hm-pin-gap', '0px');

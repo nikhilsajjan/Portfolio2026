@@ -10,7 +10,7 @@
 
   // the home page picks a post-it colour per visit; this page does the same
   var POSTITS = ['#ffff99', '#ffeba1', '#fee63b', '#ffad64', '#d2de40',
-                 '#37d2d8', '#f83aa7', '#fff9a5', '#f9b8bc', '#b0cdeb'];
+                 '#37d2d8', '#fff9a5', '#f9b8bc', '#b0cdeb'];
   var accent = null;
   try { accent = sessionStorage.getItem('accent'); } catch (e) {}
   root.style.setProperty('--accent', accent || POSTITS[Math.floor(Math.random() * POSTITS.length)]);

@@ -14,7 +14,7 @@
 
   // the same post-it colour as the lab's (case-fx.js), when it picked one first
   var POSTITS = ['#ffff99', '#ffeba1', '#fee63b', '#ffad64', '#d2de40',
-                 '#37d2d8', '#f83aa7', '#fff9a5', '#f9b8bc', '#b0cdeb'];
+                 '#37d2d8', '#fff9a5', '#f9b8bc', '#b0cdeb'];
   if (!root.style.getPropertyValue('--accent')) {
     var accent = null;
     try { accent = sessionStorage.getItem('accent'); } catch (e) {}

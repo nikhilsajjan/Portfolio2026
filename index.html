@@ -16,9 +16,10 @@
       if (steps[s] && s !== 1) document.documentElement.style.setProperty('--fs', steps[s]);
 
       /* One post-it colour per visit (Figma 112:44) for the active tab and the
-         contact links. Never the same colour twice in a row. */
+         contact links. Never the same colour twice in a row. Not the dark pink
+         (#f83aa7): it drowns the black text on it (the grid still has it) */
       var POSTITS = ['#ffff99', '#ffeba1', '#fee63b', '#ffad64', '#d2de40',
-                     '#37d2d8', '#f83aa7', '#fff9a5', '#f9b8bc', '#b0cdeb'];
+                     '#37d2d8', '#fff9a5', '#f9b8bc', '#b0cdeb'];
       var last = null;
       try { last = sessionStorage.getItem('accent'); } catch (e) {}
       var pick;
@@ -32,7 +33,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@400;600;700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=2026-10-20b">
-  <link rel="stylesheet" href="fx/home.css?v=2026-10-28c">
+  <link rel="stylesheet" href="fx/home.css?v=2026-10-29a">
   <script>
     /* Interactions chosen in the lab (interactions.html), on by default.
        ?fx=id[,id] tries others; ?fx=none turns them all off. Bump V when fx/
@@ -93,7 +94,7 @@
           <nav class="links" aria-label="Contact">
             <a href="https://www.linkedin.com/in/nikhilbsajjan/" target="_blank" rel="noopener">LinkedIn</a>
             <a href="mailto:nikhil.sajjan.design@gmail.com">Email</a>
-            <a href="assets/NikhilSajjan_ResumeOct2026.pdf" target="_blank" rel="noopener">Resume</a>
+            <a href="assets/NikhilSajjan_ResumeOct2026.pdf" target="_blank" rel="noopener">CV</a>
           </nav>
         </div>
         <p class="role">Interaction, Digital Product Designer</p>
@@ -232,10 +233,10 @@
     </main>
   </div>
 
-  <script src="fx/home.js?v=2026-10-28c"></script>
-  <script src="app.js?v=2026-10-28c"></script>
+  <script src="fx/home.js?v=2026-10-29a"></script>
+  <script src="app.js?v=2026-10-29a"></script>
   <script>window.homeGrid && window.homeGrid();</script>
-  <script src="fx/home-play.js?v=2026-10-28b"></script>
-  <script src="fx/home-postits.js?v=2026-10-28b"></script>
+  <script src="fx/home-play.js?v=2026-10-29a"></script>
+  <script src="fx/home-postits.js?v=2026-10-29a"></script>
 </body>
 </html>

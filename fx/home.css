@@ -498,3 +498,77 @@ html[data-home] .dots.hm-game + .hero { margin-top: calc(var(--hm-status-h, 20px
 
 /* the jumper's dinosaur: a finer pixel drawing laid over a 4 x 4 block of dots */
 .dots .hm-dino { position: absolute; z-index: 5; color: var(--name); pointer-events: none; }
+
+/* ---------- 2026-10-29: post-it tint, capitals, the pinned line on computers,
+   the trail, the menu, and the opening sequence ---------- */
+
+/* visitors' post-its show more of their colour on the grid (was 5%) */
+.dots { --pin-tint: 30%; }
+
+/* the links, the tabs and About & Photography in capitals */
+html[data-home] .hm-line .links a,
+html[data-home] .section-head .tab,
+html[data-home] .bio p:last-of-type a { text-transform: uppercase; }
+
+/* from 1024px the links sit beside the role: their boxes end on the role's
+   baseline (they were on the same baseline, so the boxes hung below it) */
+@media (min-width: 1024px) {
+  html[data-home] .hm-line .links { position: relative; top: -0.26em; }
+}
+
+/* computers, pinned (the name shrunk to the top): name, role and links on
+   one line, all on one baseline. The head keeps its height as a margin
+   (--hm-pin-gap, from the script), so the page below doesn't jump */
+@media (min-width: 1024px) {
+  html[data-home] .hm-head.is-pinned { margin-bottom: var(--hm-pin-gap, 0px); }
+  html[data-home] .hm-head.is-pinned .hero { display: flex; align-items: baseline; gap: 24px; }
+  html[data-home] .hm-head.is-pinned .hero-top { flex: none; }
+  html[data-home] .hm-head.is-pinned .hm-line { flex: 1; min-width: 0; margin-top: 0; }
+}
+/* phones, pinned: the role beside the name sits on the name's baseline too
+   (it was centred on it) */
+@media (max-width: 1023px) {
+  html[data-home] .hm-head.is-pinned .hero { align-items: baseline; }
+}
+
+/* the ASCII cursor trail: 30% bigger, darker, and it stays about two seconds,
+   fading as it goes (it was 12px, pale grey, gone in 0.65s) */
+.hm-trail {
+  font-size: 16px;
+  line-height: 16px;
+  color: var(--body);
+  animation: hm-trail-v2 2s ease-in forwards;
+}
+@keyframes hm-trail-v2 {
+  0% { opacity: 1; }
+  25% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(6px) scale(0.7); }
+}
+
+/* the ▶ menu's game names, 25% bigger (12px on computers, 16px on phones) */
+.hm-menu { font-size: 15px; line-height: 20px; }
+@media (max-width: 1023px) { .hm-menu { font-size: min(19px, 4.6vw); line-height: 1.25; } }
+
+/* +a, -a and ▶ turn round under the pointer (they only rounded their corners) */
+@media (hover: hover) {
+  .text-step:hover:not(:disabled), .text-step:focus-visible,
+  .hm-play:hover, .hm-play:focus-visible { border-radius: 50%; }
+}
+
+/* a game's status line and its how-to line, 25% bigger (were 16px and 14px) */
+.hm-status { font-size: 20px; line-height: 26px; }
+.hm-how { font-size: 18px; line-height: 24px; }
+
+/* on arrival: the grid comes in, the name types, then the ribbon runs in from
+   the right (it waits off screen until the name is done; fx/home.js) */
+html[data-home] .hm-ribbon { transition: translate 1.4s cubic-bezier(0.2, 0.7, 0.3, 1); }
+html[data-home] .hm-ribbon.hm-ribbon-wait { translate: 105vw 0; transition: none; }
+@media (prefers-reduced-motion: reduce) { html[data-home] .hm-ribbon { transition: none; } }
+html[data-home] .name.hm-name-wait .name-text { visibility: hidden; }
+/* after the name: the role, then the links, fade in before the ribbon arrives */
+html[data-home] .hm-head .role, html[data-home] .hm-head .links { transition: opacity 400ms ease-out; }
+html[data-home] .hm-head .links { transition-delay: 150ms; }
+html[data-home] .hm-head.hm-line-wait .role, html[data-home] .hm-head.hm-line-wait .links { opacity: 0; transition: none; }
+
+/* each dot's arrival fade, 30% slower than before (was 260ms) */
+.hm-loaded .dots > .dot, .hm-loaded .dots > button { animation-duration: 340ms; }

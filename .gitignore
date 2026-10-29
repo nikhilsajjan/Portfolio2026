@@ -121,3 +121,11 @@ fx/home-2026-10-28-v1-play.js
 # Local-only for now: the post-its worker (Cloudflare), not part of the static site
 worker/
 fx/home-2026-10-28-v1-postits.js
+# Local-only: home 2026-10-28 v2 (▶ to the top, post-it tint, capitals)
+index_2026-10-28_v2.html
+fx/home-2026-10-28-v2.css
+fx/home-2026-10-28-v2-play.js
+fx/home-2026-10-28-v2.js
+fx/home-2026-10-28-v2-postits.js
+app-2026-10-28-v2.js
+app-previous-*.js
