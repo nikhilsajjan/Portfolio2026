@@ -2,10 +2,10 @@
    From the lab (fx/x2.js): snake (it wraps round the edges) and the dot
    sequencer behind the ▶ chip (arrow keys move through its menu), the pet
    (the theme toggle: only its eyes follow the pointer), the ASCII cursor
-   trail and the cell-by-cell loader (set up in fx/home.js). Twelve more games
+   trail and the cell-by-cell loader (set up in fx/home.js). Eleven more games
    in the ▶ menu (two columns): falling blocks, brick breaker, paddle tennis,
    eat the grid, invaders, road crossing, jumper, memory, lights out, mine
-   field, light cycles, pairs. Each says in one line how to play. */
+   field, pairs. Each says in one line how to play. */
 (function () {
   var root = document.documentElement;
   var grid = document.getElementById('dots');
@@ -378,11 +378,13 @@
   }
   function clampN(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-  /* Falling blocks: a 10-wide well; full rows clear */
+  /* Falling blocks: a 10-wide well; full rows clear. Once a piece lands,
+     any block with a gap under it drops on down, a row at a time, until it
+     rests (which can fill and clear more rows) */
   function blocksGame() {
     var SHAPES = [[[1, 1, 1, 1]], [[1, 1], [1, 1]], [[0, 1, 0], [1, 1, 1]], [[1, 0, 0], [1, 1, 1]], [[0, 0, 1], [1, 1, 1]], [[1, 1, 0], [0, 1, 1]], [[0, 1, 1], [1, 1, 0]]];
     var TINT = [5, 2, 6, 9, 3, 4, 8];
-    var l, H, W, c0, board, p, timer, lines, speed, dead;
+    var l, H, W, c0, board, p, timer, settling, lines, speed, dead;
     function rot(m) { return m[0].map(function (_, i) { return m.map(function (row) { return row[i]; }).reverse(); }); }
     function fits(m, r, c) {
       for (var i = 0; i < m.length; i++) for (var j = 0; j < m[i].length; j++) {
@@ -405,8 +407,22 @@
     }
     function lock() {
       p.m.forEach(function (row, i) { row.forEach(function (v, j) { if (v && p.r + i >= 0) board[p.r + i][p.c + j] = TINT[p.k]; }); });
+      // no piece while the blocks settle: the timer and the keys wait
+      p = null;
+      tone(196, 40, 'triangle', 0.03);
+      settle();
+    }
+    // one step: every block with a gap under it drops a row (from the bottom
+    // up, so each moves once a step); then full rows clear; then the next piece
+    function settle() {
+      if (dead) return;
+      var moved = false;
+      for (var r = H - 2; r >= 0; r--) for (var c = 0; c < W; c++) {
+        if (board[r][c] >= 0 && board[r + 1][c] < 0) { board[r + 1][c] = board[r][c]; board[r][c] = -1; moved = true; }
+      }
+      if (moved) { draw(); settling = setTimeout(settle, 45); return; }
       var cleared = 0;
-      for (var r = H - 1; r >= 0; r--) {
+      for (r = H - 1; r >= 0; r--) {
         if (board[r].every(function (v) { return v >= 0; })) {
           board.splice(r, 1);
           board.unshift(new Array(W).fill(-1));
@@ -420,25 +436,32 @@
         speed = Math.max(110, 560 - Math.floor(lines / 4) * 45);
         clearInterval(timer);
         timer = setInterval(fall, speed);
-      } else tone(196, 40, 'triangle', 0.03);
+        status();
+        draw();
+        settling = setTimeout(settle, 120);
+        return;
+      }
+      settling = 0;
       spawn();
       status();
+      draw();
     }
-    function fall() { if (dead) return; if (fits(p.m, p.r + 1, p.c)) p.r++; else lock(); draw(); }
-    function move(dc) { if (fits(p.m, p.r, p.c + dc)) { p.c += dc; draw(); } }
+    function fall() { if (dead || !p) return; if (fits(p.m, p.r + 1, p.c)) p.r++; else lock(); draw(); }
+    function move(dc) { if (p && fits(p.m, p.r, p.c + dc)) { p.c += dc; draw(); } }
     function turn() {
+      if (!p) return;
       var m = rot(p.m);
       [0, -1, 1, -2, 2].some(function (k) { if (fits(m, p.r, p.c + k)) { p.m = m; p.c += k; return true; } return false; });
       draw();
     }
-    function slam() { while (fits(p.m, p.r + 1, p.c)) p.r++; lock(); draw(); }
+    function slam() { if (!p) return; while (fits(p.m, p.r + 1, p.c)) p.r++; lock(); draw(); }
     function draw() {
       if (dead) return;
       var ink = cssVar('--name');
       paint(l, function (r, c) {
         var x = c - c0;
         if (x < 0 || x >= W || r >= H) return { o: 0.25 };
-        var i = r - p.r, j = x - p.c;
+        var i = p ? r - p.r : -1, j = p ? x - p.c : -1;
         if (i >= 0 && j >= 0 && i < p.m.length && j < p.m[0].length && p.m[i][j]) return ink;
         return board[r][x] >= 0 ? postit(board[r][x]) : '';
       });
@@ -459,7 +482,7 @@
         spawn(); draw(); status();
         timer = setInterval(fall, speed);
       },
-      stop: function () { clearInterval(timer); dead = true; },
+      stop: function () { clearInterval(timer); clearTimeout(settling); dead = true; },
       key: function (e) {
         if (dead) return false;
         var k = e.key.toLowerCase();
@@ -1202,86 +1225,6 @@
     };
   }
 
-  /* Light cycles: you and the computer leave trails; don't crash. First to 3 */
-  function cyclesGame() {
-    var l, H, trail, me, cpu, md, cd, next, wins, losses, timer, dead, pause;
-    function free(r, c) { return r >= 0 && c >= 0 && r < H && c < l.c && !trail[r + ',' + c]; }
-    function room(r, c) {
-      // how much space opens up from here (capped: it only has to compare)
-      var seen = {}, q = [[r, c]], n = 0;
-      while (q.length && n < 80) {
-        var p = q.shift(), key = p[0] + ',' + p[1];
-        if (seen[key] || !free(p[0], p[1])) continue;
-        seen[key] = 1; n++;
-        q.push([p[0] + 1, p[1]], [p[0] - 1, p[1]], [p[0], p[1] + 1], [p[0], p[1] - 1]);
-      }
-      return n;
-    }
-    function round() {
-      trail = {};
-      var r = Math.floor(H / 2);
-      me = [r, 1]; cpu = [r, l.c - 2]; md = next = [0, 1]; cd = [0, -1];
-      trail[me[0] + ',' + me[1]] = 1; trail[cpu[0] + ',' + cpu[1]] = 2;
-      pause = 6;
-    }
-    function steer() {
-      var opts = [cd, [cd[1], cd[0]], [-cd[1], -cd[0]]];
-      var ahead = free(cpu[0] + cd[0], cpu[1] + cd[1]);
-      if (ahead && Math.random() > 0.08) return;
-      var best = cd, most = -1;
-      opts.forEach(function (d) { var n = room(cpu[0] + d[0], cpu[1] + d[1]); if (n > most) { most = n; best = d; } });
-      cd = best;
-    }
-    function end(meCrash, cpuCrash) {
-      if (meCrash && !cpuCrash) losses++;
-      if (cpuCrash && !meCrash) wins++;
-      tone(meCrash ? 150 : 784, 260, meCrash ? 'sawtooth' : 'triangle', 0.04);
-      if (wins === 3 || losses === 3) {
-        dead = true; clearInterval(timer);
-        over('light cycles', (wins === 3 ? 'you win ' : 'you lose ') + wins + '–' + losses, 'hm-cycles', wins === 3 ? wins - losses : 0, cyclesGame);
-        return;
-      }
-      round(); status();
-    }
-    function step() {
-      if (pause > 0) { pause--; draw(); return; }
-      if (next[0] !== -md[0] || next[1] !== -md[1]) md = next;
-      steer();
-      var nm = [me[0] + md[0], me[1] + md[1]], nc = [cpu[0] + cd[0], cpu[1] + cd[1]];
-      var mc = !free(nm[0], nm[1]), cc = !free(nc[0], nc[1]);
-      if (nm[0] === nc[0] && nm[1] === nc[1]) mc = cc = true;
-      if (mc || cc) { end(mc, cc); if (!dead) draw(); return; }
-      me = nm; cpu = nc;
-      trail[me[0] + ',' + me[1]] = 1; trail[cpu[0] + ',' + cpu[1]] = 2;
-      draw();
-    }
-    function draw() {
-      if (dead) return;
-      var ink = cssVar('--name');
-      paint(l, function (r, c) {
-        if (r >= H) return { o: 0.25 };
-        var t = trail[r + ',' + c];
-        if (t === 1) return r === me[0] && c === me[1] ? ink : { c: ink, o: 0.55 };
-        if (t === 2) return r === cpu[0] && c === cpu[1] ? postit(6) : { c: postit(6), o: 0.6 };
-        return '';
-      });
-    }
-    function status() { say(['light cycles', { b: 'you ' + wins + ' · ' + losses + ' computer' }, hint('arrows · esc', 'swipe to turn')]); }
-    var sw = swiper(function (d) { if (d) next = d; });
-    return {
-      label: 'light cycles',
-      how: "You're black, the computer is pink. Make it crash into a trail first. First to 3.",
-      start: function () {
-        l = L(); H = field(l); wins = losses = 0; dead = false;
-        round(); draw(); status();
-        timer = setInterval(step, 100);
-      },
-      stop: function () { clearInterval(timer); dead = true; },
-      key: function (e) { var d = dirOf(e); if (!d) return false; next = d; },
-      input: function (e) { if (e.type.indexOf('touch') === 0) sw(e); }
-    };
-  }
-
   /* Pairs: flip two dots at a time to match the post-it colours */
   function pairsGame() {
     var l, H, R, C, step, r0, c0, cards, up, done, moves, cur, lock, dead, timers;
@@ -1362,7 +1305,7 @@
 
   /* ---------- The ▶ menu ---------- */
   var GAMES = [snakeGame, sequencerGame, blocksGame, bricksGame, tennisGame, eatGame, invadersGame,
-               crossingGame, jumperGame, memoryGame, lightsGame, minesGame, cyclesGame, pairsGame];
+               crossingGame, jumperGame, memoryGame, lightsGame, minesGame, pairsGame];
   if (chip) {
     var menu = null;
     var close = function () { if (menu) { menu.remove(); menu = null; chip.setAttribute('aria-expanded', 'false'); } };

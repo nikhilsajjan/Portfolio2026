@@ -246,6 +246,14 @@
   grid.addEventListener('pointerdown', still);
   addEventListener('scroll', still, { passive: true });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box) { close(); } });
+  // scrolling away (more than a nudge) puts the picker and the label away
+  var openY = 0;
+  new MutationObserver(function () { if (box || !tip.hidden) openY = scrollY; }).observe(grid, { childList: true });
+  addEventListener('scroll', function () {
+    if (Math.abs(scrollY - openY) < 24) return;
+    if (box) close();
+    if (!tip.hidden) hideTip();
+  }, { passive: true });
   // a game takes the grid: no picker, no labels, and the post-its step aside
   new MutationObserver(function () { if (playing()) { close(); hideTip(); } }).observe(grid, { attributes: true, attributeFilter: ['class'] });
 })();

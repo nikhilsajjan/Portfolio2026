@@ -637,3 +637,55 @@ html[data-home] .hm-ribbon.hm-ribbon-wait { translate: calc(105vw + 80px) 0; }
   html[data-home] .hm-ribbon { transition: translate 1.4s cubic-bezier(0.2, 0.7, 0.3, 1); }
   html[data-home] .hm-ribbon.hm-ribbon-wait { transition: none; }
 }
+
+/* ---------- 2026-10-30: even grid margins, no ribbon under the pinned head,
+   +a / -a on the home page, no scrollbar ---------- */
+/* the grid sits the same distance from the top as from the sides (it was
+   24px from the top and 48px from the sides on a computer), and any room
+   left over in a row is shared out between the dots, so the grid always
+   runs exactly from one side margin to the other (phones already did) */
+@media (min-width: 1024px) {
+  .hm-head { padding-top: var(--hm-pad); }
+  html[data-home] .home .dots { justify-content: space-between; }
+}
+
+/* the About screen stops a little lower (fx/home.js measures
+   how far the tilted ribbon reaches into it, --hm-bio-pull), so none of the
+   ribbon shows under the pinned head. Its padding and height grow by the
+   same amount, so the words sit where they did on the screen. Computers
+   only: on phones the ribbon already stays hidden there */
+@media (min-width: 1024px) {
+  html[data-home] .bio {
+    scroll-margin-top: calc(-1 * var(--hm-bio-pull, 0px));
+    padding-top: calc(64px + var(--hm-bio-pull, 0px));
+    min-height: calc(100vh - var(--hm-head) + var(--hm-bio-pull, 0px));
+  }
+}
+
+/* +a / -a: the home page's own sizes follow the text size (--fs), as the
+   inner pages' reading text does. The name keeps filling the width */
+@media (min-width: 1024px) {
+  .hm-ribbon { font-size: calc(clamp(24px, 2.5vw, 48px) * var(--fs, 1)); }
+  html[data-home] .bio { font-size: calc(clamp(22px, 1.9vw, 36px) * var(--fs, 1)); }
+  html[data-home] .row-title { font-size: calc(clamp(38px, 5.6vw, 106px) * var(--fs, 1)); }
+  html[data-home] .row-title .company { font-size: calc(16px * var(--fs, 1)); line-height: 1.25; }
+  html[data-home] .list .row:hover .company { font-size: calc(18px * var(--fs, 1)); }
+  html[data-home] .tags { font-size: calc(18px * var(--fs, 1)); }
+  html[data-home] .row-desc { font-size: calc(18px * var(--fs, 1)); line-height: 1.33; }
+}
+@media (max-width: 1023px) {
+  .hm-ribbon { font-size: calc(20px * var(--fs, 1)); }
+  html[data-home] .bio { font-size: calc(18px * var(--fs, 1)); }
+  html[data-home] .bio p:last-child { font-size: calc(14px * var(--fs, 1)); }
+  html[data-home] .row-title { font-size: calc(34px * var(--fs, 1)); }
+  html[data-home] .row-title .company { font-size: calc(12px * var(--fs, 1)); line-height: 1.33; }
+  html[data-home] .tags { font-size: calc(12px * var(--fs, 1)); line-height: 1.33; }
+  html[data-home] .row-desc { font-size: calc(14px * var(--fs, 1)); line-height: 1.43; }
+}
+
+/* no scrollbar on the home page (the user's choice): a permanent one (a Mac
+   with a mouse, or "show scroll bars: always") took 15px off the page, and
+   the grid lost ~7px a side, so the sides no longer matched the top. The
+   page still scrolls with the wheel, trackpad, keys and touch */
+html[data-home] { scrollbar-width: none; }
+html[data-home]::-webkit-scrollbar { display: none; }

@@ -31,7 +31,7 @@
   // head's top padding, pinned name and role px for each size
   function sizes() {
     return wide.matches
-      ? { pad: 24, small: 44, roleSmall: 16, rolePinned: 16 }
+      ? { pad: 48, small: 44, roleSmall: 16, rolePinned: 16 }
       : { pad: 16, small: 20, roleSmall: 12, rolePinned: 11 };
   }
 
@@ -182,11 +182,13 @@
   // phones: the screen height is read once per width, since the toolbars
   // change innerHeight while scrolling and the grid shouldn't jump with them
   function layout(force) {
-    var w = head.clientWidth, key = (wide.matches ? 'd' + innerHeight + 'x' : 'p') + w;
+    // the text size (+a / -a) changes the role and ribbon, so it re-fits too
+    var fs = parseFloat(getComputedStyle(root).getPropertyValue('--fs')) || 1;
+    var w = head.clientWidth, key = (wide.matches ? 'd' + innerHeight + 'x' : 'p') + w + 'f' + fs;
     if (!force && key === lastKey) return;
     lastKey = key;
     var s = sizes();
-    roleBig = wide.matches ? clamp(innerWidth * 0.01875, 18, 36) : 16; // Figma: 36px at 1920
+    roleBig = (wide.matches ? clamp(innerWidth * 0.01875, 18, 36) : 16) * fs; // Figma: 36px at 1920
     fitName();
     apply(0, true);
     var cols = Math.max(6, Math.floor((w + GAP) / (DOT + GAP)));
@@ -223,7 +225,18 @@
     root.style.setProperty('--hm-pin-gap', Math.max(0, beforeH - pinnedH) + 'px');
     root.style.setProperty('--hm-head', (pinnedH - lift) + 'px');
     update();
+    pullBio();
   }
+  // how far the tilted ribbon's lowest corner reaches past the About
+  // screen's top, plus a little air: the About screen stops that much lower
+  // (fx/home.css). The slide-in only moves it sideways
+  function pullBio() {
+    root.style.setProperty('--hm-bio-pull', '0px');
+    if (!wide.matches) return;
+    var over = ribbon.getBoundingClientRect().bottom - bio.getBoundingClientRect().top;
+    root.style.setProperty('--hm-bio-pull', Math.max(0, Math.ceil(over + 12)) + 'px');
+  }
+
   // after app.js has built its own grid
   window.homeGrid = function () { lastSize = ''; layout(true); };
 
