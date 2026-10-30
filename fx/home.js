@@ -245,6 +245,9 @@
     raf = 0;
     if (!lift) return;
     apply(clamp(scrollY / lift, 0, 1));
+    // the ribbon's highest corner has gone under the head: the rest would
+    // only ever show as a sliver under it
+    ribbon.classList.toggle('hm-ribbon-under', ribbon.getBoundingClientRect().top < head.getBoundingClientRect().bottom - 2);
   }
   addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(update); }, { passive: true });
 

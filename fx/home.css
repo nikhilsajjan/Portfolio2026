@@ -689,3 +689,10 @@ html[data-home] .hm-ribbon.hm-ribbon-wait { translate: calc(105vw + 80px) 0; }
    page still scrolls with the wheel, trackpad, keys and touch */
 html[data-home] { scrollbar-width: none; }
 html[data-home]::-webkit-scrollbar { display: none; }
+
+/* 2026-10-30 (b): once the ribbon starts to slip under the pinned head it
+   fades out (fx/home.js), so no sliver of it shows below the head on any
+   screen (Safari phones showed 12-14px); it fades back in on the way up */
+html[data-home] .hm-ribbon { transition: translate 1.4s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 200ms ease, background-color 250ms ease, color 250ms ease; }
+html[data-home] .hm-ribbon.hm-ribbon-wait { transition: none; }
+html[data-home] .hm-ribbon.hm-ribbon-under { opacity: 0; }
