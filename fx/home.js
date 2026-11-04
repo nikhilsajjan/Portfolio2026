@@ -3,11 +3,19 @@
      by everything above the grid's last row, so that row pins with the name.
    - While the head rises the name shrinks from the full width; it is fully
      small exactly when the head pins.
-   - From 1024px the rows follow the columns in the Figma grid's proportions
-     (51 x 19), and give up rows until the ribbon is in the first screen,
-     above the footer (the screen height counts too, so resizing re-fits);
-     below it they fill the first screen above the name, and once
-     pinned the name goes onto one line with the role beside it.
+   - Grid: 24px dots; the gap stretches from 10 to 14px (the same across and
+     down) so the grid lands exactly on both side margins. From 1024px the
+     rows follow the columns in the Figma grid's proportions (51 x 19), and
+     give up rows until the ribbon is in the first screen (the screen height
+     counts too, so resizing re-fits); below it they fill the first screen
+     above the name, and once pinned the name goes onto one line with the
+     role beside it. The footer is at the end of the page, so no room is
+     kept for it.
+   - Zoom: on a computer the browser's zoom is undone for the grid and the
+     page margins (divided by it), so zooming changes the text but not the
+     grid; the texts sized to the window's width (the role here; the
+     ribbon, About and work titles in fx/home.css, --hm-z) are times it, so
+     they grow with the zoom like all other text.
    - Ribbon: the bio's first line, tilted and running round (CSS); a tap
      pauses it.
    app.js builds a fixed 14 x 11 grid on phones, so index.html calls
@@ -23,11 +31,27 @@
   var name = hero.querySelector('.name');
   var role = hero.querySelector('.role');
   var links = hero.querySelector('.links');
-  var footer = home.querySelector('.footer');
   var wide = matchMedia('(min-width: 1024px)');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   // Figma 580:26314: 24px dots on a 36px pitch, 51 columns by 19 rows
   var DOT = 24, GAP = 12, ROWS_PER_COL = 19 / 51;
+  var GAP_MIN = 10, PAD = 48;
+
+  // the browser's zoom on a computer: the window's width in screen pixels
+  // over its width in page pixels, taken only when it's one of the browser's
+  // own zoom steps and the screen's pixel ratio agrees (a sidebar or docked
+  // tools also change the first, but not the second); otherwise 1
+  var STEPS = [0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
+  var BASES = [1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+  function zoom() {
+    if (!wide.matches || !outerWidth || !innerWidth) return 1;
+    var z = outerWidth / innerWidth, step = 1;
+    STEPS.forEach(function (st) { if (Math.abs(z / st - 1) < Math.abs(z / step - 1)) step = st; });
+    if (Math.abs(z / step - 1) > 0.03) return 1;
+    var base = devicePixelRatio / step;
+    var agrees = BASES.some(function (b) { return Math.abs(base / b - 1) < 0.04; });
+    return agrees ? step : 1;
+  }
   // head's top padding, pinned name and role px for each size
   function sizes() {
     return wide.matches
@@ -188,10 +212,27 @@
     if (!force && key === lastKey) return;
     lastKey = key;
     var s = sizes();
-    roleBig = (wide.matches ? clamp(innerWidth * 0.01875, 18, 36) : 16) * fs; // Figma: 36px at 1920
+    // 24px dots and 48px margins as the screen sees them, whatever the zoom
+    // (before the name is fitted: it fills the width between the margins)
+    var z = zoom();
+    if (wide.matches) {
+      s.pad = PAD / z;
+      root.style.setProperty('--hm-pad', s.pad + 'px');
+      w = head.clientWidth;
+    } else root.style.removeProperty('--hm-pad');
+    root.style.setProperty('--hm-z', z);
+    // the role is sized to the window's width; times the zoom, it grows when
+    // the page is zoomed like every other text (the width alone shrinks it back)
+    roleBig = (wide.matches ? clamp(innerWidth * 0.01875, 18, 36) * z : 16) * fs; // Figma: 36px at 1920
     fitName();
     apply(0, true);
-    var cols = Math.max(6, Math.floor((w + GAP) / (DOT + GAP)));
+    DOT = 24 / z;
+    // as many columns as fit with the smallest gap; the gap then grows to
+    // take up what's left, so the last dot meets the right margin
+    var cols = Math.max(6, Math.floor((w + GAP_MIN / z) / (DOT + GAP_MIN / z)));
+    GAP = (w - cols * DOT) / (cols - 1);
+    root.style.setProperty('--hm-dot', DOT + 'px');
+    root.style.setProperty('--hm-gap', GAP + 'px');
     var rows;
     if (wide.matches) rows = Math.max(3, Math.round(cols * ROWS_PER_COL));
     else {
@@ -200,14 +241,14 @@
       var hs = getComputedStyle(hero), rs = getComputedStyle(ribbon);
       var heroH = hero.offsetHeight - name.offsetHeight + parseFloat(getComputedStyle(name).lineHeight);
       var below = parseFloat(hs.marginTop) + heroH + parseFloat(rs.marginTop) + ribbon.offsetHeight
-        + 24 /* the tilt */ + (footer ? footer.offsetHeight : 0) + 12;
+        + 24 /* the tilt */ + 12;
       rows = Math.max(4, Math.floor((Math.min(innerHeight, 1000) - s.pad - below + GAP) / (DOT + GAP)));
     }
     if (wide.matches) {
       // everything but the grid, down to the tilted ribbon's lowest corner,
       // measured before building so the grid is only rebuilt when it changes
       var rest = ribbon.getBoundingClientRect().bottom + scrollY - dots.offsetHeight;
-      var room = innerHeight - (footer ? footer.offsetHeight : 0) - 12 - rest;
+      var room = innerHeight - 12 - rest;
       rows = Math.min(rows, Math.max(4, Math.floor((room + GAP) / (DOT + GAP))));
     }
     if (cols + 'x' + rows !== lastSize) { lastSize = cols + 'x' + rows; build(cols, rows); }

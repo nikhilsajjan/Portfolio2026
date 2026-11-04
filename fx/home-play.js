@@ -1417,10 +1417,12 @@
     }, { passive: true });
   }
 
-  /* ---------- Loader: the grid arrives cell by cell, in about a second and a
-     half (SLOW: 30% slower than before; each cell's fade is in fx/home.css) ---------- */
+  /* ---------- Loader: the grid arrives cell by cell, in about two and a half
+     seconds at most (SLOW 2.9, was 1.3: slow enough for the split-flap
+     sound, fx/home-sound.js, to be heard; app.js types the name anyway at
+     3s; each cell's fade is in fx/home.css) ---------- */
   if (root.classList.contains('hm-loading')) {
-    var l = L(), max = 0, SLOW = 1.3;
+    var l = L(), max = 0, SLOW = 2.9;
     var perRow = SLOW * Math.min(50, 600 / Math.max(1, l.r)), perCol = SLOW * Math.min(6, 300 / Math.max(1, l.c));
     l.all.forEach(function (n, i) {
       var d = Math.round(Math.floor(i / l.c) * perRow + (i % l.c) * perCol);

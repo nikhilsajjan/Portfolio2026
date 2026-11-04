@@ -696,3 +696,64 @@ html[data-home]::-webkit-scrollbar { display: none; }
 html[data-home] .hm-ribbon { transition: translate 1.4s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 200ms ease, background-color 250ms ease, color 250ms ease; }
 html[data-home] .hm-ribbon.hm-ribbon-wait { transition: none; }
 html[data-home] .hm-ribbon.hm-ribbon-under { opacity: 0; }
+
+/* ---------- 2026-11-05: footer at the end, flexible grid, zoom, +a ---------- */
+
+/* the footer is no longer pinned to the bottom of the screen: it sits at
+   the end of the page, after the last row, and scrolls with it */
+html[data-home] .home .footer {
+  position: static;
+  left: auto;
+  width: auto;
+  max-width: none;
+  transform: none;
+  z-index: auto;
+  margin-top: 48px;
+  padding: 0 0 24px;
+  /* the page snaps to its screens; this lets it come to rest on the footer
+     at the end instead of snapping back to the work list above it */
+  scroll-snap-align: end;
+}
+@media (max-width: 1023px) {
+  html[data-home] .home .footer { margin-top: 32px; padding-bottom: 16px; }
+}
+/* the key guide sat just above the pinned footer; now it can go to the corner */
+html[data-home] body:has(.home) .key-guide { bottom: 24px; }
+
+/* the grid: fx/home.js sizes the dots (24px, less on a zoomed computer) and
+   the gap between them (10 to 14px, so the grid lands on both margins) as
+   --hm-dot and --hm-gap. The grid keeps its own gaps from the left margin,
+   and phones follow the same sizes (they had 24px written in); the +a, -a,
+   ▶ and pet cells scale with the dots */
+html[data-home] .home .dots { justify-content: start; column-gap: var(--hm-gap, 12px); }
+@media (max-width: 1023px) {
+  html[data-home] .home .dots {
+    grid-template-columns: repeat(var(--dot-cols, 10), var(--hm-dot, 24px));
+    row-gap: var(--hm-gap, 12px);
+  }
+  html[data-home] .home .dot, html[data-home] .home .dots > button { width: var(--hm-dot, 24px); height: var(--hm-dot, 24px); }
+}
+html[data-home] .home .text-step { font-size: calc(var(--hm-dot, 24px) * 0.92); line-height: var(--hm-dot, 24px); }
+html[data-home] .home .hm-play svg { width: calc(var(--hm-dot, 24px) * 0.75); height: calc(var(--hm-dot, 24px) * 0.75); }
+
+/* +a / -a also grow the links (LINKEDIN, EMAIL, CV), the tabs and the
+   footer, by half as much as the reading text (--hm-half: 1 to 1.19), so
+   they stay compact. The texts sized to the window's width (ribbon, About,
+   work titles) are times the browser's zoom (--hm-z, from fx/home.js), so
+   zooming grows them like every other text; the grid ignores it */
+html[data-home] { --hm-half: calc(1 + (var(--fs, 1) - 1) / 2); }
+html[data-home] .hm-line .links { font-size: calc(14px * var(--hm-half)); line-height: calc(18px * var(--hm-half)); }
+@media (min-width: 1024px) {
+  html[data-home] .section-head { font-size: calc(20px * var(--hm-half)); line-height: calc(22px * var(--hm-half)); }
+  html[data-home] .footer .copy, html[data-home] .footer .updated { font-size: calc(12px * var(--hm-half)); }
+  html[data-home] .footer .sig { font-size: calc(14px * var(--hm-half)); }
+
+  .hm-ribbon { font-size: calc(clamp(24px, 2.5vw, 48px) * var(--fs, 1) * var(--hm-z, 1)); }
+  html[data-home] .bio { font-size: calc(clamp(22px, 1.9vw, 36px) * var(--fs, 1) * var(--hm-z, 1)); }
+  html[data-home] .row-title { font-size: calc(clamp(38px, 5.6vw, 106px) * var(--fs, 1) * var(--hm-z, 1)); }
+}
+@media (max-width: 1023px) {
+  html[data-home] .section-head { font-size: calc(16px * var(--hm-half)); line-height: calc(18px * var(--hm-half)); }
+  html[data-home] .footer .copy, html[data-home] .footer .updated, html[data-home] .footer .sig { font-size: calc(8px * var(--hm-half)); }
+  html[data-home] .footer .copy-mark { font-size: calc(10px * var(--hm-half)); }
+}
