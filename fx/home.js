@@ -14,8 +14,18 @@
    - Zoom: on a computer the browser's zoom is undone for the grid and the
      page margins (divided by it), so zooming changes the text but not the
      grid; the texts sized to the window's width (the role here; the
-     ribbon, About and work titles in fx/home.css, --hm-z) are times it, so
-     they grow with the zoom like all other text.
+     ribbon, About and work titles in fx/home.css, --hm-z / --hm-ez) are
+     times it, so they grow with the zoom like all other text.
+   - A fresh visit (a refresh, or arriving from outside the site: the <head>
+     marks it with data-fresh) opens at 100% whatever the browser's zoom:
+     the zoom found then is the page's base, undone with CSS zoom on <html>;
+     zooming after that still counts, from there. Arriving by a link from
+     another page keeps the browser's zoom. With <html> zoomed, the page's
+     own lengths differ from the screen's (scroll, pointer) by that zoom
+     (pageZoom), and getBoundingClientRect may report either (rectScale,
+     measured), so those are converted wherever they meet; fx/home.css does
+     the same for vw and vh. ?zoomdebug shows what the page found.
+   - The work screen keeps room at its foot for the footer (--hm-foot).
    - Ribbon: the bio's first line, tilted and running round (CSS); a tap
      pauses it.
    app.js builds a fixed 14 x 11 grid on phones, so index.html calls
@@ -31,6 +41,7 @@
   var name = hero.querySelector('.name');
   var role = hero.querySelector('.role');
   var links = hero.querySelector('.links');
+  var footer = home.querySelector('.footer');
   var wide = matchMedia('(min-width: 1024px)');
   var reduce = matchMedia('(prefers-reduced-motion: reduce)');
   // Figma 580:26314: 24px dots on a 36px pitch, 51 columns by 19 rows
@@ -41,10 +52,28 @@
   // over its width in page pixels, taken only when it's one of the browser's
   // own zoom steps and the screen's pixel ratio agrees (a sidebar or docked
   // tools also change the first, but not the second); otherwise 1
-  var STEPS = [0.5, 0.67, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
+  // Chrome's steps and Safari's (0.85, 1.15)
+  var STEPS = [0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.85, 0.9, 1, 1.1, 1.15, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5];
+  // the zoom the page undoes: the browser's zoom when a fresh visit opens,
+  // 1 otherwise (set at the first layout). ?simz pretends to be a zoom
+  var BASE = null;
+  var q = new URLSearchParams(location.search);
+  var SIMZ = +q.get('simz') || 0;
+  // <html>'s CSS zoom (1 inside the range), and what getBoundingClientRect
+  // reports for one of the page's own px under it (1 or pageZoom, by browser)
+  var pageZoom = 1, rectScale = 1;
+  function measureRects() {
+    var p = el('div');
+    p.style.cssText = 'position:absolute;visibility:hidden;width:100px;height:1px';
+    document.body.appendChild(p);
+    rectScale = p.getBoundingClientRect().width / 100 || 1;
+    p.remove();
+  }
   var BASES = [1, 1.25, 1.5, 1.75, 2, 2.5, 3];
   function zoom() {
-    if (!wide.matches || !outerWidth || !innerWidth) return 1;
+    if (!wide.matches) return 1;
+    if (SIMZ) return SIMZ;
+    if (!outerWidth || !innerWidth) return 1;
     var z = outerWidth / innerWidth, step = 1;
     STEPS.forEach(function (st) { if (Math.abs(z / st - 1) < Math.abs(z / step - 1)) step = st; });
     if (Math.abs(z / step - 1) > 0.03) return 1;
@@ -175,7 +204,7 @@
     var probe = el('span', '', name.getAttribute('aria-label') || 'nikhil sajjan');
     probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap';
     name.appendChild(probe);
-    var w = probe.getBoundingClientRect().width;
+    var w = probe.getBoundingClientRect().width / rectScale;
     probe.remove();
     // the letter-spacing after the last letter takes no visible room
     w -= parseFloat(getComputedStyle(name).letterSpacing) || 0;
@@ -215,8 +244,20 @@
     // 24px dots and 48px margins as the screen sees them, whatever the zoom
     // (before the name is fitted: it fills the width between the margins)
     var z = zoom();
+    // the page is laid out as if the browser were at ez: 100% when a fresh
+    // visit opens, and following the zoom from there
+    if (BASE === null) BASE = root.hasAttribute('data-fresh') ? z : 1;
+    var ez = z / BASE;
+    pageZoom = ez / z;
+    root.style.zoom = pageZoom === 1 ? '' : pageZoom;
+    root.style.setProperty('--hm-pz', pageZoom);
+    // the texts sized to the window grow with the zoom the page is at
+    // (fx/home.css)
+    root.style.setProperty('--hm-ez', ez);
+    measureRects();
+    w = head.clientWidth;
     if (wide.matches) {
-      s.pad = PAD / z;
+      s.pad = PAD / ez;
       root.style.setProperty('--hm-pad', s.pad + 'px');
       w = head.clientWidth;
     } else root.style.removeProperty('--hm-pad');
@@ -226,10 +267,10 @@
     roleBig = (wide.matches ? clamp(innerWidth * 0.01875, 18, 36) * z : 16) * fs; // Figma: 36px at 1920
     fitName();
     apply(0, true);
-    DOT = 24 / z;
+    DOT = 24 / ez;
     // as many columns as fit with the smallest gap; the gap then grows to
     // take up what's left, so the last dot meets the right margin
-    var cols = Math.max(6, Math.floor((w + GAP_MIN / z) / (DOT + GAP_MIN / z)));
+    var cols = Math.max(6, Math.floor((w + GAP_MIN / ez) / (DOT + GAP_MIN / ez)));
     GAP = (w - cols * DOT) / (cols - 1);
     root.style.setProperty('--hm-dot', DOT + 'px');
     root.style.setProperty('--hm-gap', GAP + 'px');
@@ -247,8 +288,8 @@
     if (wide.matches) {
       // everything but the grid, down to the tilted ribbon's lowest corner,
       // measured before building so the grid is only rebuilt when it changes
-      var rest = ribbon.getBoundingClientRect().bottom + scrollY - dots.offsetHeight;
-      var room = innerHeight - 12 - rest;
+      var rest = (ribbon.getBoundingClientRect().bottom - root.getBoundingClientRect().top) / rectScale - dots.offsetHeight;
+      var room = innerHeight / pageZoom - 12 - rest;
       rows = Math.min(rows, Math.max(4, Math.floor((room + GAP) / (DOT + GAP))));
     }
     if (cols + 'x' + rows !== lastSize) { lastSize = cols + 'x' + rows; build(cols, rows); }
@@ -265,8 +306,19 @@
     var pinnedH = head.offsetHeight;
     root.style.setProperty('--hm-pin-gap', Math.max(0, beforeH - pinnedH) + 'px');
     root.style.setProperty('--hm-head', (pinnedH - lift) + 'px');
+    // the footer's room, kept free at the bottom of the work screen
+    // (fx/home.css)
+    var foot = home.querySelector('.footer');
+    if (foot) root.style.setProperty('--hm-foot', foot.offsetHeight + parseFloat(getComputedStyle(foot).marginTop) + 'px');
     update();
     pullBio();
+    if (q.has('zoomdebug')) {
+      var dbg = document.getElementById('hm-zoomdebug') || document.body.appendChild(el('pre'));
+      dbg.id = 'hm-zoomdebug';
+      dbg.style.cssText = 'position:fixed;z-index:99;left:8px;bottom:8px;margin:0;padding:6px 8px;font:12px/1.4 monospace;background:#222;color:#fff';
+      dbg.textContent = 'fresh ' + root.hasAttribute('data-fresh') + '  browser zoom ' + z + '  base ' + BASE + '  shown as ' + Math.round(ez * 100) + '%\n'
+        + 'outerWidth ' + outerWidth + '  innerWidth ' + innerWidth + '  pixel ratio ' + devicePixelRatio + '  textStep ' + localStorage.getItem('textStep');
+    }
   }
   // how far the tilted ribbon's lowest corner reaches past the About
   // screen's top, plus a little air: the About screen stops that much lower
@@ -274,7 +326,7 @@
   function pullBio() {
     root.style.setProperty('--hm-bio-pull', '0px');
     if (!wide.matches) return;
-    var over = ribbon.getBoundingClientRect().bottom - bio.getBoundingClientRect().top;
+    var over = (ribbon.getBoundingClientRect().bottom - bio.getBoundingClientRect().top) / rectScale;
     root.style.setProperty('--hm-bio-pull', Math.max(0, Math.ceil(over + 12)) + 'px');
   }
 
@@ -285,7 +337,7 @@
   function update() {
     raf = 0;
     if (!lift) return;
-    apply(clamp(scrollY / lift, 0, 1));
+    apply(clamp(scrollY / pageZoom / lift, 0, 1));
     // the ribbon's highest corner has gone under the head: the rest would
     // only ever show as a sliver under it
     ribbon.classList.toggle('hm-ribbon-under', ribbon.getBoundingClientRect().top < head.getBoundingClientRect().bottom - 2);
@@ -335,7 +387,7 @@
     var step = function () {
       x += (tx - x) * (reduce.matches ? 1 : 0.18);
       y += (ty - y) * (reduce.matches ? 1 : 0.18);
-      still.style.transform = clip.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      still.style.transform = clip.style.transform = 'translate(' + x / pageZoom + 'px,' + y / pageZoom + 'px)';
       fraf = (Math.abs(tx - x) > 0.5 || Math.abs(ty - y) > 0.5) ? requestAnimationFrame(step) : 0;
     };
     // key-nav selects rows with a made-up pointerenter: no pointer to follow,
@@ -343,17 +395,18 @@
     // key-nav scrolls the row into view)
     var keyRow = null;
     var beside = function () {
+      var k = pageZoom / rectScale; // a rect's px to the screen's
       var r = keyRow.getBoundingClientRect(), t = keyRow.querySelector('.row-title');
       var tr = t ? t.getBoundingClientRect() : r;
-      tx = x = Math.min(tr.right + 32, innerWidth - fl.offsetWidth - 48);
-      ty = y = Math.max(r.top + r.height / 2 - fl.offsetHeight / 2, 0);
-      still.style.transform = clip.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      tx = x = Math.min(tr.right * k + 32, innerWidth - fl.offsetWidth * pageZoom - 48);
+      ty = y = Math.max((r.top + r.height / 2) * k - fl.offsetHeight * pageZoom / 2, 0);
+      still.style.transform = clip.style.transform = 'translate(' + x / pageZoom + 'px,' + y / pageZoom + 'px)';
     };
     addEventListener('scroll', function () { if (keyRow && on) beside(); }, { passive: true });
     addEventListener('pointermove', function (e) {
       if (e.movementX || e.movementY) keyRow = null;
       tx = e.clientX + 24;
-      ty = e.clientY - fl.offsetHeight / 2;
+      ty = e.clientY - fl.offsetHeight * pageZoom / 2;
       if (!on) { x = tx; y = ty; }
       if (!fraf) fraf = requestAnimationFrame(step);
     });

@@ -12,7 +12,17 @@
       var t = q || saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', t);
       var steps = [0.875, 1, 1.125, 1.25, 1.375], s = null;
-      try { s = parseInt(localStorage.getItem('textStep'), 10); } catch (e) {}
+      // a fresh visit (a refresh, or arriving from outside the site: typed,
+      // bookmarked, linked) starts at the default text size; clicking between
+      // the pages, or back and forward, keeps the size chosen
+      var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      var how = nav ? nav.type : 'navigate';
+      var fresh = how === 'reload' || (how !== 'back_forward' && document.referrer.indexOf(location.origin + '/') !== 0);
+      if (fresh) document.documentElement.setAttribute('data-fresh', '');
+      try {
+        if (fresh) localStorage.removeItem('textStep');
+        s = parseInt(localStorage.getItem('textStep'), 10);
+      } catch (e) {}
       if (steps[s] && s !== 1) document.documentElement.style.setProperty('--fs', steps[s]);
     })();
   </script>

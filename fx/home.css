@@ -757,3 +757,44 @@ html[data-home] .hm-line .links { font-size: calc(14px * var(--hm-half)); line-h
   html[data-home] .footer .copy, html[data-home] .footer .updated, html[data-home] .footer .sig { font-size: calc(8px * var(--hm-half)); }
   html[data-home] .footer .copy-mark { font-size: calc(10px * var(--hm-half)); }
 }
+
+/* ---------- 2026-11-05 (b): a fresh visit opens at 100%, footer room ----------
+   When fx/home.js undoes the browser's zoom, it zooms <html> by --hm-pz, and
+   the browser zooms window-sized lengths (vw, vh) with it too, so the page
+   would grow wider than the window. Here those lengths are divided back by
+   it (--hm-vw, --hm-vh: 1vw and 1vh as the window has them), and the texts
+   sized to the window multiply by the zoom the page is shown at (--hm-ez).
+   Computers only. */
+html[data-home] {
+  --hm-vw: calc(1vw / var(--hm-pz, 1));
+  --hm-vh: calc(1vh / var(--hm-pz, 1));
+}
+@media (min-width: 1024px) {
+  html[data-home] .page { min-height: calc(100 * var(--hm-vh)); }
+  html[data-home] .column { width: calc(100 * var(--hm-vw)); }
+  html[data-home] .hm-ribbon {
+    width: calc(100 * var(--hm-vw) + 40px);
+    margin-top: clamp(24px, 4 * var(--hm-vh), 56px);
+    font-size: calc(clamp(24px, 2.5 * var(--hm-vw), 48px) * var(--fs, 1) * var(--hm-ez, 1));
+  }
+  html[data-home] .hm-ribbon.hm-ribbon-wait { translate: calc(105 * var(--hm-vw) + 80px) 0; }
+  html[data-home] .bio {
+    font-size: calc(clamp(22px, 1.9 * var(--hm-vw), 36px) * var(--fs, 1) * var(--hm-ez, 1));
+    min-height: calc(100 * var(--hm-vh) - var(--hm-head) + var(--hm-bio-pull, 0px));
+  }
+  html[data-home] .section.work { min-height: calc(100 * var(--hm-vh) - var(--hm-head) - var(--hm-foot, 0px)); }
+  html[data-home] .row-title { font-size: calc(clamp(38px, 5.6 * var(--hm-vw), 106px) * var(--fs, 1) * var(--hm-ez, 1)); }
+  .hm-follow { width: clamp(320px, 28 * var(--hm-vw), 520px); }
+}
+
+/* the work screen (work, lab, experiments...) leaves room at its foot for
+   the footer (--hm-foot, from fx/home.js), so a short list
+   shows the footer on the same screen instead of one more scroll down */
+@media (max-width: 1023px) {
+  html[data-home] .section.work { min-height: calc(100svh - var(--hm-head) - var(--hm-foot, 0px)); }
+}
+/* the space under the list (120px, 96px on phones) came before the footer
+   had its own room there; less of it lets a list that nearly fills the
+   screen still show the footer */
+@media (min-width: 1024px) { html[data-home] .section.work { padding-bottom: 32px; } }
+@media (max-width: 1023px) { html[data-home] .section.work { padding-bottom: 24px; } }
